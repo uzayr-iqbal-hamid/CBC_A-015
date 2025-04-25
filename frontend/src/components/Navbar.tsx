@@ -10,7 +10,7 @@ import {
   UserIcon,
   DocumentTextIcon,
   ChatBubbleLeftRightIcon,
-  CalendarIcon
+  MapPinIcon
 } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
 
@@ -82,6 +82,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
     { name: 'Achievements', path: '/achievements', icon: TrophyIcon },
     { name: 'STEM Assistant', path: '/stem-assistant', icon: ChatBubbleLeftRightIcon },
     { name: 'Profile', path: '/profile', icon: UserIcon },
+    { name: 'Job Locations', path: '/job-locations', icon: MapPinIcon },
   ];
 
   const handleToggle = () => {
