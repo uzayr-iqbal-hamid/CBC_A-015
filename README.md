@@ -1,4 +1,4 @@
-# CareerConnect
+# Aarambh
 
 A modern web application to help students in rural India access career counseling, real-time scholarship information, and learning opportunities.
 
