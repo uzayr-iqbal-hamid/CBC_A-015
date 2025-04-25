@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const StemAssistant = () => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,17 +13,6 @@ const StemAssistant = () => {
     // Show navbar when component unmounts
     return () => {
       document.body.style.overflow = '';
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
