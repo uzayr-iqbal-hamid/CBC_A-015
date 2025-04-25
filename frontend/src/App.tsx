@@ -13,6 +13,7 @@ import StemAssistant from './pages/StemAssistant';
 import CareerQuiz from './pages/CareerQuiz';
 import GamificationPage from './pages/Gamification';
 import Profile from './pages/Profile';
+import Calendar from './pages/Calendar';
 
 // Helper component to conditionally render navbar based on route
 const AppContent = () => {
@@ -51,6 +52,7 @@ const AppContent = () => {
             <Route path="/career-quiz" element={<CareerQuiz />} />
             <Route path="/achievements" element={<GamificationPage />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/calendar" element={<Calendar />} />
           </Routes>
         </Suspense>
       </div>
