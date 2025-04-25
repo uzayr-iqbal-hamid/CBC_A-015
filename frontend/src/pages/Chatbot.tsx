@@ -8,6 +8,7 @@ declare global {
   interface Window {
     webkitSpeechRecognition: any;
     SpeechRecognition: any;
+    speechSynthesis: SpeechSynthesis;
   }
 }
 
@@ -15,6 +16,19 @@ interface Message {
   text: string;
   isUser: boolean;
   isLoading?: boolean;
+  id?: number; 
+  timestamp?: Date;
+}
+
+// Define interface for speech recognition states
+interface SpeechState {
+  isListening: boolean;
+  isSpeaking: boolean;
+  hasListenPermission: boolean;
+  supportsSpeechRecognition: boolean;
+  supportsSpeechSynthesis: boolean;
+  recognitionError: string | null;
+  synthesizerError: string | null;
 }
 
 // API endpoint - replace with your actual API URL
@@ -321,43 +335,161 @@ const formatMessageText = (text: string): React.ReactNode => {
 };
 
 const Chatbot = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  
+  // Speech states
+  const [speechState, setSpeechState] = useState<SpeechState>({
+    isListening: false,
+    isSpeaking: false,
+    hasListenPermission: true,
+    supportsSpeechRecognition: false,
+    supportsSpeechSynthesis: false,
+    recognitionError: null,
+    synthesizerError: null
+  });
+  
   const [isApiLoading, setIsApiLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const synthesisRef = useRef<SpeechSynthesis | null>(null);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
 
+  // Initialize speech recognition and synthesis
   useEffect(() => {
-    // Initialize Web Speech API
-    if ('webkitSpeechRecognition' in window) {
-      recognitionRef.current = new window.webkitSpeechRecognition();
+    // Check for SpeechRecognition support
+    const hasSpeechRecognition = 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
+    // Check for SpeechSynthesis support
+    const hasSpeechSynthesis = 'speechSynthesis' in window;
+    
+    setSpeechState(prev => ({
+      ...prev,
+      supportsSpeechRecognition: hasSpeechRecognition,
+      supportsSpeechSynthesis: hasSpeechSynthesis
+    }));
+
+    // Initialize speech recognition
+    if (hasSpeechRecognition) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = 'en-US';
+      
+      // Set language based on current i18n language
+      const currentLang = i18n.language;
+      let recognitionLang = 'en-US';
+      
+      // Map i18n language codes to Web Speech API language codes
+      if (currentLang === 'hi') {
+        recognitionLang = 'hi-IN';
+      } else if (currentLang === 'kn') {
+        recognitionLang = 'kn-IN';
+      }
+      
+      recognitionRef.current.lang = recognitionLang;
 
       recognitionRef.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
+        // Auto-send message when speech recognition completes
         handleSendMessage(transcript);
       };
 
       recognitionRef.current.onend = () => {
-        setIsListening(false);
+        setSpeechState(prev => ({ ...prev, isListening: false }));
+      };
+      
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        
+        let errorMessage = '';
+        switch (event.error) {
+          case 'not-allowed':
+            errorMessage = t('chatbot.microphoneNotAllowed', 'Microphone permission denied');
+            setSpeechState(prev => ({ ...prev, hasListenPermission: false }));
+            break;
+          case 'aborted':
+            errorMessage = t('chatbot.recognitionAborted', 'Speech recognition was aborted');
+            break;
+          case 'network':
+            errorMessage = t('chatbot.networkError', 'Network error occurred');
+            break;
+          case 'no-speech':
+            errorMessage = t('chatbot.noSpeech', 'No speech detected');
+            break;
+          default:
+            errorMessage = t('chatbot.recognitionError', 'Speech recognition error');
+        }
+        
+        setSpeechState(prev => ({ 
+          ...prev, 
+          isListening: false,
+          recognitionError: errorMessage 
+        }));
+        
+        // Clear error after 3 seconds
+        setTimeout(() => {
+          setSpeechState(prev => ({ ...prev, recognitionError: null }));
+        }, 3000);
       };
     }
 
-    synthesisRef.current = window.speechSynthesis;
+    // Initialize speech synthesis
+    if (hasSpeechSynthesis) {
+      synthesisRef.current = window.speechSynthesis;
+      
+      // Get available voices
+      const loadVoices = () => {
+        const voices = synthesisRef.current?.getVoices() || [];
+        setAvailableVoices(voices);
+        
+        // Try to select a voice matching the current language
+        const currentLang = i18n.language;
+        let langCode = currentLang === 'hi' ? 'hi' : (currentLang === 'kn' ? 'kn' : 'en');
+        
+        // Find a matching voice or default to the first one
+        const matchingVoice = voices.find(voice => voice.lang.startsWith(langCode)) || 
+                             (voices.length > 0 ? voices[0] : null);
+        
+        setSelectedVoice(matchingVoice);
+      };
+      
+      // Chrome loads voices asynchronously
+      if (synthesisRef.current.onvoiceschanged !== undefined) {
+        synthesisRef.current.onvoiceschanged = loadVoices;
+      }
+      
+      // Initial load of voices
+      loadVoices();
+    }
 
+    // Cleanup on unmount
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
+      if (synthesisRef.current && utteranceRef.current) {
+        synthesisRef.current.cancel();
+      }
     };
-  }, []);
+  }, [i18n.language, t]);
+
+  // Effect for updating voice when language changes
+  useEffect(() => {
+    if (synthesisRef.current && availableVoices.length > 0) {
+      const currentLang = i18n.language;
+      let langCode = currentLang === 'hi' ? 'hi' : (currentLang === 'kn' ? 'kn' : 'en');
+      
+      // Find a matching voice or default to the first one
+      const matchingVoice = availableVoices.find(voice => voice.lang.startsWith(langCode)) || 
+                           (availableVoices.length > 0 ? availableVoices[0] : null);
+      
+      setSelectedVoice(matchingVoice);
+    }
+  }, [i18n.language, availableVoices]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -373,26 +505,143 @@ const Chatbot = () => {
     };
   }, []);
 
+  // Enhanced startListening function with error handling
   const startListening = () => {
+    if (!speechState.supportsSpeechRecognition) {
+      setSpeechState(prev => ({ 
+        ...prev, 
+        recognitionError: t('chatbot.speechRecognitionNotSupported', 'Speech recognition is not supported in your browser') 
+      }));
+      return;
+    }
+    
+    if (!speechState.hasListenPermission) {
+      setSpeechState(prev => ({ 
+        ...prev, 
+        recognitionError: t('chatbot.microphonePermissionRequired', 'Microphone permission is required') 
+      }));
+      return;
+    }
+    
     if (recognitionRef.current) {
-      recognitionRef.current.start();
-      setIsListening(true);
+      try {
+        // Update recognition language to match current i18n language
+        const currentLang = i18n.language;
+        let recognitionLang = 'en-US';
+        
+        if (currentLang === 'hi') {
+          recognitionLang = 'hi-IN';
+        } else if (currentLang === 'kn') {
+          recognitionLang = 'kn-IN';
+        }
+        
+        recognitionRef.current.lang = recognitionLang;
+        
+        recognitionRef.current.start();
+        setSpeechState(prev => ({ ...prev, isListening: true, recognitionError: null }));
+      } catch (error) {
+        console.error('Failed to start speech recognition:', error);
+        setSpeechState(prev => ({ 
+          ...prev, 
+          isListening: false,
+          recognitionError: t('chatbot.startListeningFailed', 'Failed to start speech recognition') 
+        }));
+      }
     }
   };
 
+  // Enhanced stopListening function
   const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsListening(false);
+    if (recognitionRef.current && speechState.isListening) {
+      try {
+        recognitionRef.current.stop();
+        setSpeechState(prev => ({ ...prev, isListening: false }));
+      } catch (error) {
+        console.error('Failed to stop speech recognition:', error);
+      }
     }
   };
 
+  // Enhanced speak function with voice selection
   const speak = (text: string) => {
+    if (!speechState.supportsSpeechSynthesis) {
+      setSpeechState(prev => ({ 
+        ...prev, 
+        synthesizerError: t('chatbot.speechSynthesisNotSupported', 'Speech synthesis is not supported in your browser') 
+      }));
+      return;
+    }
+    
     if (synthesisRef.current) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      synthesisRef.current.speak(utterance);
+      // Cancel any ongoing speech
+      if (speechState.isSpeaking) {
+        synthesisRef.current.cancel();
+      }
+      
+      try {
+        // Clean text for speaking (remove markdown, urls, etc.)
+        const cleanText = text
+          .replace(/\*\*/g, '') // Remove bold markdown
+          .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Replace markdown links with just the text
+          .replace(/https?:\/\/\S+/g, '') // Remove URLs
+          .replace(/\n\n/g, '. ') // Replace double newlines with period and space
+          .replace(/\n/g, ' '); // Replace single newlines with space
+        
+        utteranceRef.current = new SpeechSynthesisUtterance(cleanText);
+        
+        // Set voice if available
+        if (selectedVoice) {
+          utteranceRef.current.voice = selectedVoice;
+        }
+        
+        // Set language based on current i18n language
+        const currentLang = i18n.language;
+        if (currentLang === 'hi') {
+          utteranceRef.current.lang = 'hi-IN';
+        } else if (currentLang === 'kn') {
+          utteranceRef.current.lang = 'kn-IN';
+        } else {
+          utteranceRef.current.lang = 'en-US';
+        }
+        
+        // Set speed and pitch
+        utteranceRef.current.rate = 1.0; // Normal speed
+        utteranceRef.current.pitch = 1.0; // Normal pitch
+        
+        // Event handlers
+        utteranceRef.current.onstart = () => {
+          setSpeechState(prev => ({ ...prev, isSpeaking: true }));
+        };
+        
+        utteranceRef.current.onend = () => {
+          setSpeechState(prev => ({ ...prev, isSpeaking: false }));
+        };
+        
+        utteranceRef.current.onerror = (event) => {
+          console.error('Speech synthesis error:', event);
+          setSpeechState(prev => ({ 
+            ...prev, 
+            isSpeaking: false,
+            synthesizerError: t('chatbot.speechSynthesisError', 'Error occurred during speech synthesis') 
+          }));
+        };
+        
+        synthesisRef.current.speak(utteranceRef.current);
+      } catch (error) {
+        console.error('Failed to start speech synthesis:', error);
+        setSpeechState(prev => ({ 
+          ...prev, 
+          synthesizerError: t('chatbot.startSpeakingFailed', 'Failed to start speech synthesis') 
+        }));
+      }
+    }
+  };
+
+  // Function to stop speaking
+  const stopSpeaking = () => {
+    if (synthesisRef.current && speechState.isSpeaking) {
+      synthesisRef.current.cancel();
+      setSpeechState(prev => ({ ...prev, isSpeaking: false }));
     }
   };
 
@@ -518,7 +767,7 @@ const Chatbot = () => {
       try {
         const isRoadmapRequest = userMessage.toLowerCase().includes('roadmap') || 
                                 (userMessage.toLowerCase().includes('how') && 
-                                userMessage.toLowerCase().includes('learn'));
+                                userMessage.includes('learn'));
         
         // Custom prompt based on request type
         let prompt = isRoadmapRequest 
@@ -607,11 +856,23 @@ const Chatbot = () => {
     }
   };
 
+  // Enhanced handleSendMessage function
   const handleSendMessage = (message: string) => {
     if (!message.trim() || isApiLoading) return;
 
-    // Add user message
-    const userMessage: Message = { text: message, isUser: true };
+    // Stop any ongoing speech when sending a new message
+    if (speechState.isSpeaking) {
+      stopSpeaking();
+    }
+
+    // Add user message with timestamp
+    const userMessage: Message = { 
+      text: message, 
+      isUser: true,
+      timestamp: new Date(),
+      id: Date.now()
+    };
+    
     setMessages((prev) => [...prev, userMessage]);
     
     // Fetch response from API with local fallback
@@ -632,6 +893,19 @@ const Chatbot = () => {
       padding: 0,
       overflow: 'hidden'
     }}>
+      {/* Speech functionality status bar */}
+      {(speechState.recognitionError || speechState.synthesizerError) && (
+        <div style={{
+          padding: '8px 16px',
+          backgroundColor: '#ef4444',
+          color: 'white',
+          textAlign: 'center',
+          fontSize: '14px'
+        }}>
+          {speechState.recognitionError || speechState.synthesizerError}
+        </div>
+      )}
+      
       {/* Chat Interface - Full Height */}
       <div style={{
         flex: 1,
@@ -662,16 +936,42 @@ const Chatbot = () => {
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
               <h3 style={{ marginTop: '16px', fontSize: '18px', fontWeight: '500' }}>
-                Start a conversation
+                {t('chatbot.startConversation', 'Start a conversation')}
               </h3>
               <p style={{ marginTop: '8px', fontSize: '14px' }}>
-                Ask me anything about education, career paths, or STEM opportunities
+                {t('chatbot.askAnything', 'Ask me anything about education, career paths, or STEM opportunities')}
               </p>
+              
+              {/* Show voice controls info if speech is supported */}
+              {(speechState.supportsSpeechRecognition || speechState.supportsSpeechSynthesis) && (
+                <div style={{ 
+                  marginTop: '24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <p style={{ fontSize: '14px', fontWeight: '500' }}>
+                    {t('chatbot.voiceControls', 'Voice Controls Available')}
+                  </p>
+                  {speechState.supportsSpeechRecognition && (
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      gap: '8px',
+                      fontSize: '12px' 
+                    }}>
+                      <MicrophoneIcon style={{ width: '16px', height: '16px' }} />
+                      {t('chatbot.clickMicToSpeak', 'Click the microphone to speak')}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             messages.map((message, index) => (
               <motion.div
-                key={index}
+                key={message.id || index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 style={{
@@ -690,10 +990,11 @@ const Chatbot = () => {
                   display: 'flex',
                   alignItems: message.isLoading ? 'center' : 'flex-start',
                   gap: '8px',
-                  flexDirection: message.isLoading ? 'row' : 'column'
+                  flexDirection: 'column',
+                  position: 'relative'
                 }}>
                   {message.isLoading ? (
-                    <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <ArrowPathIcon 
                         style={{ 
                           width: '16px', 
@@ -707,13 +1008,55 @@ const Chatbot = () => {
                             0% { transform: rotate(0deg); }
                             100% { transform: rotate(360deg); }
                           }
+                          @keyframes pulse {
+                            0% { opacity: 0.4; }
+                            50% { opacity: 1; }
+                            100% { opacity: 0.4; }
+                          }
                         `}
                       </style>
+                      <span>{message.text}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+                        {formatMessageText(message.text)}
+                      </div>
+                      
+                      {/* Speech button for bot messages */}
+                      {!message.isUser && speechState.supportsSpeechSynthesis && (
+                        <button
+                          onClick={() => speechState.isSpeaking ? stopSpeaking() : speak(message.text)}
+                          style={{
+                            position: 'absolute',
+                            bottom: '-8px',
+                            right: '-8px',
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '50%',
+                            backgroundColor: speechState.isSpeaking ? '#ef4444' : '#3b82f6',
+                            border: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            padding: 0
+                          }}
+                          title={speechState.isSpeaking ? t('chatbot.stopSpeaking', 'Stop speaking') : t('chatbot.speak', 'Speak message')}
+                        >
+                          {speechState.isSpeaking ? (
+                            <StopIcon style={{ width: '12px', height: '12px', color: 'white' }} />
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                            </svg>
+                          )}
+                        </button>
+                      )}
                     </>
-                  ) : null}
-                  <div style={{ lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
-                    {formatMessageText(message.text)}
-                  </div>
+                  )}
                 </div>
               </motion.div>
             ))
@@ -734,7 +1077,7 @@ const Chatbot = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(input)}
-            placeholder="Type your message..."
+            placeholder={t('chatbot.typeMessage', 'Type your message...')}
             style={{
               flex: 1,
               padding: '12px 16px',
@@ -747,6 +1090,8 @@ const Chatbot = () => {
             }}
             disabled={isApiLoading}
           />
+          
+          {/* Send button */}
           <button
             onClick={() => handleSendMessage(input)}
             style={{
@@ -768,6 +1113,7 @@ const Chatbot = () => {
               if (!isApiLoading) e.currentTarget.style.backgroundColor = '#3b82f6';
             }}
             disabled={isApiLoading}
+            title={t('chatbot.sendMessage', 'Send message')}
           >
             {isApiLoading ? (
               <ArrowPathIcon 
@@ -781,46 +1127,71 @@ const Chatbot = () => {
               <PaperAirplaneIcon style={{ width: '20px', height: '20px' }} />
             )}
           </button>
-          <button
-            onClick={isListening ? stopListening : startListening}
-            style={{
-              backgroundColor: isListening ? '#ef4444' : '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '12px',
-              cursor: isApiLoading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: isApiLoading ? 0.7 : 1
-            }}
-            onMouseOver={(e) => {
-              if (!isApiLoading) {
-                if (isListening) {
-                  e.currentTarget.style.backgroundColor = '#dc2626';
-                } else {
-                  e.currentTarget.style.backgroundColor = '#2563eb';
+          
+          {/* Microphone button - only show if speech recognition is supported */}
+          {speechState.supportsSpeechRecognition && (
+            <button
+              onClick={speechState.isListening ? stopListening : startListening}
+              style={{
+                backgroundColor: speechState.isListening ? '#ef4444' : 
+                                 (!speechState.hasListenPermission ? '#4b5563' : '#3b82f6'),
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '12px',
+                cursor: (!speechState.hasListenPermission || isApiLoading) ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: isApiLoading ? 0.7 : 1,
+                position: 'relative'
+              }}
+              onMouseOver={(e) => {
+                if (!isApiLoading && speechState.hasListenPermission) {
+                  if (speechState.isListening) {
+                    e.currentTarget.style.backgroundColor = '#dc2626';
+                  } else {
+                    e.currentTarget.style.backgroundColor = '#2563eb';
+                  }
                 }
-              }
-            }}
-            onMouseOut={(e) => {
-              if (!isApiLoading) {
-                if (isListening) {
-                  e.currentTarget.style.backgroundColor = '#ef4444';
-                } else {
-                  e.currentTarget.style.backgroundColor = '#3b82f6';
+              }}
+              onMouseOut={(e) => {
+                if (!isApiLoading && speechState.hasListenPermission) {
+                  if (speechState.isListening) {
+                    e.currentTarget.style.backgroundColor = '#ef4444';
+                  } else {
+                    e.currentTarget.style.backgroundColor = '#3b82f6';
+                  }
                 }
+              }}
+              disabled={isApiLoading || !speechState.hasListenPermission}
+              title={
+                !speechState.hasListenPermission ? t('chatbot.microphoneBlocked', 'Microphone access blocked') :
+                speechState.isListening ? t('chatbot.stopListening', 'Stop listening') :
+                t('chatbot.startListening', 'Start listening')
               }
-            }}
-            disabled={isApiLoading}
-          >
-            {isListening ? (
-              <StopIcon style={{ width: '20px', height: '20px' }} />
-            ) : (
-              <MicrophoneIcon style={{ width: '20px', height: '20px' }} />
-            )}
-          </button>
+            >
+              {speechState.isListening ? (
+                <StopIcon style={{ width: '20px', height: '20px' }} />
+              ) : (
+                <MicrophoneIcon style={{ width: '20px', height: '20px' }} />
+              )}
+              
+              {/* Listening animation */}
+              {speechState.isListening && (
+                <div style={{
+                  position: 'absolute',
+                  top: '-4px',
+                  right: '-4px',
+                  bottom: '-4px',
+                  left: '-4px',
+                  borderRadius: '10px',
+                  border: '2px solid #ef4444',
+                  animation: 'pulse 1.5s infinite ease-in-out'
+                }} />
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

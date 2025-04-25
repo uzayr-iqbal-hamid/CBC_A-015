@@ -76,6 +76,30 @@ const resources = {
         locationError: 'Could not get your location. Please check browser permissions.',
         geoNotSupported: 'Geolocation is not supported by your browser.',
         fetchError: 'Failed to fetch job data. Please try again later.'
+      },
+      chatbot: {
+        startConversation: 'Start a conversation',
+        askAnything: 'Ask me anything about education, career paths, or STEM opportunities',
+        typeMessage: 'Type your message...',
+        sendMessage: 'Send message',
+        startListening: 'Start listening',
+        stopListening: 'Stop listening',
+        speak: 'Speak message',
+        stopSpeaking: 'Stop speaking',
+        voiceControls: 'Voice Controls Available',
+        clickMicToSpeak: 'Click the microphone to speak',
+        microphoneBlocked: 'Microphone access blocked',
+        speechRecognitionNotSupported: 'Speech recognition is not supported in your browser',
+        microphonePermissionRequired: 'Microphone permission is required',
+        microphoneNotAllowed: 'Microphone permission denied',
+        recognitionAborted: 'Speech recognition was aborted',
+        networkError: 'Network error occurred',
+        noSpeech: 'No speech detected',
+        recognitionError: 'Speech recognition error',
+        startListeningFailed: 'Failed to start speech recognition',
+        speechSynthesisNotSupported: 'Speech synthesis is not supported in your browser',
+        speechSynthesisError: 'Error occurred during speech synthesis',
+        startSpeakingFailed: 'Failed to start speech synthesis'
       }
     }
   },
@@ -153,6 +177,30 @@ const resources = {
         locationError: 'आपका स्थान प्राप्त नहीं कर सका। कृपया ब्राउज़र अनुमतियों की जांच करें।',
         geoNotSupported: 'जियोलोकेशन आपके ब्राउज़र द्वारा समर्थित नहीं है।',
         fetchError: 'नौकरी डेटा प्राप्त करने में विफल। कृपया बाद में पुनः प्रयास करें।'
+      },
+      chatbot: {
+        startConversation: 'बातचीत शुरू करें',
+        askAnything: 'शिक्षा, करियर पथ, या स्टेम अवसरों के बारे में कुछ भी पूछें',
+        typeMessage: 'अपना संदेश लिखें...',
+        sendMessage: 'संदेश भेजें',
+        startListening: 'सुनना शुरू करें',
+        stopListening: 'सुनना बंद करें',
+        speak: 'संदेश बोलें',
+        stopSpeaking: 'बोलना बंद करें',
+        voiceControls: 'वॉयस कंट्रोल उपलब्ध',
+        clickMicToSpeak: 'बोलने के लिए माइक्रोफोन पर क्लिक करें',
+        microphoneBlocked: 'माइक्रोफोन एक्सेस अवरुद्ध',
+        speechRecognitionNotSupported: 'आपके ब्राउज़र में स्पीच रिकग्निशन समर्थित नहीं है',
+        microphonePermissionRequired: 'माइक्रोफोन अनुमति आवश्यक है',
+        microphoneNotAllowed: 'माइक्रोफोन की अनुमति नहीं है',
+        recognitionAborted: 'स्पीच रिकग्निशन रद्द कर दिया गया',
+        networkError: 'नेटवर्क त्रुटि हुई',
+        noSpeech: 'कोई भाषण नहीं मिला',
+        recognitionError: 'स्पीच रिकग्निशन त्रुटि',
+        startListeningFailed: 'स्पीच रिकग्निशन शुरू करने में विफल',
+        speechSynthesisNotSupported: 'आपके ब्राउज़र में स्पीच सिंथेसिस समर्थित नहीं है',
+        speechSynthesisError: 'स्पीच सिंथेसिस के दौरान त्रुटि हुई',
+        startSpeakingFailed: 'स्पीच सिंथेसिस शुरू करने में विफल'
       }
     }
   },
@@ -230,6 +278,30 @@ const resources = {
         locationError: 'ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಪಡೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಬ್ರೌಸರ್ ಅನುಮತಿಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.',
         geoNotSupported: 'ಜಿಯೋಲೊಕೇಶನ್ ನಿಮ್ಮ ಬ್ರೌಸರ್ ಮೂಲಕ ಬೆಂಬಲಿತವಾಗಿಲ್ಲ.',
         fetchError: 'ಉದ್ಯೋಗ ಡೇಟಾವನ್ನು ಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ. ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.'
+      },
+      chatbot: {
+        startConversation: 'ಸಂಭಾಷಣೆಯನ್ನು ಪ್ರಾರಂಭಿಸಿ',
+        askAnything: 'ಶಿಕ್ಷಣ, ವೃತ್ತಿಪರ ಮಾರ್ಗಗಳು ಅಥವಾ STEM ಅವಕಾಶಗಳ ಬಗ್ಗೆ ಏನನ್ನಾದರೂ ಕೇಳಿ',
+        typeMessage: 'ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ಟೈಪ್ ಮಾಡಿ...',
+        sendMessage: 'ಸಂದೇಶ ಕಳುಹಿಸಿ',
+        startListening: 'ಆಲಿಸಲು ಪ್ರಾರಂಭಿಸಿ',
+        stopListening: 'ಆಲಿಸುವುದನ್ನು ನಿಲ್ಲಿಸಿ',
+        speak: 'ಸಂದೇಶವನ್ನು ಮಾತನಾಡಿ',
+        stopSpeaking: 'ಮಾತನಾಡುವುದನ್ನು ನಿಲ್ಲಿಸಿ',
+        voiceControls: 'ಧ್ವನಿ ನಿಯಂತ್ರಣಗಳು ಲಭ್ಯವಿದೆ',
+        clickMicToSpeak: 'ಮಾತನಾಡಲು ಮೈಕ್ರೋಫೋನ್ ಕ್ಲಿಕ್ ಮಾಡಿ',
+        microphoneBlocked: 'ಮೈಕ್ರೋಫೋನ್ ಪ್ರವೇಶ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ',
+        speechRecognitionNotSupported: 'ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಸ್ಪೀಚ್ ರೆಕಗ್ನಿಷನ್ ಬೆಂಬಲಿತವಾಗಿಲ್ಲ',
+        microphonePermissionRequired: 'ಮೈಕ್ರೋಫೋನ್ ಅನುಮತಿ ಅಗತ್ಯವಿದೆ',
+        microphoneNotAllowed: 'ಮೈಕ್ರೋಫೋನ್ ಅನುಮತಿ ನಿರಾಕರಿಸಲಾಗಿದೆ',
+        recognitionAborted: 'ಸ್ಪೀಚ್ ರೆಕಗ್ನಿಷನ್ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ',
+        networkError: 'ನೆಟ್‌ವರ್ಕ್ ದೋಷ ಸಂಭವಿಸಿದೆ',
+        noSpeech: 'ಯಾವುದೇ ಮಾತು ಪತ್ತೆಯಾಗಿಲ್ಲ',
+        recognitionError: 'ಸ್ಪೀಚ್ ರೆಕಗ್ನಿಷನ್ ದೋಷ',
+        startListeningFailed: 'ಸ್ಪೀಚ್ ರೆಕಗ್ನಿಷನ್ ಪ್ರಾರಂಭಿಸಲು ವಿಫಲವಾಗಿದೆ',
+        speechSynthesisNotSupported: 'ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಸ್ಪೀಚ್ ಸಿಂಥೆಸಿಸ್ ಬೆಂಬಲಿತವಾಗಿಲ್ಲ',
+        speechSynthesisError: 'ಸ್ಪೀಚ್ ಸಿಂಥೆಸಿಸ್ ಸಮಯದಲ್ಲಿ ದೋಷ ಸಂಭವಿಸಿದೆ',
+        startSpeakingFailed: 'ಸ್ಪೀಚ್ ಸಿಂಥೆಸಿಸ್ ಪ್ರಾರಂಭಿಸಲು ವಿಫಲವಾಗಿದೆ'
       }
     }
   }
