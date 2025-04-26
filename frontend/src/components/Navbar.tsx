@@ -13,7 +13,7 @@ import {
   MapPinIcon,
   ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
-import { Sun, Moon, LogOut, LogIn } from 'lucide-react'; 
+import { Sun, Moon, LogOut, LogIn, Globe } from 'lucide-react'; 
 import { useTranslation } from 'react-i18next';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
@@ -22,9 +22,10 @@ import { useAuth } from '../contexts/AuthContext';
 const navbarStyles = `
   /* Active menu item styles for dark mode */
   .nav-link-active-dark {
-    background-color: rgba(79, 70, 229, 0.2) !important;
+    background-color: rgba(79, 70, 229, 0.15) !important;
     color: rgba(147, 197, 253, 1) !important;
     font-weight: 600 !important;
+    backdrop-filter: blur(4px);
   }
 
   /* Active menu item styles for light mode */
@@ -32,23 +33,29 @@ const navbarStyles = `
     background-color: rgba(79, 70, 229, 0.1) !important;
     color: rgba(79, 70, 229, 1) !important;
     font-weight: 600 !important;
+    backdrop-filter: blur(4px);
   }
 
-  /* Glass effect styles */
+  /* Glass effect styles - enhanced */
   .glass-effect-dark {
-    background: rgba(15, 23, 42, 0.65) !important;
-    backdrop-filter: blur(16px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-    border-bottom: 1px solid rgba(99, 102, 241, 0.15) !important;
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(12px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.12) !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
   }
   
   .glass-effect-light {
-    background: rgba(255, 255, 255, 0.6) !important;
-    backdrop-filter: blur(16px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    background: rgba(255, 255, 255, 0.65) !important;
+    backdrop-filter: blur(12px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  /* Enhanced transition effects */
+  .nav-element {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
   /* Pulse animation for active menu items */
@@ -62,7 +69,7 @@ const navbarStyles = `
     animation: softPulse 2s infinite;
   }
   
-  /* Theme Toggle Styles */
+  /* Theme Toggle Styles - refined */
   .theme-toggle {
     width: 40px;
     height: 40px;
@@ -73,6 +80,7 @@ const navbarStyles = `
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    backdrop-filter: blur(4px);
   }
   
   .theme-toggle.dark {
@@ -104,7 +112,7 @@ const navbarStyles = `
     color: #1e293b;
   }
   
-  /* Mobile Theme Toggle */
+  /* Mobile Theme Toggle - enhanced */
   .mobile-toggle {
     flex: 1;
     margin-left: 8px;
@@ -116,6 +124,7 @@ const navbarStyles = `
     gap: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
   }
   
   .mobile-toggle.dark {
@@ -134,7 +143,7 @@ const navbarStyles = `
     transform: scale(1.02);
   }
   
-  /* Tooltip styles */
+  /* Tooltip styles - refined */
   .tooltip {
     position: relative;
     display: inline-block;
@@ -158,11 +167,42 @@ const navbarStyles = `
     font-size: 0.75rem;
     white-space: nowrap;
     border: 1px solid var(--border);
+    backdrop-filter: blur(8px);
   }
   
   .tooltip:hover .tooltip-text {
     visibility: visible;
     opacity: 1;
+  }
+
+  /* Logo animation */
+  @keyframes logoGlow {
+    0%, 100% { 
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+    }
+    50% { 
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.7);
+    }
+  }
+
+  .logo-container {
+    animation: logoGlow 3s infinite ease-in-out;
+  }
+
+  /* Enhanced mobile menu */
+  .mobile-menu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .mobile-menu.open {
+    max-height: 80vh;
+  }
+
+  /* Nav link hover effect */
+  .nav-link-hover:hover {
+    transform: translateY(-2px);
   }
 `;
 
@@ -267,9 +307,14 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
   return (
     <nav 
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         scrolled ? (darkMode ? "glass-effect-dark" : "glass-effect-light") : "bg-transparent"
       )}
+      style={{
+        borderBottom: scrolled ? 
+          (darkMode ? '1px solid rgba(99, 102, 241, 0.12)' : '1px solid rgba(255, 255, 255, 0.3)') : 
+          'none'
+      }}
     >
       {/* Desktop/Tablet Navigation */}
       {!isMobileView && (
@@ -289,7 +334,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '0.5rem',
+              marginBottom: '0.75rem',
             }}>
               {/* Logo */}
               <Link to="/" style={{
@@ -300,15 +345,17 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                 position: 'relative',
                 zIndex: 2
               }}>
-                <div style={{
+                <div className="logo-container" style={{
                   backgroundImage: 'linear-gradient(45deg, var(--primary), var(--secondary))',
                   width: '42px',
                   height: '42px',
-                  borderRadius: '10px',
+                  borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 4px 10px rgba(99, 102, 241, 0.3)'
+                  boxShadow: '0 4px 10px rgba(99, 102, 241, 0.3)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)'
                 }}>
                   <span style={{
                     color: 'white',
@@ -321,7 +368,8 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                 <span className="gradient-text" style={{
                   fontWeight: 'bold',
                   fontSize: '1.5rem',
-                  letterSpacing: '0.5px'
+                  letterSpacing: '0.5px',
+                  textShadow: darkMode ? '0 2px 4px rgba(0, 0, 0, 0.2)' : 'none'
                 }}>
                   Aarambh
                 </span>
@@ -338,8 +386,8 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                   <button
                     onClick={() => changeLanguage(i18n.language === 'en' ? 'hi' : 'en')}
                     style={{
-                      backgroundColor: 'var(--background-lighter)',
-                      border: '1px solid var(--border)',
+                      backgroundColor: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                      border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.5)'}`,
                       borderRadius: '9999px',
                       padding: '6px 12px',
                       display: 'flex',
@@ -350,6 +398,18 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                       height: '32px',
                       color: 'var(--text-secondary)',
                       fontSize: '14px',
+                      backdropFilter: 'blur(8px)',
+                      fontWeight: '500',
+                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.08)',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.12)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.08)';
                     }}
                   >
                     <span>{currentLanguage}</span>
@@ -361,8 +421,8 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                   <button
                     onClick={handleSignOut}
                     style={{
-                      backgroundColor: 'var(--background-lighter)',
-                      border: '1px solid var(--border)',
+                      backgroundColor: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                      border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.5)'}`,
                       borderRadius: '8px',
                       padding: '6px 12px',
                       display: 'flex',
@@ -372,6 +432,20 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                       color: 'var(--text-secondary)',
                       fontSize: '14px',
                       cursor: 'pointer',
+                      backdropFilter: 'blur(8px)',
+                      fontWeight: '500',
+                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.08)',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.12)';
+                      e.currentTarget.style.color = darkMode ? '#ef4444' : '#dc2626';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.08)';
+                      e.currentTarget.style.color = 'var(--text-secondary)';
                     }}
                   >
                     <LogOut size={14} />
@@ -381,8 +455,8 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                   <Link 
                     to="/auth"
                     style={{
-                      backgroundColor: 'var(--background-lighter)',
-                      border: '1px solid var(--border)',
+                      backgroundColor: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                      border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.5)'}`,
                       borderRadius: '8px',
                       padding: '6px 12px',
                       display: 'flex',
@@ -392,6 +466,16 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                       color: 'var(--text-secondary)',
                       fontSize: '14px',
                       textDecoration: 'none',
+                      backdropFilter: 'blur(8px)',
+                      fontWeight: '500',
+                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.08)',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
                     }}
                   >
                     <LogIn size={14} />
@@ -424,13 +508,18 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
               display: 'flex',
               justifyContent: 'center',
               width: '100%',
+              paddingTop: '4px',
             }}>
               <ul style={{
                 display: 'flex',
-                gap: '1.5rem',
-                padding: 0,
+                gap: '0.75rem',
+                padding: '4px 8px',
                 margin: 0,
                 listStyle: 'none',
+                backgroundColor: darkMode ? 'rgba(15, 23, 42, 0.3)' : 'rgba(255, 255, 255, 0.25)',
+                borderRadius: '12px',
+                backdropFilter: 'blur(8px)',
+                border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.15)' : 'rgba(255, 255, 255, 0.5)'}`,
               }}>
                 {navLinks.map((link, index) => {
                   const isActive = location.pathname === link.path;
@@ -440,22 +529,23 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                     <li key={index}>
                       <Link
                         to={link.path}
-                        className={isActive ? (darkMode ? 'nav-link-active-dark' : 'nav-link-active-light') : ''}
+                        className={`nav-element nav-link-hover ${isActive ? (darkMode ? 'nav-link-active-dark' : 'nav-link-active-light') : ''}`}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
                           gap: '0.5rem',
                           padding: '0.5rem 0.75rem',
-                          borderRadius: 'var(--border-radius-md)',
+                          borderRadius: '10px',
                           color: isActive 
                             ? (darkMode ? 'rgba(147, 197, 253, 1)' : 'var(--primary-light)')
                             : 'var(--text-muted)',
                           backgroundColor: isActive 
-                            ? (darkMode ? 'rgba(79, 70, 229, 0.2)' : 'rgba(79, 70, 229, 0.1)')
+                            ? (darkMode ? 'rgba(79, 70, 229, 0.15)' : 'rgba(79, 70, 229, 0.1)')
                             : 'transparent',
                           textDecoration: 'none',
                           transition: 'all 0.2s ease',
                           fontWeight: isActive ? '600' : '500',
+                          boxShadow: isActive ? `0 2px 6px ${darkMode ? 'rgba(79, 70, 229, 0.2)' : 'rgba(79, 70, 229, 0.15)'}` : 'none',
                         }}
                         onMouseOver={(e) => {
                           if (!isActive) {
@@ -498,7 +588,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
             justifyContent: 'space-between',
             alignItems: 'center',
             padding: '0.75rem 1rem',
-            borderBottom: scrolled ? '1px solid rgba(99, 102, 241, 0.2)' : 'none',
+            borderBottom: scrolled ? '1px solid rgba(99, 102, 241, 0.12)' : 'none',
           }}>
             {/* Logo */}
             <Link to="/" style={{ 
@@ -509,15 +599,17 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
               position: 'relative',
               zIndex: 2
             }}>
-              <div style={{
+              <div className="logo-container" style={{
                 backgroundImage: 'linear-gradient(45deg, var(--primary), var(--secondary))',
                 width: '36px',
                 height: '36px',
-                borderRadius: '8px',
+                borderRadius: '10px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 8px rgba(99, 102, 241, 0.3)'
+                boxShadow: '0 4px 8px rgba(99, 102, 241, 0.3)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255, 255, 255, 0.15)'
               }}>
                 <span style={{
                   color: 'white',
@@ -530,7 +622,8 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
               <span className="gradient-text" style={{
                 fontWeight: 'bold',
                 fontSize: '1.25rem',
-                letterSpacing: '0.5px'
+                letterSpacing: '0.5px',
+                textShadow: darkMode ? '0 2px 4px rgba(0, 0, 0, 0.2)' : 'none'
               }}>
                 Aarambh
               </span>
@@ -540,15 +633,24 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
             <button
               onClick={handleToggle}
               style={{
-                background: 'transparent',
-                border: 'none',
+                background: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.5)'}`,
+                backdropFilter: 'blur(8px)',
                 cursor: 'pointer',
-                padding: '6px',
-                borderRadius: '6px',
+                padding: '8px',
+                borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: 'var(--text)',
+                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
               <svg 
@@ -577,18 +679,20 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
             </button>
           </div>
 
-          {/* Mobile Menu Dropdown */}
-          {isOpen && (
+          {/* Mobile Menu Dropdown - with animation */}
+          <div 
+            className={`mobile-menu ${isOpen ? 'open' : ''}`}
+            style={{
+              overflow: 'hidden',
+              transition: 'max-height 0.3s ease-in-out',
+              maxHeight: isOpen ? '80vh' : '0',
+            }}
+          >
             <div style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
               padding: '1rem',
-              zIndex: 40,
               backgroundColor: darkMode 
                 ? 'rgba(15, 23, 42, 0.75)'
-                : 'rgba(255, 255, 255, 0.7)',
+                : 'rgba(255, 255, 255, 0.75)',
               boxShadow: darkMode 
                 ? '0 8px 32px rgba(0, 0, 0, 0.2)'
                 : '0 8px 32px rgba(0, 0, 0, 0.08)',
@@ -597,16 +701,16 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
               backdropFilter: 'blur(12px) saturate(180%)',
               WebkitBackdropFilter: 'blur(12px) saturate(180%)',
               borderTop: darkMode 
-                ? '1px solid rgba(99, 102, 241, 0.25)'
-                : '1px solid rgba(255, 255, 255, 0.25)'
+                ? '1px solid rgba(99, 102, 241, 0.15)'
+                : '1px solid rgba(255, 255, 255, 0.5)',
             }}>
               <ul style={{
-                listStyle: 'none',
                 padding: 0,
                 margin: 0,
+                listStyle: 'none',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '0.75rem',
+                gap: '0.5rem'
               }}>
                 {navLinks.map((link, index) => {
                   const isActive = location.pathname === link.path;
@@ -616,145 +720,121 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                     <li key={index}>
                       <Link
                         to={link.path}
-                        className={isActive ? (darkMode ? 'nav-link-active-dark' : 'nav-link-active-light') : ''}
+                        className={`nav-element ${isActive ? (darkMode ? 'nav-link-active-dark' : 'nav-link-active-light') : ''}`}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
                           gap: '0.75rem',
-                          padding: '0.75rem',
-                          borderRadius: 'var(--border-radius-md)',
+                          padding: '0.75rem 1rem',
+                          borderRadius: '10px',
                           color: isActive 
                             ? (darkMode ? 'rgba(147, 197, 253, 1)' : 'var(--primary-light)')
-                            : darkMode ? 'rgba(255, 255, 255, 0.8)' : 'var(--text)',
+                            : 'var(--text)',
                           backgroundColor: isActive 
-                            ? (darkMode ? 'rgba(79, 70, 229, 0.2)' : 'rgba(79, 70, 229, 0.1)')
+                            ? (darkMode ? 'rgba(79, 70, 229, 0.15)' : 'rgba(79, 70, 229, 0.1)')
                             : 'transparent',
                           textDecoration: 'none',
                           fontWeight: isActive ? '600' : '500',
-                          transition: 'all 0.2s ease',
-                        }}
-                        onMouseOver={(e) => {
-                          if (!isActive) {
-                            e.currentTarget.style.backgroundColor = darkMode 
-                              ? 'rgba(79, 70, 229, 0.1)' 
-                              : 'var(--background-lighter)';
-                          }
-                        }}
-                        onMouseOut={(e) => {
-                          if (!isActive) {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                          }
+                          boxShadow: isActive 
+                            ? `0 4px 8px ${darkMode ? 'rgba(79, 70, 229, 0.2)' : 'rgba(79, 70, 229, 0.15)'}`
+                            : 'none',
                         }}
                       >
                         <Icon style={{ 
                           width: '20px', 
                           height: '20px',
-                          color: isActive && darkMode ? 'rgba(147, 197, 253, 1)' : 'currentColor'
+                          opacity: isActive ? 1 : 0.7
                         }} />
-                        <span>{t(`navbar.${link.name.toLowerCase().replace(' ', '')}`, link.name)}</span>
+                        <span style={{ fontSize: '1rem' }}>
+                          {t(`navbar.${link.name.toLowerCase().replace(' ', '')}`, link.name)}
+                        </span>
                       </Link>
                     </li>
                   );
                 })}
+              </ul>
+              
+              {/* Mobile Controls */}
+              <div style={{
+                display: 'flex',
+                marginTop: '1rem',
+                gap: '0.5rem',
+                borderTop: darkMode ? '1px solid rgba(99, 102, 241, 0.15)' : '1px solid rgba(255, 255, 255, 0.3)',
+                paddingTop: '1rem'
+              }}>
+                {/* Language Toggle - Mobile */}
+                <button
+                  onClick={() => changeLanguage(i18n.language === 'en' ? 'hi' : 'en')}
+                  className={`mobile-toggle ${darkMode ? 'dark' : 'light'}`}
+                >
+                  <Globe size={18} />
+                  <span>{currentLanguage}</span>
+                </button>
                 
-                {/* Mobile Language & Theme Controls */}
-                <li style={{ 
-                  borderTop: '1px solid var(--border)',
-                  marginTop: '0.5rem',
-                  paddingTop: '1rem',
-                  display: 'flex',
-                  justifyContent: 'space-between'
-                }}>
-                  {/* Language Toggle */}
+                {/* Theme Toggle - Mobile */}
+                <button
+                  onClick={() => setDarkMode(!darkMode)}
+                  className={`mobile-toggle ${darkMode ? 'dark' : 'light'}`}
+                >
+                  {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+                  <span>
+                    {darkMode ? t('navbar.lightMode', 'Light') : t('navbar.darkMode', 'Dark')}
+                  </span>
+                </button>
+              </div>
+              
+              {/* User Controls - Mobile */}
+              <div style={{
+                marginTop: '1rem',
+                borderTop: darkMode ? '1px solid rgba(99, 102, 241, 0.15)' : '1px solid rgba(255, 255, 255, 0.3)',
+                paddingTop: '1rem'
+              }}>
+                {user ? (
                   <button
-                    onClick={() => changeLanguage(i18n.language === 'en' ? 'hi' : 'en')}
+                    onClick={handleSignOut}
                     style={{
-                      flex: 1,
-                      backgroundColor: 'var(--background-lighter)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--border-radius-md)',
-                      padding: '0.75rem',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
+                      gap: '0.5rem',
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      backgroundColor: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)',
+                      borderRadius: '10px',
+                      color: darkMode ? 'rgba(239, 68, 68, 0.9)' : 'rgba(220, 38, 38, 1)',
+                      border: 'none',
                       cursor: 'pointer',
-                      color: 'var(--text)',
-                      fontSize: '14px',
                       fontWeight: '500',
+                      boxShadow: `0 4px 8px ${darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)'}`
                     }}
                   >
-                    <span>{i18n.language === 'en' ? 'हिन्दी' : 'English'}</span>
+                    <LogOut size={18} />
+                    <span>{t('navbar.signOut', 'Sign Out')}</span>
                   </button>
-                  
-                  {/* Theme Toggle */}
-                  <button
-                    onClick={() => setDarkMode(!darkMode)}
-                    className={`mobile-toggle ${darkMode ? 'dark' : 'light'}`}
+                ) : (
+                  <Link 
+                    to="/auth"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      backgroundColor: darkMode ? 'rgba(79, 70, 229, 0.15)' : 'rgba(79, 70, 229, 0.1)',
+                      borderRadius: '10px',
+                      color: darkMode ? 'rgba(147, 197, 253, 1)' : 'rgba(79, 70, 229, 1)',
+                      textDecoration: 'none',
+                      fontWeight: '500',
+                      boxShadow: `0 4px 8px ${darkMode ? 'rgba(79, 70, 229, 0.2)' : 'rgba(79, 70, 229, 0.15)'}`,
+                      justifyContent: 'center'
+                    }}
                   >
-                    {darkMode ? (
-                      <Sun className="toggle-icon" size={18} />
-                    ) : (
-                      <Moon className="toggle-icon" size={18} />
-                    )}
-                    <span>
-                      {darkMode ? t('navbar.lightMode', 'Light') : t('navbar.darkMode', 'Dark')}
-                    </span>
-                  </button>
-                </li>
-
-                {/* Authentication in mobile menu */}
-                <li>
-                  {user ? (
-                    <button
-                      onClick={handleSignOut}
-                      style={{
-                        width: '100%',
-                        backgroundColor: 'var(--background-lighter)',
-                        border: '1px solid var(--border)',
-                        borderRadius: 'var(--border-radius-md)',
-                        padding: '0.75rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        cursor: 'pointer',
-                        color: 'var(--danger)',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                      }}
-                    >
-                      <LogOut size={18} />
-                      <span>{t('navbar.signOut', 'Sign Out')}</span>
-                    </button>
-                  ) : (
-                    <Link
-                      to="/auth" 
-                      style={{
-                        width: '100%',
-                        backgroundColor: 'var(--primary)',
-                        border: '1px solid var(--primary-dark)',
-                        borderRadius: 'var(--border-radius-md)',
-                        padding: '0.75rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        cursor: 'pointer',
-                        color: 'white',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        textDecoration: 'none',
-                      }}
-                    >
-                      <LogIn size={18} />
-                      <span>{t('navbar.signIn', 'Sign In')}</span>
-                    </Link>
-                  )}
-                </li>
-              </ul>
+                    <LogIn size={18} />
+                    <span>{t('navbar.signIn', 'Sign In')}</span>
+                  </Link>
+                )}
+              </div>
             </div>
-          )}
+          </div>
         </div>
       )}
     </nav>
