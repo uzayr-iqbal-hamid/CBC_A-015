@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowDownTrayIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
 
@@ -17,6 +17,17 @@ interface ApkInfo {
 const ApkDownloads = () => {
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 768);
+  
+  // Handle window resize for responsive layout
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Single APK file information
   const apkInfo: ApkInfo = {
@@ -40,15 +51,18 @@ const ApkDownloads = () => {
   };
 
   return (
-    <div style={{ 
-      paddingTop: '72px',
-      paddingBottom: '64px',
-      minHeight: '100vh',
-      backgroundColor: 'var(--background)',
-      color: 'var(--text)'
-    }}>
+    <div 
+      className="ios-bottom-padding"
+      style={{ 
+        paddingTop: '72px',
+        paddingBottom: '64px',
+        minHeight: '100vh',
+        backgroundColor: 'var(--background)',
+        color: 'var(--text)'
+      }}
+    >
       {/* Hero Section */}
-      <section style={{ position: 'relative', padding: '64px 0 48px' }}>
+      <section style={{ position: 'relative', padding: isMobile ? '32px 0 24px' : '64px 0 48px' }}>
         <div style={{ 
           position: 'absolute', 
           inset: 0, 
@@ -68,7 +82,7 @@ const ApkDownloads = () => {
             margin: '0 auto' 
           }}>
             <h1 style={{ 
-              fontSize: '36px',
+              fontSize: isMobile ? '28px' : '36px',
               fontWeight: 'bold',
               marginBottom: '16px',
               backgroundImage: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
@@ -79,7 +93,7 @@ const ApkDownloads = () => {
               APK Download
             </h1>
             <p style={{ 
-              fontSize: '18px',
+              fontSize: isMobile ? '16px' : '18px',
               color: 'var(--text-muted)',
               marginBottom: '24px',
             }}>
@@ -104,29 +118,35 @@ const ApkDownloads = () => {
           position: 'relative',
           marginTop: '32px',
         }}
-        className="glass-card hover:shadow-xl"
+        className="glass-card hover:shadow-xl mobile-card-padding"
         >
-          <div style={{ padding: '32px' }}>
-            <div style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              marginBottom: '24px',
-              gap: '24px'
-            }}>
-              <div style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '16px',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          <div style={{ padding: isMobile ? '16px' : '32px' }}>
+            <div 
+              className={isMobile ? "flex-row-to-column" : ""}
+              style={{ 
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden'
-              }}>
+                alignItems: isMobile ? 'flex-start' : 'center',
+                marginBottom: '24px',
+                gap: isMobile ? '16px' : '24px'
+              }}
+            >
+              <div 
+                className="mobile-icon-adjust"
+                style={{
+                  width: isMobile ? '64px' : '80px',
+                  height: isMobile ? '64px' : '80px',
+                  borderRadius: '16px',
+                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden'
+                }}
+              >
                 <img 
                   src={apkInfo.iconUrl} 
                   alt={apkInfo.name}
-                  style={{ width: '50px', height: '50px' }}
+                  style={{ width: isMobile ? '40px' : '50px', height: isMobile ? '40px' : '50px' }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     // Fallback to placeholder
@@ -136,19 +156,22 @@ const ApkDownloads = () => {
               </div>
               <div>
                 <h3 style={{ 
-                  fontSize: '24px',
+                  fontSize: isMobile ? '20px' : '24px',
                   fontWeight: 'bold',
                   marginBottom: '8px',
                   color: 'var(--text)'
                 }}>
                   {apkInfo.name}
                 </h3>
-                <div style={{ 
-                  display: 'flex',
-                  gap: '8px',
-                  fontSize: '14px',
-                  color: 'var(--text-muted)'
-                }}>
+                <div 
+                  style={{ 
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '8px',
+                    fontSize: '14px',
+                    color: 'var(--text-muted)'
+                  }}
+                >
                   <span>v{apkInfo.version}</span>
                   <span>•</span>
                   <span>{apkInfo.size}</span>
@@ -159,9 +182,9 @@ const ApkDownloads = () => {
             </div>
             
             <p style={{ 
-              fontSize: '16px',
+              fontSize: isMobile ? '14px' : '16px',
               color: 'var(--text-muted)',
-              marginBottom: '32px',
+              marginBottom: isMobile ? '24px' : '32px',
               lineHeight: '1.6',
             }}>
               {apkInfo.description}
@@ -169,8 +192,9 @@ const ApkDownloads = () => {
             
             <div style={{ 
               display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
               justifyContent: 'space-between',
-              alignItems: 'center',
+              alignItems: isMobile ? 'stretch' : 'center',
               gap: '16px'
             }}>
               <button
@@ -178,6 +202,7 @@ const ApkDownloads = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: '8px',
                   padding: '10px 16px',
                   backgroundColor: 'var(--background)',
@@ -187,6 +212,7 @@ const ApkDownloads = () => {
                   border: '1px solid var(--border)',
                   cursor: 'pointer',
                   fontSize: '14px',
+                  minHeight: '44px',
                 }}
               >
                 <InformationCircleIcon style={{ width: '20px', height: '20px' }} />
@@ -199,6 +225,7 @@ const ApkDownloads = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: '8px',
                   padding: '10px 24px',
                   backgroundColor: 'var(--primary)',
@@ -210,6 +237,7 @@ const ApkDownloads = () => {
                   cursor: 'pointer',
                   fontSize: '14px',
                   transition: 'all 0.2s',
+                  minHeight: '44px',
                 }}
                 onMouseOver={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
@@ -233,13 +261,13 @@ const ApkDownloads = () => {
           marginTop: '48px',
           backgroundColor: 'var(--background-lighter)',
           borderRadius: '12px',
-          padding: '32px',
+          padding: isMobile ? '24px 16px' : '32px',
           border: '1px solid var(--border)'
         }}
         className="glass-card"
         >
           <h3 style={{ 
-            fontSize: '18px',
+            fontSize: isMobile ? '18px' : '20px',
             fontWeight: 'bold',
             marginBottom: '16px',
             color: 'var(--text)'
@@ -247,18 +275,18 @@ const ApkDownloads = () => {
             StemLabs APK Download
           </h3>
           <p style={{ 
-            fontSize: '14px',
+            fontSize: isMobile ? '14px' : '16px',
             color: 'var(--text-muted)',
             marginBottom: '24px'
           }}>
             Our official StemLabs app provides direct access to virtual STEM experiments and learning resources. Scan the QR code to download directly to your device.
           </p>
           <div style={{
-            width: '180px',
-            height: '180px',
+            width: isMobile ? '150px' : '180px',
+            height: isMobile ? '150px' : '180px',
             margin: '0 auto',
             backgroundColor: 'white',
-            padding: '16px',
+            padding: isMobile ? '12px' : '16px',
             borderRadius: '8px',
             display: 'flex',
             flexDirection: 'column',
@@ -267,8 +295,8 @@ const ApkDownloads = () => {
           }}>
             {/* QR Code for app-release.apk - Placeholder */}
             <div style={{
-              width: '148px',
-              height: '148px',
+              width: isMobile ? '126px' : '148px',
+              height: isMobile ? '126px' : '148px',
               backgroundImage: 'linear-gradient(to bottom right, #3b82f6, #8b5cf6)',
               display: 'flex',
               alignItems: 'center',
@@ -277,7 +305,7 @@ const ApkDownloads = () => {
               borderRadius: '4px',
               padding: '8px',
               textAlign: 'center',
-              fontSize: '12px',
+              fontSize: isMobile ? '11px' : '12px',
               fontWeight: 'bold',
             }}>
               <div>STEM<br/>LABS<br/>APK</div>
@@ -301,6 +329,7 @@ const ApkDownloads = () => {
                 cursor: 'pointer',
                 fontSize: '14px',
                 marginTop: '8px',
+                minHeight: '44px',
               }}
             >
               <ArrowDownTrayIcon style={{ width: '16px', height: '16px' }} />
@@ -312,26 +341,28 @@ const ApkDownloads = () => {
 
       {/* Modal for installation instructions */}
       {isModalOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 100,
-          padding: '16px',
-        }}
-        onClick={closeModal}
+        <div 
+          className="mobile-scroll"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: '16px',
+          }}
+          onClick={closeModal}
         >
           <div 
-            className="glass-card"
+            className="glass-card modal-container"
             style={{
               width: '100%',
-              maxWidth: '600px',
+              maxWidth: isMobile ? '90%' : '600px',
               borderRadius: '16px',
               backgroundColor: 'var(--background)',
               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
@@ -341,14 +372,14 @@ const ApkDownloads = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{
-              padding: '24px',
+              padding: isMobile ? '16px' : '24px',
               borderBottom: '1px solid var(--border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
             }}>
               <h2 style={{ 
-                fontSize: '20px',
+                fontSize: isMobile ? '18px' : '20px',
                 fontWeight: 'bold',
                 color: 'var(--text)',
               }}>
@@ -364,6 +395,11 @@ const ApkDownloads = () => {
                   padding: '4px',
                   borderRadius: '50%',
                   color: 'var(--text-muted)',
+                  minHeight: '44px',
+                  minWidth: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -373,10 +409,17 @@ const ApkDownloads = () => {
               </button>
             </div>
             
-            <div style={{ padding: '24px', maxHeight: '400px', overflowY: 'auto' }}>
+            <div 
+              className="mobile-scroll" 
+              style={{ 
+                padding: isMobile ? '16px' : '24px', 
+                maxHeight: isMobile ? '70vh' : '400px', 
+                overflowY: 'auto'
+              }}
+            >
               <div style={{ marginBottom: '24px' }}>
                 <h3 style={{ 
-                  fontSize: '18px',
+                  fontSize: isMobile ? '16px' : '18px',
                   fontWeight: '600',
                   marginBottom: '12px',
                   color: 'var(--text)'
@@ -384,7 +427,7 @@ const ApkDownloads = () => {
                 <ol style={{ 
                   paddingLeft: '20px',
                   color: 'var(--text-muted)',
-                  fontSize: '15px',
+                  fontSize: isMobile ? '14px' : '15px',
                   lineHeight: '1.6'
                 }}>
                   <li>Download the StemLabs APK file by clicking the download button.</li>
@@ -398,7 +441,7 @@ const ApkDownloads = () => {
               
               <div style={{ marginBottom: '24px' }}>
                 <h3 style={{ 
-                  fontSize: '18px',
+                  fontSize: isMobile ? '16px' : '18px',
                   fontWeight: '600',
                   marginBottom: '12px',
                   color: 'var(--text)'
@@ -406,7 +449,7 @@ const ApkDownloads = () => {
                 <ul style={{ 
                   paddingLeft: '20px',
                   color: 'var(--text-muted)',
-                  fontSize: '15px',
+                  fontSize: isMobile ? '14px' : '15px',
                   lineHeight: '1.6'
                 }}>
                   <li>Storage: To save app data and downloaded resources</li>
@@ -417,7 +460,7 @@ const ApkDownloads = () => {
               
               <div style={{ marginBottom: '24px' }}>
                 <h3 style={{ 
-                  fontSize: '18px',
+                  fontSize: isMobile ? '16px' : '18px',
                   fontWeight: '600',
                   marginBottom: '12px',
                   color: 'var(--text)'
@@ -425,7 +468,7 @@ const ApkDownloads = () => {
                 <ul style={{ 
                   paddingLeft: '20px',
                   color: 'var(--text-muted)',
-                  fontSize: '15px',
+                  fontSize: isMobile ? '14px' : '15px',
                   lineHeight: '1.6'
                 }}>
                   <li>Android 6.0 (Marshmallow) or higher</li>
@@ -436,13 +479,13 @@ const ApkDownloads = () => {
               
               <div style={{ marginBottom: '24px' }}>
                 <h3 style={{ 
-                  fontSize: '18px',
+                  fontSize: isMobile ? '16px' : '18px',
                   fontWeight: '600',
                   marginBottom: '12px',
                   color: 'var(--text)'
                 }}>Troubleshooting</h3>
                 <p style={{ 
-                  fontSize: '15px',
+                  fontSize: isMobile ? '14px' : '15px',
                   lineHeight: '1.6',
                   color: 'var(--text-muted)',
                   marginBottom: '12px'
@@ -452,7 +495,7 @@ const ApkDownloads = () => {
                 <ul style={{ 
                   paddingLeft: '20px',
                   color: 'var(--text-muted)',
-                  fontSize: '15px',
+                  fontSize: isMobile ? '14px' : '15px',
                   lineHeight: '1.6'
                 }}>
                   <li>Ensure you have sufficient storage space</li>
@@ -464,10 +507,11 @@ const ApkDownloads = () => {
             </div>
             
             <div style={{ 
-              padding: '16px 24px',
+              padding: isMobile ? '12px 16px' : '16px 24px',
               borderTop: '1px solid var(--border)',
               display: 'flex',
-              justifyContent: 'flex-end',
+              justifyContent: isMobile ? 'stretch' : 'flex-end',
+              flexDirection: isMobile ? 'column' : 'row',
               alignItems: 'center',
               gap: '16px'
             }}>
@@ -482,6 +526,8 @@ const ApkDownloads = () => {
                   fontSize: '14px',
                   fontWeight: '500',
                   cursor: 'pointer',
+                  width: isMobile ? '100%' : 'auto',
+                  minHeight: '44px',
                 }}
               >
                 Close
@@ -493,6 +539,7 @@ const ApkDownloads = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: '8px',
                   padding: '8px 20px',
                   backgroundColor: 'var(--primary)',
@@ -504,14 +551,20 @@ const ApkDownloads = () => {
                   cursor: 'pointer',
                   fontSize: '14px',
                   transition: 'all 0.2s',
+                  width: isMobile ? '100%' : 'auto',
+                  minHeight: '44px',
                 }}
                 onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                  if (!isMobile) {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                  }
                 }}
                 onMouseOut={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
+                  if (!isMobile) {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }
                 }}
               >
                 <ArrowDownTrayIcon style={{ width: '16px', height: '16px' }} />
