@@ -9,6 +9,7 @@ import {
   BellIcon,
   Cog6ToothIcon
 } from '@heroicons/react/24/outline';
+import PageLayout from '../components/PageLayout';
 
 // Mock user data (in a real app, this would come from an API or context)
 const mockUserData = {
@@ -52,17 +53,12 @@ const Profile = () => {
     switch (activeTab) {
       case 'profile':
         return (
-          <div style={{ 
-            backgroundColor: '#1f2937', 
-            borderRadius: '12px', 
-            padding: '24px',
-            border: '1px solid #374151'
-          }}>
+          <div className="glass-card" style={{ padding: '24px' }}>
             <h2 style={{ 
               fontSize: '1.25rem', 
               fontWeight: 'bold', 
               marginBottom: '24px',
-              color: '#e5e7eb'
+              color: 'var(--text)'
             }}>
               {t('profile.personalInfo', 'Personal Information')}
             </h2>
@@ -72,18 +68,18 @@ const Profile = () => {
                   display: 'block', 
                   fontSize: '0.875rem', 
                   marginBottom: '4px',
-                  color: '#9ca3af'
+                  color: 'var(--text-secondary)'
                 }}>
                   {t('profile.name', 'Name')}
                 </label>
                 <div style={{ 
                   fontSize: '1rem', 
-                  color: '#e5e7eb',
+                  color: 'var(--text)',
                   padding: '8px 0'
                 }}>
                   {userData.name}
                 </div>
-                <div style={{ height: '1px', backgroundColor: '#374151', marginTop: '4px' }}></div>
+                <div style={{ height: '1px', backgroundColor: 'var(--border)', marginTop: '4px' }}></div>
               </div>
 
               <div>
@@ -91,18 +87,18 @@ const Profile = () => {
                   display: 'block', 
                   fontSize: '0.875rem', 
                   marginBottom: '4px',
-                  color: '#9ca3af'
+                  color: 'var(--text-secondary)'
                 }}>
                   {t('profile.email', 'Email')}
                 </label>
                 <div style={{ 
                   fontSize: '1rem', 
-                  color: '#e5e7eb',
+                  color: 'var(--text)',
                   padding: '8px 0'
                 }}>
                   {userData.email}
                 </div>
-                <div style={{ height: '1px', backgroundColor: '#374151', marginTop: '4px' }}></div>
+                <div style={{ height: '1px', backgroundColor: 'var(--border)', marginTop: '4px' }}></div>
               </div>
 
               <div>
@@ -110,18 +106,18 @@ const Profile = () => {
                   display: 'block', 
                   fontSize: '0.875rem', 
                   marginBottom: '4px',
-                  color: '#9ca3af'
+                  color: 'var(--text-secondary)'
                 }}>
                   {t('profile.location', 'Location')}
                 </label>
                 <div style={{ 
                   fontSize: '1rem', 
-                  color: '#e5e7eb',
+                  color: 'var(--text)',
                   padding: '8px 0'
                 }}>
                   {userData.location}
                 </div>
-                <div style={{ height: '1px', backgroundColor: '#374151', marginTop: '4px' }}></div>
+                <div style={{ height: '1px', backgroundColor: 'var(--border)', marginTop: '4px' }}></div>
               </div>
 
               <div>
@@ -129,34 +125,23 @@ const Profile = () => {
                   display: 'block', 
                   fontSize: '0.875rem', 
                   marginBottom: '4px',
-                  color: '#9ca3af'
+                  color: 'var(--text-secondary)'
                 }}>
                   {t('profile.joinDate', 'Member Since')}
                 </label>
                 <div style={{ 
                   fontSize: '1rem', 
-                  color: '#e5e7eb',
+                  color: 'var(--text)',
                   padding: '8px 0'
                 }}>
                   {userData.joinDate}
                 </div>
-                <div style={{ height: '1px', backgroundColor: '#374151', marginTop: '4px' }}></div>
+                <div style={{ height: '1px', backgroundColor: 'var(--border)', marginTop: '4px' }}></div>
               </div>
 
-              <button style={{
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '12px',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                marginTop: '16px',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#2563eb' }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#3b82f6' }}
+              <button 
+                className="btn-3d"
+                style={{ marginTop: '16px' }}
               >
                 {t('profile.editProfile', 'Edit Profile')}
               </button>
@@ -166,17 +151,12 @@ const Profile = () => {
         
       case 'achievements':
         return (
-          <div style={{ 
-            backgroundColor: '#1f2937', 
-            borderRadius: '12px', 
-            padding: '24px',
-            border: '1px solid #374151'
-          }}>
+          <div className="glass-card" style={{ padding: '24px' }}>
             <h2 style={{ 
               fontSize: '1.25rem', 
               fontWeight: 'bold', 
               marginBottom: '24px',
-              color: '#e5e7eb'
+              color: 'var(--text)'
             }}>
               {t('profile.achievements', 'Your Achievements')}
             </h2>
@@ -187,24 +167,11 @@ const Profile = () => {
               flexDirection: 'column',
               padding: '32px',
               gap: '16px',
-              color: '#9ca3af',
+              color: 'var(--text-secondary)',
             }}>
-              <TrophyIcon style={{ width: '48px', height: '48px', color: '#f59e0b' }} />
+              <TrophyIcon style={{ width: '48px', height: '48px', color: 'var(--accent)' }} />
               <p>{t('profile.achievementsCount', 'You have earned {{count}} achievements', { count: userData.achievements })}</p>
-              <button style={{
-                backgroundColor: '#f59e0b',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '12px 24px',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#d97706' }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#f59e0b' }}
-              >
+              <button className="btn-3d" style={{ backgroundColor: 'var(--accent)', borderColor: 'var(--accent-dark)' }}>
                 {t('profile.viewAchievements', 'View All Achievements')}
               </button>
             </div>
@@ -213,17 +180,12 @@ const Profile = () => {
         
       case 'scholarships':
         return (
-          <div style={{ 
-            backgroundColor: '#1f2937', 
-            borderRadius: '12px', 
-            padding: '24px',
-            border: '1px solid #374151'
-          }}>
+          <div className="glass-card" style={{ padding: '24px' }}>
             <h2 style={{ 
               fontSize: '1.25rem', 
               fontWeight: 'bold', 
               marginBottom: '24px',
-              color: '#e5e7eb'
+              color: 'var(--text)'
             }}>
               {t('profile.scholarships', 'Applied Scholarships')}
             </h2>
@@ -234,24 +196,11 @@ const Profile = () => {
               flexDirection: 'column',
               padding: '32px',
               gap: '16px',
-              color: '#9ca3af',
+              color: 'var(--text-secondary)',
             }}>
-              <AcademicCapIcon style={{ width: '48px', height: '48px', color: '#3b82f6' }} />
+              <AcademicCapIcon style={{ width: '48px', height: '48px', color: 'var(--primary)' }} />
               <p>{t('profile.scholarshipsCount', 'You have applied to {{count}} scholarships', { count: userData.scholarshipsApplied })}</p>
-              <button style={{
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '12px 24px',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#2563eb' }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#3b82f6' }}
-              >
+              <button className="btn-3d">
                 {t('profile.findScholarships', 'Find More Scholarships')}
               </button>
             </div>
@@ -260,17 +209,12 @@ const Profile = () => {
         
       case 'quizzes':
         return (
-          <div style={{ 
-            backgroundColor: '#1f2937', 
-            borderRadius: '12px', 
-            padding: '24px',
-            border: '1px solid #374151'
-          }}>
+          <div className="glass-card" style={{ padding: '24px' }}>
             <h2 style={{ 
               fontSize: '1.25rem', 
               fontWeight: 'bold', 
               marginBottom: '24px',
-              color: '#e5e7eb'
+              color: 'var(--text)'
             }}>
               {t('profile.quizzes', 'Completed Quizzes')}
             </h2>
@@ -281,24 +225,11 @@ const Profile = () => {
               flexDirection: 'column',
               padding: '32px',
               gap: '16px',
-              color: '#9ca3af',
+              color: 'var(--text-secondary)',
             }}>
-              <ClipboardDocumentCheckIcon style={{ width: '48px', height: '48px', color: '#4f46e5' }} />
+              <ClipboardDocumentCheckIcon style={{ width: '48px', height: '48px', color: 'var(--primary)' }} />
               <p>{t('profile.quizzesCount', 'You have completed {{count}} quizzes', { count: userData.completedQuizzes })}</p>
-              <button style={{
-                backgroundColor: '#4f46e5',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '12px 24px',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#4338ca' }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#4f46e5' }}
-              >
+              <button className="btn-3d" style={{ backgroundColor: 'var(--primary-dark)', borderColor: 'var(--primary-darker)' }}>
                 {t('profile.takeQuiz', 'Take Another Quiz')}
               </button>
             </div>
@@ -308,43 +239,27 @@ const Profile = () => {
       case 'notifications':
       case 'settings':
         return (
-          <div style={{ 
-            backgroundColor: '#1f2937', 
-            borderRadius: '12px', 
+          <div className="glass-card" style={{ 
             padding: '48px 24px',
-            border: '1px solid #374151',
             textAlign: 'center'
           }}>
             <h2 style={{ 
               fontSize: '1.25rem', 
               fontWeight: 'bold', 
               marginBottom: '16px',
-              color: '#e5e7eb'
+              color: 'var(--text)'
             }}>
               {activeTab === 'notifications' 
                 ? t('profile.notificationsTitle', 'Notifications')
                 : t('profile.settingsTitle', 'Settings')}
             </h2>
-            <p style={{ color: '#9ca3af', marginBottom: '24px' }}>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
               {activeTab === 'notifications'
                 ? t('profile.notificationsMessage', 'You have no new notifications')
                 : t('profile.settingsMessage', 'Settings will be available soon')}
             </p>
             {activeTab === 'settings' && (
-              <button style={{
-                backgroundColor: '#4b5563',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '12px 24px',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#374151' }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#4b5563' }}
-              >
+              <button className="btn-3d" style={{ backgroundColor: 'var(--background-lighter)', borderColor: 'var(--border)' }}>
                 {t('profile.comingSoon', 'Coming Soon')}
               </button>
             )}
@@ -357,177 +272,160 @@ const Profile = () => {
   };
 
   return (
-    <div style={{ 
-      paddingTop: '72px',
-      minHeight: '100vh',
-      backgroundColor: '#111827',
-      color: 'white',
-      padding: isMobile ? '72px 16px 32px' : '72px 32px 48px',
-    }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        {/* Profile Header */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: isMobile ? 'column' : 'row',
-          alignItems: isMobile ? 'center' : 'flex-start',
-          gap: '24px',
-          backgroundColor: '#1f2937',
-          borderRadius: '12px',
-          padding: '24px',
-          marginBottom: '24px',
-          border: '1px solid #374151'
+    <PageLayout
+      title={t('profile.title', 'Profile')}
+      subtitle={t('profile.subtitle', 'Manage your account, view achievements and track your progress')}
+      heroIcon={<UserCircleIcon width={40} height={40} />}
+      gradientColors={{ from: 'rgba(59, 130, 246, 0.15)', to: 'rgba(139, 92, 246, 0.1)' }}
+    >
+      {/* Profile Header */}
+      <div className="glass-card" style={{ 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'center' : 'flex-start',
+        gap: '24px',
+        padding: '24px',
+        marginBottom: '24px'
+      }}>
+        {/* Avatar */}
+        <div style={{
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          backgroundColor: 'var(--primary)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontSize: '3rem',
+          fontWeight: 'bold',
         }}>
-          {/* Avatar */}
-          <div style={{
-            width: '120px',
-            height: '120px',
-            borderRadius: '50%',
-            backgroundColor: '#3b82f6',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: '3rem',
-            fontWeight: 'bold',
-          }}>
-            {userData.name.charAt(0)}
-          </div>
-          
-          {/* User Info */}
-          <div style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: isMobile ? 'center' : 'flex-start',
-            textAlign: isMobile ? 'center' : 'left',
-          }}>
-            <h1 style={{ 
-              fontSize: '1.5rem', 
-              fontWeight: 'bold', 
-              marginBottom: '8px',
-              color: '#e5e7eb'
-            }}>
-              {userData.name}
-            </h1>
-            <div style={{ 
-              color: '#9ca3af', 
-              marginBottom: '16px',
-              fontSize: '0.875rem'
-            }}>
-              {userData.email}
-            </div>
-            
-            {/* Stats */}
-            <div style={{ 
-              display: 'flex',
-              gap: '16px',
-              flexWrap: 'wrap',
-              justifyContent: isMobile ? 'center' : 'flex-start',
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '4px',
-                color: '#9ca3af',
-                fontSize: '0.875rem'
-              }}>
-                <TrophyIcon style={{ width: '16px', height: '16px', color: '#f59e0b' }} />
-                {userData.achievements} {t('profile.achievements', 'Achievements')}
-              </div>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '4px',
-                color: '#9ca3af',
-                fontSize: '0.875rem'
-              }}>
-                <ClipboardDocumentCheckIcon style={{ width: '16px', height: '16px', color: '#4f46e5' }} />
-                {userData.completedQuizzes} {t('profile.quizzes', 'Quizzes')}
-              </div>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '4px',
-                color: '#9ca3af',
-                fontSize: '0.875rem'
-              }}>
-                <AcademicCapIcon style={{ width: '16px', height: '16px', color: '#3b82f6' }} />
-                {userData.scholarshipsApplied} {t('profile.scholarships', 'Scholarships')}
-              </div>
-            </div>
-          </div>
+          {userData.name.charAt(0)}
         </div>
         
-        {/* Tabs and Content Section */}
-        <div style={{ 
+        {/* User Info */}
+        <div style={{
+          flex: 1,
           display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: '24px',
+          flexDirection: 'column',
+          alignItems: isMobile ? 'center' : 'flex-start',
+          textAlign: isMobile ? 'center' : 'left',
         }}>
-          {/* Tabs */}
-          <div style={{ 
-            width: isMobile ? '100%' : '250px',
-            backgroundColor: '#1f2937',
-            borderRadius: '12px',
-            padding: '16px',
-            marginBottom: isMobile ? '16px' : 0,
-            border: '1px solid #374151'
+          <h1 style={{ 
+            fontSize: '1.5rem', 
+            fontWeight: 'bold', 
+            marginBottom: '8px',
+            color: 'var(--text)'
           }}>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {tabs.map(tab => (
-                <li key={tab.id} style={{ marginBottom: '8px' }}>
-                  <button
-                    onClick={() => setActiveTab(tab.id)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      backgroundColor: activeTab === tab.id ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-                      color: activeTab === tab.id ? '#60a5fa' : '#d1d5db',
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '12px 16px',
-                      width: '100%',
-                      textAlign: 'left',
-                      fontSize: '0.875rem',
-                      fontWeight: activeTab === tab.id ? '600' : '500',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseOver={(e) => {
-                      if (activeTab !== tab.id) {
-                        e.currentTarget.style.backgroundColor = 'rgba(55, 65, 81, 0.5)';
-                        e.currentTarget.style.color = '#e5e7eb';
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (activeTab !== tab.id) {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                        e.currentTarget.style.color = '#d1d5db';
-                      }
-                    }}
-                  >
-                    <tab.icon style={{ width: '18px', height: '18px' }} />
-                    {tab.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            {userData.name}
+          </h1>
+          <div style={{ 
+            color: 'var(--text-secondary)', 
+            marginBottom: '16px',
+            fontSize: '0.875rem'
+          }}>
+            {userData.email}
           </div>
           
-          {/* Content */}
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{ flex: 1 }}
-          >
-            {renderTabContent()}
-          </motion.div>
+          {/* Stats */}
+          <div style={{ 
+            display: 'flex',
+            gap: '16px',
+            flexWrap: 'wrap',
+            justifyContent: isMobile ? 'center' : 'flex-start',
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '4px',
+              color: 'var(--text-secondary)',
+              fontSize: '0.875rem'
+            }}>
+              <TrophyIcon style={{ width: '16px', height: '16px', color: 'var(--accent)' }} />
+              {userData.achievements} {t('profile.achievements', 'Achievements')}
+            </div>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '4px',
+              color: 'var(--text-secondary)',
+              fontSize: '0.875rem'
+            }}>
+              <ClipboardDocumentCheckIcon style={{ width: '16px', height: '16px', color: 'var(--primary-dark)' }} />
+              {userData.completedQuizzes} {t('profile.quizzes', 'Quizzes')}
+            </div>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '4px',
+              color: 'var(--text-secondary)',
+              fontSize: '0.875rem'
+            }}>
+              <AcademicCapIcon style={{ width: '16px', height: '16px', color: 'var(--primary)' }} />
+              {userData.scholarshipsApplied} {t('profile.scholarships', 'Scholarships')}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+      
+      {/* Tabs and Content Section */}
+      <div style={{ 
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: '24px',
+      }}>
+        {/* Tabs */}
+        <div className="glass-card" style={{ 
+          width: isMobile ? '100%' : '250px',
+          padding: '16px',
+          marginBottom: isMobile ? '16px' : 0
+        }}>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {tabs.map(tab => (
+              <li key={tab.id} style={{ marginBottom: '8px' }}>
+                <button
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    backgroundColor: activeTab === tab.id ? 'var(--primary-transparent)' : 'transparent',
+                    color: activeTab === tab.id ? 'var(--primary)' : 'var(--text-muted)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    width: '100%',
+                    textAlign: 'left',
+                    fontSize: '0.875rem',
+                    fontWeight: activeTab === tab.id ? '600' : '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseOver={(e) => {
+                    if (activeTab !== tab.id) {
+                      e.currentTarget.style.backgroundColor = 'var(--hover)';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (activeTab !== tab.id) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  <tab.icon style={{ width: '20px', height: '20px' }} />
+                  {tab.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Tab Content */}
+        <div style={{ flex: 1 }}>
+          {renderTabContent()}
+        </div>
+      </div>
+    </PageLayout>
   );
 };
 

@@ -16,6 +16,9 @@ interface CalendarEvent {
   link: string;
   description?: string;
   location?: string;
+  category?: string;
+  isImportant?: boolean;
+  reminder?: boolean;
 }
 
 const Home = () => {
@@ -24,6 +27,9 @@ const Home = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [eventCategory, setEventCategory] = useState<string>('all');
+  const [showRemindModal, setShowRemindModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -47,40 +53,185 @@ const Home = () => {
     
     try {
       const response = await axios.get(`${API_BASE_URL}/api/calendar/events`);
-      setEvents(response.data || []);
+      // Check if response data exists and is an array
+      if (response.data && Array.isArray(response.data)) {
+        const enhancedEvents = response.data.map((event: any) => ({
+          ...event,
+          id: event.id || `event-${Math.random().toString(36).substr(2, 9)}`,
+          category: event.category || (
+            event.summary?.toLowerCase().includes('exam') ? 'exam' : 
+            event.summary?.toLowerCase().includes('scholarship') ? 'scholarship' :
+            event.summary?.toLowerCase().includes('workshop') ? 'workshop' : 'general'
+          ),
+          isImportant: event.isImportant || Math.random() > 0.7,
+          reminder: event.reminder || false
+        }));
+        setEvents(enhancedEvents);
+      } else {
+        // If no events are returned or data isn't in expected format
+        console.warn('No events data returned or invalid format, using fallback data:', response.data);
+        useFallbackEvents();
+      }
     } catch (error) {
       console.error('Error fetching events:', error);
-      setLoadError("Failed to load events. Please try again.");
+      setLoadError("Failed to load events from server. Using sample events instead.");
+      useFallbackEvents();
     } finally {
       setLoading(false);
     }
   };
 
+  // Fallback events in case API fails
+  const useFallbackEvents = () => {
+    const fallbackEvents: CalendarEvent[] = [
+      {
+        id: 'fb-1',
+        summary: 'JEE Advanced Exam',
+        start: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days from now
+        link: 'https://jeeadv.ac.in',
+        description: 'Joint Entrance Examination Advanced for IIT admissions',
+        location: 'Multiple centers across India',
+        category: 'exam',
+        isImportant: true,
+        reminder: false
+      },
+      {
+        id: 'fb-2',
+        summary: 'Scholarship Application Workshop',
+        start: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
+        link: 'https://aarambh-workshops.edu',
+        description: 'Learn how to write effective scholarship applications and personal statements',
+        location: 'Online (Zoom)',
+        category: 'workshop',
+        isImportant: false,
+        reminder: false
+      },
+      {
+        id: 'fb-3',
+        summary: 'National Talent Scholarship Deadline',
+        start: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+        link: 'https://nts-scholarships.gov.in',
+        description: 'Last date to apply for the National Talent Scholarship for undergraduate students',
+        category: 'scholarship',
+        isImportant: true,
+        reminder: false
+      }
+    ];
+    setEvents(fallbackEvents);
+    setLoadError(null); // Clear any error if we're using fallback data
+  };
+
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-IN', { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    }).format(date);
+    try {
+      const date = new Date(dateString);
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.warn(`Invalid date: ${dateString}`);
+        return "Date unavailable";
+      }
+      
+      return new Intl.DateTimeFormat('en-IN', { 
+        day: '2-digit', 
+        month: 'short', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      }).format(date);
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return "Date unavailable";
+    }
+  };
+
+  const getDaysRemaining = (dateString: string) => {
+    try {
+      const eventDate = new Date(dateString);
+      // Check if date is valid
+      if (isNaN(eventDate.getTime())) {
+        return 999; // Large number to not show urgency for invalid dates
+      }
+      
+      const today = new Date();
+      
+      today.setHours(0, 0, 0, 0);
+      const eventDateNoTime = new Date(eventDate);
+      eventDateNoTime.setHours(0, 0, 0, 0);
+      
+      const diffTime = eventDateNoTime.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      return diffDays;
+    } catch (error) {
+      console.error('Error calculating days remaining:', error);
+      return 999;
+    }
+  };
+
+  const formatRemainingDays = (dateString: string) => {
+    const days = getDaysRemaining(dateString);
+    
+    if (days < 0) return "Passed";
+    if (days === 0) return "Today";
+    if (days === 1) return "Tomorrow";
+    return `${days} days left`;
+  };
+
+  const toggleReminder = (event: CalendarEvent) => {
+    const updatedEvents = events.map(e => {
+      if (e.id === event.id) {
+        return { ...e, reminder: !e.reminder };
+      }
+      return e;
+    });
+    setEvents(updatedEvents);
+  };
+
+  const getFilteredEvents = () => {
+    if (eventCategory === 'all') return events;
+    return events.filter(event => event.category === eventCategory);
+  };
+  
+  const getCategoryColor = (category?: string) => {
+    switch(category) {
+      case 'exam': return 'rgba(239, 68, 68, 0.15)';
+      case 'scholarship': return 'rgba(16, 185, 129, 0.15)';
+      case 'workshop': return 'rgba(59, 130, 246, 0.15)';
+      default: return 'rgba(99, 102, 241, 0.15)';
+    }
+  };
+  
+  const getCategoryTextColor = (category?: string) => {
+    switch(category) {
+      case 'exam': return 'rgb(239, 68, 68)';
+      case 'scholarship': return 'rgb(16, 185, 129)';
+      case 'workshop': return 'rgb(59, 130, 246)';
+      default: return 'var(--primary)';
+    }
+  };
+  
+  const getCategoryLabel = (category?: string) => {
+    switch(category) {
+      case 'exam': return 'Exam';
+      case 'scholarship': return 'Scholarship';
+      case 'workshop': return 'Workshop';
+      default: return 'General';
+    }
   };
 
   return (
     <div style={{ 
       paddingTop: '72px',
       minHeight: '100vh',
-      backgroundColor: '#111827',
-      color: 'white'
+      backgroundColor: 'var(--background)',
+      color: 'var(--text)'
     }}>
       {/* Hero Section */}
       <section style={{ position: 'relative', padding: '64px 0 48px' }}>
         <div style={{ 
           position: 'absolute', 
           inset: 0, 
-          backgroundImage: 'linear-gradient(to bottom right, rgba(59, 130, 246, 0.2), rgba(124, 58, 237, 0.1))',
+          backgroundImage: 'linear-gradient(to bottom right, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.1))',
           zIndex: 0
         }} />
         <div style={{ 
@@ -99,14 +250,11 @@ const Home = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
+              className="gradient-text"
               style={{ 
                 fontSize: '36px',
                 fontWeight: 'bold',
                 marginBottom: '16px',
-                backgroundImage: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                color: 'transparent',
               }}
             >
               Welcome to Aarambh
@@ -118,7 +266,7 @@ const Home = () => {
               transition={{ duration: 0.5, delay: 0.1 }}
               style={{ 
                 fontSize: '18px',
-                color: '#d1d5db',
+                color: 'var(--text-secondary)',
                 marginBottom: '24px',
               }}
             >
@@ -144,11 +292,8 @@ const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
+            className="glass-card"
             style={{
-              backgroundColor: '#1f2937',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              border: '1px solid #374151',
               display: 'flex',
               flexDirection: 'column',
             }}
@@ -160,27 +305,27 @@ const Home = () => {
               flexDirection: 'column',
             }}>
               <div style={{
-                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                backgroundColor: 'rgba(99, 102, 241, 0.15)',
                 borderRadius: '12px',
                 padding: '16px',
                 marginBottom: '20px',
                 width: 'fit-content'
               }}>
-                <DocumentTextIcon style={{ width: '24px', height: '24px', color: '#818cf8' }} />
+                <DocumentTextIcon style={{ width: '24px', height: '24px', color: 'var(--primary-light)' }} />
               </div>
               
               <h2 style={{ 
                 fontSize: '24px', 
                 fontWeight: '600', 
                 marginBottom: '16px',
-                color: '#e5e7eb' 
+                color: 'var(--text)' 
               }}>
                 Career Discovery Quiz
               </h2>
               
               <p style={{ 
                 fontSize: '16px', 
-                color: '#9ca3af', 
+                color: 'var(--text-secondary)', 
                 marginBottom: '24px',
                 lineHeight: '1.6',
                 flex: 1
@@ -188,22 +333,13 @@ const Home = () => {
                 Take our interactive quiz to discover career paths that match your interests and strengths. Get personalized recommendations and resources tailored to your profile.
               </p>
               
-              <Link to="/career-quiz" style={{
-                backgroundColor: '#4f46e5',
-                color: 'white',
-                padding: '12px 24px',
-                borderRadius: '8px',
+              <Link to="/career-quiz" className="btn-3d" style={{
                 textDecoration: 'none',
                 fontSize: '16px',
-                fontWeight: '500',
                 display: 'inline-block',
                 textAlign: 'center',
-                transition: 'background-color 0.2s ease',
-                width: '100%'
-              }}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#4338ca' }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#4f46e5' }}
-              >
+                width: 'fit-content'
+              }}>
                 Start Quiz
               </Link>
             </div>
@@ -213,12 +349,9 @@ const Home = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
+            transition={{ duration: 0.3, delay: 0.5 }}
+            className="glass-card"
             style={{
-              backgroundColor: '#1f2937',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              border: '1px solid #374151',
               display: 'flex',
               flexDirection: 'column',
             }}
@@ -230,50 +363,41 @@ const Home = () => {
               flexDirection: 'column',
             }}>
               <div style={{
-                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                backgroundColor: 'rgba(168, 85, 247, 0.15)',
                 borderRadius: '12px',
                 padding: '16px',
                 marginBottom: '20px',
                 width: 'fit-content'
               }}>
-                <TrophyIcon style={{ width: '24px', height: '24px', color: '#f59e0b' }} />
+                <TrophyIcon style={{ width: '24px', height: '24px', color: 'var(--secondary)' }} />
               </div>
               
               <h2 style={{ 
                 fontSize: '24px', 
                 fontWeight: '600', 
                 marginBottom: '16px',
-                color: '#e5e7eb' 
+                color: 'var(--text)' 
               }}>
-                Learning Achievements
+                Achievements
               </h2>
               
               <p style={{ 
                 fontSize: '16px', 
-                color: '#9ca3af', 
+                color: 'var(--text-secondary)', 
                 marginBottom: '24px',
                 lineHeight: '1.6',
                 flex: 1
               }}>
-                Track your progress, earn badges, and compete on the leaderboard as you advance through your learning journey. Unlock rewards with points you earn.
+                Track your learning progress and earn badges as you complete quizzes, courses, and activities. Showcase your achievements and skills to potential universities and employers.
               </p>
               
-              <Link to="/achievements" style={{
-                backgroundColor: '#f59e0b',
-                color: 'white',
-                padding: '12px 24px',
-                borderRadius: '8px',
+              <Link to="/achievements" className="btn-3d" style={{
                 textDecoration: 'none',
                 fontSize: '16px',
-                fontWeight: '500',
                 display: 'inline-block',
                 textAlign: 'center',
-                transition: 'background-color 0.2s ease',
-                width: '100%'
-              }}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#d97706' }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#f59e0b' }}
-              >
+                width: 'fit-content'
+              }}>
                 View Achievements
               </Link>
             </div>
@@ -283,12 +407,9 @@ const Home = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.3 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            className="glass-card"
             style={{
-              backgroundColor: '#1f2937',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              border: '1px solid #374151',
               display: 'flex',
               flexDirection: 'column',
             }}
@@ -300,51 +421,100 @@ const Home = () => {
               flexDirection: 'column',
             }}>
               <div style={{
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                backgroundColor: 'rgba(139, 92, 246, 0.15)',
                 borderRadius: '12px',
                 padding: '16px',
                 marginBottom: '20px',
                 width: 'fit-content'
               }}>
-                <AcademicCapIcon style={{ width: '24px', height: '24px', color: '#60a5fa' }} />
+                <AcademicCapIcon style={{ width: '24px', height: '24px', color: 'var(--secondary)' }} />
               </div>
               
               <h2 style={{ 
                 fontSize: '24px', 
                 fontWeight: '600', 
                 marginBottom: '16px',
-                color: '#e5e7eb' 
+                color: 'var(--text)' 
               }}>
                 Scholarships
               </h2>
               
               <p style={{ 
                 fontSize: '16px', 
-                color: '#9ca3af', 
+                color: 'var(--text-secondary)', 
                 marginBottom: '24px',
                 lineHeight: '1.6',
                 flex: 1
               }}>
-                Find and apply for scholarships that match your academic profile and aspirations. Access opportunities from government and private institutions.
+                Find scholarships that match your profile. We've curated opportunities from government, private institutions, and international organizations to help fund your education.
               </p>
               
-              <Link to="/scholarships" style={{
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                padding: '12px 24px',
-                borderRadius: '8px',
+              <Link to="/scholarships" className="btn-3d" style={{
                 textDecoration: 'none',
                 fontSize: '16px',
-                fontWeight: '500',
                 display: 'inline-block',
                 textAlign: 'center',
-                transition: 'background-color 0.2s ease',
-                width: '100%'
-              }}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#2563eb' }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#3b82f6' }}
-              >
-                Browse Scholarships
+                width: 'fit-content'
+              }}>
+                Find Scholarships
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* Map Feature */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.3 }}
+            className="glass-card"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <div style={{ 
+              padding: '24px', 
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+            }}>
+              <div style={{
+                backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '20px',
+                width: 'fit-content'
+              }}>
+                <MapPinIcon style={{ width: '24px', height: '24px', color: 'var(--accent)' }} />
+              </div>
+              
+              <h2 style={{ 
+                fontSize: '24px', 
+                fontWeight: '600', 
+                marginBottom: '16px',
+                color: 'var(--text)' 
+              }}>
+                Job Locations
+              </h2>
+              
+              <p style={{ 
+                fontSize: '16px', 
+                color: 'var(--text-secondary)', 
+                marginBottom: '24px',
+                lineHeight: '1.6',
+                flex: 1
+              }}>
+                Explore an interactive map showing tech hubs, educational institutions, and companies across India where STEM graduates find employment opportunities.
+              </p>
+              
+              <Link to="/job-locations" className="btn-3d" style={{
+                textDecoration: 'none',
+                fontSize: '16px',
+                display: 'inline-block',
+                textAlign: 'center',
+                width: 'fit-content'
+              }}>
+                Explore Map
               </Link>
             </div>
           </motion.div>
@@ -354,11 +524,8 @@ const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.4 }}
+            className="glass-card"
             style={{
-              backgroundColor: '#1f2937',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              border: '1px solid #374151',
               display: 'flex',
               flexDirection: 'column',
             }}
@@ -370,51 +537,42 @@ const Home = () => {
               flexDirection: 'column',
             }}>
               <div style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                backgroundColor: 'rgba(99, 102, 241, 0.15)',
                 borderRadius: '12px',
                 padding: '16px',
                 marginBottom: '20px',
                 width: 'fit-content'
               }}>
-                <LightBulbIcon style={{ width: '24px', height: '24px', color: '#34d399' }} />
+                <LightBulbIcon style={{ width: '24px', height: '24px', color: 'var(--primary)' }} />
               </div>
               
               <h2 style={{ 
                 fontSize: '24px', 
                 fontWeight: '600', 
                 marginBottom: '16px',
-                color: '#e5e7eb' 
+                color: 'var(--text)' 
               }}>
                 STEM Assistant
               </h2>
               
               <p style={{ 
                 fontSize: '16px', 
-                color: '#9ca3af', 
+                color: 'var(--text-secondary)', 
                 marginBottom: '24px',
                 lineHeight: '1.6',
                 flex: 1
               }}>
-                Get personalized help with Science, Technology, Engineering, and Mathematics subjects. Ask questions and receive AI-powered guidance.
+                Get help with STEM concepts, homework, and projects. Our AI-powered assistant provides explanations, examples, and step-by-step solutions to your questions.
               </p>
               
-              <Link to="/stem-assistant" style={{
-                backgroundColor: '#10b981',
-                color: 'white',
-                padding: '12px 24px',
-                borderRadius: '8px',
+              <Link to="/stem-assistant" className="btn-3d" style={{
                 textDecoration: 'none',
                 fontSize: '16px',
-                fontWeight: '500',
                 display: 'inline-block',
                 textAlign: 'center',
-                transition: 'background-color 0.2s ease',
-                width: '100%'
-              }}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#059669' }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#10b981' }}
-              >
-                Open STEM Assistant
+                width: 'fit-content'
+              }}>
+                Ask Assistant
               </Link>
             </div>
           </motion.div>
@@ -422,253 +580,461 @@ const Home = () => {
       </section>
 
       {/* Academic Calendar Section */}
-      <section style={{ 
-        maxWidth: '1200px', 
-        margin: '0 auto 64px', 
+      <section style={{
+        maxWidth: '1200px',
+        margin: '0 auto 64px',
         padding: '0 16px'
       }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          style={{
-            backgroundColor: '#1f2937',
-            borderRadius: '16px',
-            overflow: 'hidden',
-            border: '1px solid #374151',
-            padding: '24px',
-          }}
-        >
+        <div style={{
+          display: 'flex', 
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '24px'
+        }}>
+          <h2 style={{ 
+            fontSize: '24px', 
+            fontWeight: '600',
+            color: 'var(--text)'
+          }}>
+            <CalendarIcon style={{ 
+              width: '24px', 
+              height: '24px', 
+              display: 'inline-block', 
+              marginRight: '8px',
+              verticalAlign: 'text-bottom',
+              color: 'var(--primary)'
+            }} />
+            Upcoming Events
+          </h2>
+          
           <div style={{
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '24px'
+            gap: '16px'
           }}>
+            {/* Event Category Filter */}
             <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px'
+              position: 'relative',
+              zIndex: 5
             }}>
+              <select
+                value={eventCategory}
+                onChange={(e) => setEventCategory(e.target.value)}
+                style={{
+                  backgroundColor: 'var(--background-lighter)',
+                  color: 'var(--text)',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border)',
+                  fontSize: '14px',
+                  appearance: 'none',
+                  paddingRight: '32px',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">All Categories</option>
+                <option value="exam">Exams</option>
+                <option value="scholarship">Scholarships</option>
+                <option value="workshop">Workshops</option>
+                <option value="general">General</option>
+              </select>
               <div style={{
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                borderRadius: '12px',
-                padding: '16px',
-                width: 'fit-content'
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                pointerEvents: 'none'
               }}>
-                <CalendarIcon style={{ width: '24px', height: '24px', color: '#3b82f6' }} />
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
               </div>
-              
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: '600', 
-                color: '#e5e7eb' 
-              }}>
-                {t('calendar.title', 'Academic Calendar')}
-              </h2>
             </div>
             
-            <Link to="/calendar" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              backgroundColor: '#3b82f6',
-              color: 'white',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              textDecoration: 'none',
+            <Link to="/calendar" style={{ 
               fontSize: '14px',
-              fontWeight: '500',
-              transition: 'background-color 0.2s ease',
-            }}
-            onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#2563eb' }}
-            onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#3b82f6' }}
-            >
-              <PlusIcon style={{ width: '16px', height: '16px' }} />
-              {t('calendar.addEvent', 'Add Event')}
+              color: 'var(--primary-light)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              textDecoration: 'none'
+            }}>
+              View All
+              <ArrowRightIcon style={{ width: '16px', height: '16px' }} />
             </Link>
           </div>
-          
-          <h3 style={{ 
-            fontSize: '18px', 
-            fontWeight: '600', 
-            color: '#d1d5db',
-            marginBottom: '16px'
-          }}>
-            {t('calendar.upcomingEvents', 'Upcoming Academic Events')}
-          </h3>
-          
+        </div>
+
+        {/* Events Grid or Loading State */}
+        <div className="glass-card" style={{ padding: '16px' }}>
           {loading ? (
-            <div style={{
+            <div style={{ 
+              padding: '32px',
               display: 'flex',
-              justifyContent: 'center',
+              flexDirection: 'column',
               alignItems: 'center',
-              padding: '24px'
+              justifyContent: 'center',
+              gap: '16px'
             }}>
-              <div className="spinner"></div>
-            </div>
-          ) : loadError ? (
-            <div style={{
-              padding: '16px',
-              textAlign: 'center',
-              color: '#ef4444',
-              borderRadius: '8px',
-              backgroundColor: 'rgba(220, 38, 38, 0.05)',
-              marginBottom: '16px'
-            }}>
-              <p>{loadError}</p>
-              <button
-                onClick={fetchEvents}
-                style={{
-                  backgroundColor: '#374151',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '8px 16px',
-                  fontSize: '14px',
-                  cursor: 'pointer',
+              <div className="loader"></div>
+              <p style={{ color: 'var(--text-secondary)' }}>Loading events...</p>
+              
+              {/* Show a timeout message if loading takes too long */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 5 }} // Show after 5 seconds
+                style={{ 
+                  fontSize: '13px',
+                  color: 'var(--text-muted)',
+                  textAlign: 'center',
+                  maxWidth: '400px',
                   marginTop: '8px'
                 }}
               >
-                Retry
-              </button>
+                Taking longer than expected. You can try refreshing the page or come back later.
+              </motion.div>
             </div>
-          ) : events.length === 0 ? (
-            <div style={{
-              padding: '24px',
+          ) : loadError ? (
+            <div style={{ 
+              padding: '32px',
               textAlign: 'center',
-              color: '#9ca3af',
-              border: '1px dashed #4b5563',
-              borderRadius: '12px'
+              color: 'var(--text-secondary)'
             }}>
-              <p>No upcoming events found</p>
-            </div>
-          ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-              gap: '16px'
-            }}>
-              {events.slice(0, 3).map((event, index) => (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
+              <p>{loadError}</p>
+              <div style={{ 
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'center',
+                marginTop: '16px'
+              }}>
+                <button 
+                  onClick={fetchEvents}
                   style={{
-                    backgroundColor: '#111827',
-                    borderRadius: '12px',
-                    border: '1px solid #374151',
-                    overflow: 'hidden',
-                    transition: 'all 0.2s',
-                  }}
-                  whileHover={{
-                    scale: 1.02,
-                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                    padding: '8px 16px',
+                    backgroundColor: 'var(--primary)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
                   }}
                 >
-                  <div style={{
-                    borderBottom: '1px solid #374151',
-                    padding: '16px',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)'
-                  }}>
-                    <div style={{
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <polyline points="23 20 23 14 17 14"></polyline>
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                  </svg>
+                  Try Again
+                </button>
+                <Link to="/calendar"
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: 'transparent',
+                    color: 'var(--primary)',
+                    border: '1px solid var(--primary)',
+                    borderRadius: '4px',
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 3h18v18H3z"></path>
+                    <path d="M8 12h8"></path>
+                    <path d="M12 8v8"></path>
+                  </svg>
+                  Create Event
+                </Link>
+              </div>
+            </div>
+          ) : getFilteredEvents().length === 0 ? (
+            <div style={{ 
+              padding: '32px',
+              textAlign: 'center',
+              color: 'var(--text-secondary)'
+            }}>
+              <p>No {eventCategory !== 'all' ? getCategoryLabel(eventCategory) + ' ' : ''}events found.</p>
+              <Link to="/calendar" 
+                style={{
+                  display: 'inline-block',
+                  marginTop: '16px',
+                  padding: '8px 16px',
+                  backgroundColor: 'var(--primary)',
+                  color: 'white',
+                  textDecoration: 'none',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              >
+                Create Event
+              </Link>
+            </div>
+          ) : (
+            <div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+                gap: '16px'
+              }}>
+                {getFilteredEvents().slice(0, 3).map((event) => (
+                  <motion.div
+                    key={event.id || `event-${Math.random().toString(36).substr(2, 9)}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="glass-card"
+                    style={{
                       display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '12px'
+                      flexDirection: 'column',
+                      padding: '16px',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      border: `1px solid ${event.isImportant ? getCategoryTextColor(event.category) : 'var(--border)'}`
+                    }}
+                    whileHover={{
+                      y: -5,
+                      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)'
+                    }}
+                  >
+                    {/* Category Badge */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      backgroundColor: getCategoryColor(event.category),
+                      color: getCategoryTextColor(event.category),
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      padding: '2px 8px'
                     }}>
-                      <h3 style={{
-                        fontSize: '16px',
-                        fontWeight: '600',
-                        color: '#f9fafb',
-                        margin: '0 0 8px 0',
-                      }}>
-                        {event.summary}
-                      </h3>
+                      {getCategoryLabel(event.category)}
                     </div>
+                    
+                    {/* Important Flag */}
+                    {event.isImportant && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '0',
+                        left: '16px',
+                        backgroundColor: getCategoryTextColor(event.category),
+                        color: 'white',
+                        fontSize: '10px',
+                        padding: '4px 8px',
+                        borderBottomLeftRadius: '4px',
+                        borderBottomRightRadius: '4px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                      }}>
+                        Important
+                      </div>
+                    )}
+                    
+                    {/* Date and Countdown */}
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
-                      color: '#9ca3af',
-                      fontSize: '14px'
+                      marginBottom: '16px',
+                      marginTop: event.isImportant ? '8px' : '0'
                     }}>
-                      <ClockIcon style={{ width: '16px', height: '16px' }} />
-                      <span>{formatDate(event.start)}</span>
+                      <div style={{
+                        backgroundColor: getCategoryColor(event.category),
+                        borderRadius: '50%',
+                        padding: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <CalendarIcon style={{ width: '16px', height: '16px', color: getCategoryTextColor(event.category) }} />
+                      </div>
+                      
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '2px'
+                      }}>
+                        <span style={{ 
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          color: 'var(--text)'
+                        }}>
+                          {event.start ? formatDate(event.start) : "Date unavailable"}
+                        </span>
+                        
+                        <span style={{ 
+                          fontSize: '12px',
+                          color: event.start && getDaysRemaining(event.start) <= 3 ? 'var(--red)' : 'var(--text-muted)',
+                          fontWeight: event.start && getDaysRemaining(event.start) <= 3 ? '600' : '400'
+                        }}>
+                          {event.start ? formatRemainingDays(event.start) : "No date set"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div style={{ padding: '16px' }}>
+                    
+                    {/* Event title and description */}
+                    <h3 style={{
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      marginBottom: '8px',
+                      color: 'var(--text)'
+                    }}>
+                      {event.summary || "Untitled Event"}
+                    </h3>
+                    
                     {event.description && (
                       <p style={{
-                        margin: '0 0 16px 0',
-                        color: '#d1d5db',
                         fontSize: '14px',
-                        lineHeight: '1.5'
+                        color: 'var(--text-secondary)',
+                        marginBottom: '16px',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        flex: '1'
                       }}>
-                        {event.description.length > 80 
-                          ? `${event.description.substring(0, 80)}...` 
-                          : event.description}
+                        {event.description}
                       </p>
                     )}
                     
+                    {/* Location if available */}
                     {event.location && (
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '8px',
-                        color: '#9ca3af',
-                        fontSize: '14px',
-                        marginBottom: '16px'
+                        gap: '6px',
+                        fontSize: '13px',
+                        color: 'var(--text-muted)',
+                        marginBottom: '12px'
                       }}>
-                        <MapPinIcon style={{ width: '16px', height: '16px' }} />
-                        <span>{event.location}</span>
+                        <MapPinIcon style={{ width: '14px', height: '14px' }} />
+                        <span style={{
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}>
+                          {event.location}
+                        </span>
                       </div>
                     )}
                     
-                    <a
-                      href={event.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        color: '#3b82f6',
-                        fontSize: '14px',
-                        textDecoration: 'none',
-                        fontWeight: '500',
-                      }}
-                    >
-                      {t('calendar.viewInCalendar', 'View Details')}
-                      <ArrowRightIcon style={{ width: '16px', height: '16px' }} />
-                    </a>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-          
-          {events.length > 3 && (
-            <div style={{ 
-              textAlign: 'center', 
-              marginTop: '24px' 
-            }}>
-              <Link to="/calendar" style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                color: '#3b82f6',
-                fontSize: '16px',
-                textDecoration: 'none',
-                fontWeight: '500',
+                    {/* Action buttons */}
+                    <div style={{
+                      display: 'flex',
+                      gap: '10px',
+                      marginTop: 'auto',
+                      paddingTop: '12px',
+                      borderTop: '1px solid var(--border)'
+                    }}>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleReminder(event);
+                        }}
+                        style={{
+                          flex: '1',
+                          padding: '8px',
+                          background: event.reminder ? getCategoryColor(event.category) : 'var(--background-lighter)',
+                          border: `1px solid ${event.reminder ? getCategoryTextColor(event.category) : 'var(--border)'}`,
+                          color: event.reminder ? getCategoryTextColor(event.category) : 'var(--text-secondary)',
+                          borderRadius: '6px',
+                          fontSize: '13px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        {event.reminder ? 'Reminder Set' : 'Set Reminder'}
+                      </button>
+                      
+                      <a 
+                        href={event.link || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          flex: '1',
+                          padding: '8px',
+                          backgroundColor: getCategoryTextColor(event.category),
+                          color: 'white',
+                          borderRadius: '6px',
+                          fontSize: '13px',
+                          textDecoration: 'none',
+                          textAlign: 'center',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15 3 21 3 21 9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        View Details
+                      </a>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+              
+              {/* Create Event Button */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginTop: '24px',
+                gap: '16px'
               }}>
-                View all events
-                <ArrowRightIcon style={{ width: '16px', height: '16px' }} />
-              </Link>
+                <Link to="/calendar" 
+                  className="btn-3d"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    textDecoration: 'none',
+                    fontSize: '14px'
+                  }}
+                >
+                  <PlusIcon width={16} height={16} />
+                  Add New Event
+                </Link>
+                
+                {getFilteredEvents().length > 3 && (
+                  <Link to="/calendar" 
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      color: 'var(--primary)',
+                      fontSize: '14px',
+                      textDecoration: 'none',
+                      padding: '10px 16px',
+                      border: '1px solid var(--primary-light)',
+                      borderRadius: '8px',
+                      backgroundColor: 'rgba(99, 102, 241, 0.1)'
+                    }}
+                  >
+                    View all {getFilteredEvents().length} events
+                    <ArrowRightIcon style={{ width: '14px', height: '14px' }} />
+                  </Link>
+                )}
+              </div>
             </div>
           )}
-        </motion.div>
+        </div>
       </section>
     </div>
   );

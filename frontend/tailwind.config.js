@@ -80,6 +80,8 @@ export default {
         'float': 'float 3s ease-in-out infinite',
         'shimmer': 'shimmer 2s linear infinite',
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'star-movement-top': 'starMovementTop 6s linear infinite',
+        'star-movement-bottom': 'starMovementBottom 6s linear infinite',
       },
       keyframes: {
         gradient: {
@@ -106,6 +108,14 @@ export default {
         },
         shimmer: {
           '100%': { transform: 'translateX(100%)' },
+        },
+        starMovementTop: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(33%)' },
+        },
+        starMovementBottom: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-33%)' },
         },
       },
     },
