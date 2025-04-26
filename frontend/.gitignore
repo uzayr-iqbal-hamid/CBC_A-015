@@ -30,3 +30,7 @@ dist-ssr
 
 # Deployment
 .vercel
+
+# APK files
+*.apk
+public/downloads/apk/**/*.apk
