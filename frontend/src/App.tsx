@@ -16,6 +16,7 @@ import Profile from './pages/Profile';
 import JobLocations from './pages/JobLocations';
 import Calendar from './pages/Calendar';
 import Auth from './pages/Auth';
+import ApkDownloads from './pages/ApkDownloads';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -85,6 +86,7 @@ const App = () => {
                   <Route path="/stem-assistant" element={<StemAssistant />} />
                   <Route path="/career-quiz" element={<CareerQuiz />} />
                   <Route path="/auth" element={<Auth />} />
+                  <Route path="/apk-downloads" element={<ApkDownloads />} />
                   
                   {/* Protected routes that require authentication */}
                   <Route path="/achievements" element={
