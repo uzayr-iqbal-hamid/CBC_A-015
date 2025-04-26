@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Bars3Icon, 
@@ -12,9 +12,10 @@ import {
   ChatBubbleLeftRightIcon,
   MapPinIcon
 } from '@heroicons/react/24/outline';
-import { Sun, Moon } from 'lucide-react'; 
+import { Sun, Moon, LogOut, LogIn } from 'lucide-react'; 
 import { useTranslation } from 'react-i18next';
 import { cn } from '../lib/utils';
+import { useAuth } from '../contexts/AuthContext';
 
 // Custom styles for dark mode and active elements
 const navbarStyles = `
@@ -60,98 +61,6 @@ const navbarStyles = `
     animation: softPulse 2s infinite;
   }
   
-  /* New improved theme toggle animations */
-  .theme-switch-container {
-    position: relative;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s ease;
-  }
-  
-  .theme-switch-container:hover {
-    transform: scale(1.05);
-  }
-  
-  .theme-switch-container:active {
-    transform: scale(0.95);
-  }
-  
-  .theme-icon {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  
-  .theme-icon.sun {
-    color: #f59e0b;
-    opacity: 0;
-    transform: rotate(-90deg) scale(0);
-  }
-  
-  .theme-icon.moon {
-    color: #3b82f6;
-    opacity: 0;
-    transform: rotate(90deg) scale(0);
-  }
-  
-  .light-mode .theme-icon.sun {
-    opacity: 1;
-    transform: rotate(0) scale(1);
-  }
-  
-  .dark-mode .theme-icon.moon {
-    opacity: 1;
-    transform: rotate(0) scale(1);
-  }
-  
-  /* Desktop theme button styles */
-  .desktop-theme-switch {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(var(--card-rgb), 0.3);
-    transition: all 0.3s ease;
-    padding: 0;
-    border: none;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-  
-  .desktop-theme-switch:hover {
-    background: rgba(var(--card-rgb), 0.5);
-    box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.3);
-  }
-  
-  /* Mobile theme button styles */
-  .mobile-theme-switch {
-    flex: 1;
-    margin-left: 8px;
-    background: var(--background-lighter);
-    border: 1px solid var(--border);
-    border-radius: var(--border-radius-md);
-    padding: 0.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    transition: all 0.3s ease;
-  }
-  
-  .mobile-theme-switch:hover {
-    background: var(--hover-light);
-  }
-
   /* Theme Toggle Styles */
   .theme-toggle {
     width: 40px;
@@ -223,6 +132,37 @@ const navbarStyles = `
   .mobile-toggle:hover {
     transform: scale(1.02);
   }
+  
+  /* Tooltip styles */
+  .tooltip {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tooltip .tooltip-text {
+    visibility: hidden;
+    min-width: 120px;
+    background-color: var(--background-lighter);
+    color: var(--text);
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    border: 1px solid var(--border);
+  }
+  
+  .tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+  }
 `;
 
 interface NavbarProps {
@@ -232,14 +172,16 @@ interface NavbarProps {
 
 const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
   const { t, i18n } = useTranslation();
-  const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
+  const { user, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Check if current page is STEM Assistant
   const isStemAssistant = location.pathname === '/stem-assistant';
-  
+   
   // If we're on STEM Assistant page, don't render the navbar
   if (isStemAssistant) {
     return null;
@@ -293,10 +235,6 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
     setIsOpen(false);
   }, [location]);
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-  };
-
   const navLinks = [
     { name: 'Home', path: '/', icon: HomeIcon },
     { name: 'Career Quiz', path: '/career-quiz', icon: DocumentTextIcon },
@@ -307,26 +245,29 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
     { name: 'Job Locations', path: '/job-locations', icon: MapPinIcon },
   ];
 
+  // Change language function
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
+  // Toggle mobile menu
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
   const currentLanguage = i18n.language === 'en' ? 'English' : 'हिन्दी';
-  
+
   return (
     <nav 
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled ? (darkMode ? "glass-effect-dark" : "glass-effect-light") : "bg-transparent"
       )}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        transition: 'all 0.3s ease',
-      }}
     >
       {/* Desktop/Tablet Navigation */}
       {!isMobileView && (
@@ -349,9 +290,9 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
               marginBottom: '0.5rem',
             }}>
               {/* Logo */}
-              <Link to="/" style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
+              <Link to="/" style={{
+                display: 'flex',
+                alignItems: 'center',
                 gap: '0.75rem', 
                 textDecoration: 'none',
                 position: 'relative',
@@ -413,6 +354,49 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                   </button>
                 </div>
 
+                {/* Authentication Button */}
+                {user ? (
+                  <button
+                    onClick={handleSignOut}
+                    style={{
+                      backgroundColor: 'var(--background-lighter)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px',
+                      padding: '6px 12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      height: '32px',
+                      color: 'var(--text-secondary)',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <LogOut size={14} />
+                    <span>{t('navbar.signOut', 'Sign Out')}</span>
+                  </button>
+                ) : (
+                  <Link 
+                    to="/auth"
+                    style={{
+                      backgroundColor: 'var(--background-lighter)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px',
+                      padding: '6px 12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      height: '32px',
+                      color: 'var(--text-secondary)',
+                      fontSize: '14px',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <LogIn size={14} />
+                    <span>{t('navbar.signIn', 'Sign In')}</span>
+                  </Link>
+                )}
+
                 {/* Theme Toggle Button */}
                 <div className="tooltip" style={{ position: 'relative' }}>
                   <button
@@ -421,9 +405,9 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                     aria-label={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                   >
                     {darkMode ? (
-                      <Moon className="toggle-icon" size={20} />
-                    ) : (
                       <Sun className="toggle-icon" size={20} />
+                    ) : (
+                      <Moon className="toggle-icon" size={20} />
                     )}
                   </button>
                   <span className="tooltip-text">
@@ -432,7 +416,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                 </div>
               </div>
             </div>
-
+                
             {/* Bottom row - Navigation links */}
             <div style={{
               display: 'flex',
@@ -707,14 +691,64 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                     className={`mobile-toggle ${darkMode ? 'dark' : 'light'}`}
                   >
                     {darkMode ? (
-                      <Moon className="toggle-icon" size={18} />
-                    ) : (
                       <Sun className="toggle-icon" size={18} />
+                    ) : (
+                      <Moon className="toggle-icon" size={18} />
                     )}
                     <span>
                       {darkMode ? t('navbar.lightMode', 'Light') : t('navbar.darkMode', 'Dark')}
                     </span>
                   </button>
+                </li>
+
+                {/* Authentication in mobile menu */}
+                <li>
+                  {user ? (
+                    <button
+                      onClick={handleSignOut}
+                      style={{
+                        width: '100%',
+                        backgroundColor: 'var(--background-lighter)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 'var(--border-radius-md)',
+                        padding: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        cursor: 'pointer',
+                        color: 'var(--danger)',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                      }}
+                    >
+                      <LogOut size={18} />
+                      <span>{t('navbar.signOut', 'Sign Out')}</span>
+                    </button>
+                  ) : (
+                    <Link
+                      to="/auth" 
+                      style={{
+                        width: '100%',
+                        backgroundColor: 'var(--primary)',
+                        border: '1px solid var(--primary-dark)',
+                        borderRadius: 'var(--border-radius-md)',
+                        padding: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        cursor: 'pointer',
+                        color: 'white',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      <LogIn size={18} />
+                      <span>{t('navbar.signIn', 'Sign In')}</span>
+                    </Link>
+                  )}
                 </li>
               </ul>
             </div>
