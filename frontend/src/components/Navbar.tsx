@@ -10,7 +10,8 @@ import {
   UserIcon,
   DocumentTextIcon,
   ChatBubbleLeftRightIcon,
-  MapPinIcon
+  MapPinIcon,
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 import { Sun, Moon, LogOut, LogIn } from 'lucide-react'; 
 import { useTranslation } from 'react-i18next';
@@ -241,6 +242,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
     { name: 'Scholarships', path: '/scholarships', icon: AcademicCapIcon },
     { name: 'Achievements', path: '/achievements', icon: TrophyIcon },
     { name: 'STEM Assistant', path: '/stem-assistant', icon: ChatBubbleLeftRightIcon },
+    { name: 'APK Downloads', path: '/apk-downloads', icon: ArrowDownTrayIcon },
     { name: 'Profile', path: '/profile', icon: UserIcon },
     { name: 'Job Locations', path: '/job-locations', icon: MapPinIcon },
   ];
