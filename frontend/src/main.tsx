@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 // Import CSS in the correct order
 import './index.css'
+import './styles/advanced-ui.css'
 import './main.css'
 import './i18n'
 import App from './App.tsx'

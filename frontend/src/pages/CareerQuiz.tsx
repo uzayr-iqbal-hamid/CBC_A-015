@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircleIcon, ArrowRightIcon, ArrowLeftIcon, AcademicCapIcon, BriefcaseIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, ArrowRightIcon, ArrowLeftIcon, AcademicCapIcon, BriefcaseIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import PageLayout from '../components/PageLayout';
+import AnimatedCard from '../components/AnimatedCard';
+import IconBlock from '../components/IconBlock';
 
 interface QuizQuestion {
   id: number;
@@ -222,420 +225,284 @@ const CareerQuiz = () => {
     setShowResults(true);
   };
 
-  return (
-    <div style={{ 
-      paddingTop: '72px',
-      paddingBottom: '64px',
-      minHeight: '100vh',
-      backgroundColor: '#111827',
-      color: 'white'
-    }}>
-      {/* Hero Section */}
-      <section style={{ position: 'relative', padding: '64px 0 48px' }}>
-        <div style={{ 
-          position: 'absolute', 
-          inset: 0, 
-          backgroundImage: 'linear-gradient(to bottom right, rgba(59, 130, 246, 0.2), rgba(124, 58, 237, 0.1))',
-          zIndex: 0
-        }} />
-        <div style={{ 
-          maxWidth: '1200px', 
-          margin: '0 auto', 
-          padding: '0 16px',
-          position: 'relative',
-          zIndex: 1
-        }}>
+  const renderContent = () => {
+    if (!quizStarted) {
+      return (
+        <AnimatedCard>
+          <div style={{ padding: '32px', textAlign: 'center' }}>
+            <IconBlock 
+              icon={<DocumentTextIcon width={32} height={32} />}
+              color="var(--primary)"
+              backgroundColor="rgba(99, 102, 241, 0.15)"
+            />
+            <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '16px', color: 'var(--text)' }}>
+              Discover Your Ideal Career Path
+            </h2>
+            <p style={{ 
+              fontSize: '16px', 
+              color: 'var(--text-secondary)', 
+              marginBottom: '32px',
+              lineHeight: '1.6',
+              maxWidth: '600px',
+              margin: '0 auto 32px'
+            }}>
+              Answer a few questions about your interests, skills, and preferences to get personalized career recommendations. This quiz takes about 5 minutes to complete.
+            </p>
+            <button 
+              onClick={startQuiz}
+              className="btn-3d"
+            >
+              Start Quiz
+            </button>
+          </div>
+        </AnimatedCard>
+      );
+    }
+
+    if (showResults) {
+      return (
+        <div>
           <div style={{ 
-            textAlign: 'center', 
-            maxWidth: '800px',
-            margin: '0 auto' 
+            marginBottom: '24px', 
+            textAlign: 'center' 
           }}>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              style={{ 
-                fontSize: '36px',
-                fontWeight: 'bold',
-                marginBottom: '16px',
-                backgroundImage: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                color: 'transparent',
-              }}
+            <h2 style={{ 
+              fontSize: '24px', 
+              fontWeight: '600', 
+              marginBottom: '16px',
+              color: 'var(--text)' 
+            }}>
+              Your Career Recommendations
+            </h2>
+            <p style={{ color: 'var(--text-secondary)' }}>
+              Based on your answers, here are career paths that might be a good fit for you:
+            </p>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+            gap: '24px',
+            marginBottom: '32px'
+          }}>
+            {recommendations.map((career, index) => (
+              <AnimatedCard key={index} delay={index * 0.1}>
+                <div style={{ padding: '24px' }}>
+                  <IconBlock icon={career.icon} />
+                  
+                  <h3 style={{ 
+                    fontSize: '20px', 
+                    fontWeight: '600', 
+                    marginBottom: '16px',
+                    color: 'var(--text)' 
+                  }}>
+                    {career.title}
+                  </h3>
+                  
+                  <p style={{ 
+                    fontSize: '16px', 
+                    color: 'var(--text-secondary)', 
+                    marginBottom: '24px',
+                    lineHeight: '1.6'
+                  }}>
+                    {career.description}
+                  </p>
+                  
+                  <div style={{ marginBottom: '24px' }}>
+                    <h4 style={{ 
+                      fontSize: '16px', 
+                      fontWeight: '600', 
+                      marginBottom: '8px',
+                      color: 'var(--text)' 
+                    }}>
+                      Key Skills:
+                    </h4>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {career.skills.map((skill, i) => (
+                        <span 
+                          key={i}
+                          className="badge"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 style={{ 
+                      fontSize: '16px', 
+                      fontWeight: '600', 
+                      marginBottom: '8px',
+                      color: 'var(--text)' 
+                    }}>
+                      Recommended Courses:
+                    </h4>
+                    <ul style={{ 
+                      paddingLeft: '20px', 
+                      color: 'var(--text-secondary)',
+                      marginBottom: '0'
+                    }}>
+                      {career.courses.map((course, i) => (
+                        <li key={i} style={{ marginBottom: '4px' }}>{course}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </AnimatedCard>
+            ))}
+          </div>
+          
+          <div style={{ textAlign: 'center' }}>
+            <button
+              onClick={restartQuiz}
+              className="btn-3d"
             >
-              Career Discovery Quiz
-            </motion.h1>
-            
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              style={{ 
-                fontSize: '18px',
-                color: '#d1d5db',
-                marginBottom: '24px',
-              }}
-            >
-              Discover career paths that match your interests and strengths through our interactive quiz
-            </motion.p>
+              Retake Quiz
+            </button>
           </div>
         </div>
-      </section>
+      );
+    }
 
-      {/* Quiz Container */}
-      <section style={{ 
-        maxWidth: '800px',
-        margin: '0 auto 48px',
-        padding: '0 16px',
-      }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          style={{
-            backgroundColor: '#1f2937',
-            borderRadius: '16px',
-            padding: '32px',
-            border: '1px solid #374151',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          {!quizStarted ? (
-            // Quiz introduction
-            <div style={{ textAlign: 'center' }}>
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: 'bold', 
-                marginBottom: '16px',
-                color: '#e5e7eb' 
-              }}>
-                Find Your Ideal Career Path
-              </h2>
-              <p style={{ 
-                color: '#9ca3af', 
-                marginBottom: '24px',
-                fontSize: '16px',
-                lineHeight: '1.6'
-              }}>
-                Answer a few questions about your interests and preferences to get personalized career recommendations and learning resources.
-              </p>
-              <button
-                onClick={startQuiz}
+    return (
+      <AnimatedCard>
+        <div style={{ padding: '32px' }}>
+          {/* Progress Bar */}
+          <div style={{ 
+            marginBottom: '32px',
+            borderRadius: '8px',
+            height: '8px',
+            width: '100%',
+            backgroundColor: 'var(--background-lighter)',
+            overflow: 'hidden'
+          }}>
+            <div style={{ 
+              height: '100%', 
+              width: `${progress}%`, 
+              backgroundColor: 'var(--primary)',
+              borderRadius: '8px',
+              transition: 'width 0.3s ease'
+            }} />
+          </div>
+          
+          {/* Question */}
+          <div style={{ marginBottom: '32px' }}>
+            <h2 style={{ 
+              fontSize: '20px', 
+              fontWeight: '600', 
+              marginBottom: '8px',
+              color: 'var(--text)' 
+            }}>
+              Question {currentQuestion + 1} of {questions.length}
+            </h2>
+            <p style={{ 
+              fontSize: '18px', 
+              fontWeight: '500',
+              color: 'var(--text)'
+            }}>
+              {questions[currentQuestion].question}
+            </p>
+          </div>
+          
+          {/* Options */}
+          <div style={{ marginBottom: '32px' }}>
+            {questions[currentQuestion].options.map((option, index) => (
+              <div 
+                key={index}
                 style={{
-                  backgroundColor: '#4f46e5',
-                  color: 'white',
-                  padding: '12px 24px',
+                  backgroundColor: answers[currentQuestion] === index ? 'rgba(99, 102, 241, 0.15)' : 'var(--background-lighter)',
+                  border: `1px solid ${answers[currentQuestion] === index ? 'var(--primary)' : 'var(--border)'}`,
                   borderRadius: '8px',
-                  border: 'none',
-                  fontWeight: '500',
-                  fontSize: '16px',
+                  padding: '16px',
+                  marginBottom: '12px',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  display: 'inline-flex',
+                  display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
-                }}
-                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#4338ca' }}
-                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#4f46e5' }}
-              >
-                Start Quiz
-                <ArrowRightIcon width={18} height={18} />
-              </button>
-            </div>
-          ) : showResults ? (
-            // Results view
-            <div>
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: 'bold', 
-                marginBottom: '24px',
-                color: '#e5e7eb',
-                textAlign: 'center'
-              }}>
-                Your Career Recommendations
-              </h2>
-              
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                gap: '24px',
-                marginBottom: '32px'
-              }}>
-                {recommendations.map((rec, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.2 }}
-                    style={{
-                      backgroundColor: 'rgba(31, 41, 55, 0.8)',
-                      borderRadius: '12px',
-                      padding: '24px',
-                      border: '1px solid #374151',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                      <div style={{
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                        padding: '10px',
-                        borderRadius: '8px',
-                        marginRight: '12px',
-                        color: '#818cf8'
-                      }}>
-                        {rec.icon}
-                      </div>
-                      <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#e5e7eb' }}>
-                        {rec.title}
-                      </h3>
-                    </div>
-                    
-                    <p style={{ 
-                      fontSize: '14px', 
-                      color: '#9ca3af', 
-                      marginBottom: '16px',
-                      lineHeight: '1.6'
-                    }}>
-                      {rec.description}
-                    </p>
-                    
-                    <div style={{ marginBottom: '16px' }}>
-                      <h4 style={{ 
-                        fontSize: '15px', 
-                        fontWeight: '600', 
-                        color: '#d1d5db',
-                        marginBottom: '8px'
-                      }}>
-                        Key Skills:
-                      </h4>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                        {rec.skills.map((skill, i) => (
-                          <span 
-                            key={i}
-                            style={{
-                              fontSize: '12px',
-                              padding: '4px 8px',
-                              backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                              borderRadius: '4px',
-                              color: '#a5b4fc',
-                            }}
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 style={{ 
-                        fontSize: '15px', 
-                        fontWeight: '600', 
-                        color: '#d1d5db',
-                        marginBottom: '8px'
-                      }}>
-                        Recommended Courses:
-                      </h4>
-                      <ul style={{ listStyle: 'none', padding: 0 }}>
-                        {rec.courses.map((course, i) => (
-                          <li 
-                            key={i}
-                            style={{
-                              fontSize: '14px',
-                              color: '#9ca3af',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              marginBottom: '4px'
-                            }}
-                          >
-                            <CheckCircleIcon width={16} height={16} style={{ color: '#818cf8' }} />
-                            {course}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
-                <button
-                  onClick={restartQuiz}
-                  style={{
-                    backgroundColor: '#374151',
-                    color: 'white',
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#4b5563' }}
-                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#374151' }}
-                >
-                  Retake Quiz
-                </button>
-              </div>
-            </div>
-          ) : (
-            // Quiz questions view
-            <div>
-              {/* Progress bar */}
-              <div style={{ 
-                width: '100%',
-                backgroundColor: '#374151',
-                borderRadius: '9999px',
-                height: '8px',
-                marginBottom: '24px'
-              }}>
-                <div 
-                  style={{ 
-                    width: `${progress}%`,
-                    backgroundColor: '#4f46e5',
-                    borderRadius: '9999px',
-                    height: '100%',
-                    transition: 'width 0.3s ease'
-                  }} 
-                />
-              </div>
-              
-              <div style={{ marginBottom: '32px' }}>
-                <div style={{ 
-                  fontSize: '14px', 
-                  color: '#9ca3af',
-                  marginBottom: '8px' 
-                }}>
-                  Question {currentQuestion + 1} of {questions.length}
-                </div>
-                <h2 style={{ 
-                  fontSize: '22px', 
-                  fontWeight: '600', 
-                  color: '#e5e7eb',
-                  marginBottom: '24px'
-                }}>
-                  {questions[currentQuestion].question}
-                </h2>
-                
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
                   gap: '12px'
+                }}
+                onClick={() => handleOptionSelect(index)}
+              >
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  border: `2px solid ${answers[currentQuestion] === index ? 'var(--primary)' : 'var(--border)'}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                  flexShrink: 0
                 }}>
-                  {questions[currentQuestion].options.map((option, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleOptionSelect(index)}
-                      style={{
-                        backgroundColor: answers[currentQuestion] === index ? 'rgba(79, 70, 229, 0.2)' : 'rgba(55, 65, 81, 0.5)',
-                        color: answers[currentQuestion] === index ? '#a5b4fc' : '#e5e7eb',
-                        padding: '16px',
-                        borderRadius: '8px',
-                        border: `1px solid ${answers[currentQuestion] === index ? '#4f46e5' : '#4b5563'}`,
-                        textAlign: 'left',
-                        fontSize: '16px',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                      onMouseOver={(e) => { 
-                        if (answers[currentQuestion] !== index) {
-                          e.currentTarget.style.backgroundColor = 'rgba(55, 65, 81, 0.8)' 
-                        }
-                      }}
-                      onMouseOut={(e) => { 
-                        if (answers[currentQuestion] !== index) {
-                          e.currentTarget.style.backgroundColor = 'rgba(55, 65, 81, 0.5)' 
-                        }
-                      }}
-                    >
-                      <span style={{ marginRight: '12px', fontSize: '20px' }}>
-                        {String.fromCharCode(65 + index)}
-                      </span>
-                      {option}
-                      {answers[currentQuestion] === index && (
-                        <CheckCircleIcon width={20} height={20} style={{ marginLeft: 'auto', color: '#818cf8' }} />
-                      )}
-                    </button>
-                  ))}
+                  {answers[currentQuestion] === index && (
+                    <CheckCircleIcon style={{ color: 'var(--primary)' }} width={16} height={16} />
+                  )}
                 </div>
+                <span style={{ color: 'var(--text)' }}>{option}</span>
               </div>
-              
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between',
-                marginTop: '24px' 
-              }}>
-                <button
-                  onClick={handlePrevious}
-                  disabled={currentQuestion === 0}
-                  style={{
-                    backgroundColor: currentQuestion === 0 ? '#1f2937' : '#374151',
-                    color: currentQuestion === 0 ? '#6b7280' : 'white',
-                    padding: '10px 16px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    fontWeight: '500',
-                    cursor: currentQuestion === 0 ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                  onMouseOver={(e) => { 
-                    if (currentQuestion !== 0) {
-                      e.currentTarget.style.backgroundColor = '#4b5563' 
-                    }
-                  }}
-                  onMouseOut={(e) => { 
-                    if (currentQuestion !== 0) {
-                      e.currentTarget.style.backgroundColor = '#374151' 
-                    }
-                  }}
-                >
-                  <ArrowLeftIcon width={16} height={16} />
-                  Previous
-                </button>
-                
-                <button
-                  onClick={handleNext}
-                  disabled={answers[currentQuestion] === undefined}
-                  style={{
-                    backgroundColor: answers[currentQuestion] === undefined ? '#1f2937' : '#4f46e5',
-                    color: answers[currentQuestion] === undefined ? '#6b7280' : 'white',
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    fontWeight: '500',
-                    cursor: answers[currentQuestion] === undefined ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                  onMouseOver={(e) => { 
-                    if (answers[currentQuestion] !== undefined) {
-                      e.currentTarget.style.backgroundColor = '#4338ca' 
-                    }
-                  }}
-                  onMouseOut={(e) => { 
-                    if (answers[currentQuestion] !== undefined) {
-                      e.currentTarget.style.backgroundColor = '#4f46e5' 
-                    }
-                  }}
-                >
-                  {currentQuestion === questions.length - 1 ? 'Finish' : 'Next'}
-                  <ArrowRightIcon width={16} height={16} />
-                </button>
-              </div>
-            </div>
-          )}
-        </motion.div>
-      </section>
-    </div>
+            ))}
+          </div>
+          
+          {/* Navigation */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between'
+          }}>
+            <button
+              onClick={handlePrevious}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: 'var(--background-lighter)',
+                color: 'var(--text)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                cursor: currentQuestion > 0 ? 'pointer' : 'not-allowed',
+                opacity: currentQuestion > 0 ? 1 : 0.5,
+              }}
+              disabled={currentQuestion === 0}
+            >
+              <ArrowLeftIcon width={16} height={16} />
+              Previous
+            </button>
+            
+            <button
+              onClick={handleNext}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: answers[currentQuestion] !== undefined ? 'var(--primary)' : 'var(--background-lighter)',
+                color: answers[currentQuestion] !== undefined ? 'white' : 'var(--text-muted)',
+                border: '1px solid',
+                borderColor: answers[currentQuestion] !== undefined ? 'var(--primary)' : 'var(--border)',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                cursor: answers[currentQuestion] !== undefined ? 'pointer' : 'not-allowed',
+              }}
+              disabled={answers[currentQuestion] === undefined}
+            >
+              {currentQuestion === questions.length - 1 ? 'See Results' : 'Next'}
+              {currentQuestion < questions.length - 1 && <ArrowRightIcon width={16} height={16} />}
+            </button>
+          </div>
+        </div>
+      </AnimatedCard>
+    );
+  };
+
+  return (
+    <PageLayout
+      title="Career Discovery Quiz"
+      subtitle="Find career paths that match your interests, skills, and preferences"
+      heroIcon={<DocumentTextIcon width={40} height={40} />}
+      gradientColors={{ from: 'rgba(99, 102, 241, 0.15)', to: 'rgba(139, 92, 246, 0.1)' }}
+    >
+      {renderContent()}
+    </PageLayout>
   );
 };
 

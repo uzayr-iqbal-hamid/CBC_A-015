@@ -19,8 +19,100 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import L from 'leaflet';
-import { BookmarkIcon } from '@heroicons/react/24/outline';
+import { BookmarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
+import PageLayout from '../components/PageLayout';
+
+// Add CSS for the pulse animation
+const pulseMarkerStyles = `
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .pulse-marker {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  /* Improve map marker clusters */
+  .custom-marker-cluster {
+    background-color: rgba(79, 70, 229, 0.7);
+    border: 2px solid rgba(79, 70, 229, 0.9);
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .cluster-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* New job marker styling */
+  .new-job-marker {
+    filter: hue-rotate(120deg);
+  }
+  
+  /* Glass card effect for map UI */
+  .glass-card {
+    background: rgba(var(--card-rgb), 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid rgba(var(--card-border-rgb), 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .glass-card:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(var(--card-border-rgb), 0.5);
+  }
+  
+  /* Map container responsive styling */
+  .map-container {
+    height: calc(100vh - 200px);
+    width: 100%;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
+  }
+  
+  @media (max-width: 768px) {
+    .map-container {
+      height: 50vh;
+    }
+  }
+  
+  /* Loading animation for job cards */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+`;
+
+// Inject the styles into the document
+const injectStyles = () => {
+  const styleElement = document.createElement('style');
+  styleElement.innerHTML = pulseMarkerStyles;
+  document.head.appendChild(styleElement);
+  return () => {
+    document.head.removeChild(styleElement);
+  };
+};
 
 // Fix for default marker icon in React
 const defaultIcon = new Icon({
@@ -120,11 +212,11 @@ const LocationSearch = ({ onSelectLocation }: { onSelectLocation: (lat: number, 
           placeholder={t('jobLocations.searchPlaceholder', 'Search locations in India...')}
           style={{
             flex: 1,
-            backgroundColor: 'rgba(31, 41, 55, 0.8)',
-            color: '#e5e7eb',
+            backgroundColor: 'var(--background-lighter)',
+            color: 'var(--text)',
             padding: '8px 12px',
             borderRadius: '6px',
-            border: '1px solid #374151',
+            border: '1px solid var(--border)',
             outline: 'none',
             fontSize: '0.875rem',
           }}
@@ -138,11 +230,11 @@ const LocationSearch = ({ onSelectLocation }: { onSelectLocation: (lat: number, 
           onClick={handleSearch}
           disabled={isSearching}
           style={{
-            backgroundColor: isSearching ? 'rgba(55, 65, 81, 0.5)' : 'rgba(79, 70, 229, 0.2)',
-            color: isSearching ? '#9ca3af' : '#a5b4fc',
+            backgroundColor: isSearching ? 'var(--background-lighter)' : 'var(--primary-transparent)',
+            color: isSearching ? 'var(--text-muted)' : 'var(--primary-light)',
             padding: '8px 12px',
             borderRadius: '6px',
-            border: `1px solid ${isSearching ? '#4b5563' : '#4f46e5'}`,
+            border: `1px solid ${isSearching ? 'var(--border)' : 'var(--primary)'}`,
             outline: 'none',
             fontSize: '0.875rem',
             cursor: isSearching ? 'default' : 'pointer',
@@ -159,9 +251,9 @@ const LocationSearch = ({ onSelectLocation }: { onSelectLocation: (lat: number, 
           left: 0,
           right: 0,
           zIndex: 1000,
-          backgroundColor: 'rgba(31, 41, 55, 0.95)',
+          backgroundColor: 'var(--background-lighter)',
           borderRadius: '6px',
-          border: '1px solid #374151',
+          border: '1px solid var(--border)',
           marginTop: '4px',
           maxHeight: '200px',
           overflowY: 'auto',
@@ -171,13 +263,13 @@ const LocationSearch = ({ onSelectLocation }: { onSelectLocation: (lat: number, 
               key={index}
               style={{
                 padding: '8px 12px',
-                borderBottom: index < searchResults.length - 1 ? '1px solid #374151' : 'none',
+                borderBottom: index < searchResults.length - 1 ? '1px solid var(--border)' : 'none',
                 cursor: 'pointer',
-                color: '#e5e7eb',
+                color: 'var(--text)',
                 fontSize: '0.875rem',
               }}
               onClick={() => handleLocationSelect(result.y, result.x, result.label)}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(55, 65, 81, 0.8)' }}
+              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--hover)' }}
               onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
             >
               {result.label}
@@ -186,6 +278,50 @@ const LocationSearch = ({ onSelectLocation }: { onSelectLocation: (lat: number, 
         </div>
       )}
     </div>
+  );
+};
+
+// Component for setting the center of the map
+const SetMapCenter = ({ center, zoom }: { center: [number, number], zoom: number }) => {
+  const map = useMap();
+  map.setView(center, zoom);
+  return null;
+};
+
+// Component for showing the user's location
+const UserLocationMarker = ({ position }: { position: [number, number] }) => {
+  return (
+    <>
+      <Marker
+        position={position}
+        icon={new Icon({
+          iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0ZDdlZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzRmNDZlNSIgZmlsbC1vcGFjaXR5PSIwLjMiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIzIiBmaWxsPSIjNGY0NmU1Ii8+PC9zdmc+',
+          iconSize: [40, 40],
+          iconAnchor: [20, 20],
+          className: 'pulse-marker' // Add a class for the pulse animation
+        })}
+      >
+        <Popup>
+          <div style={{ padding: '8px', textAlign: 'center' }}>
+            <strong style={{ color: '#4f46e5' }}>Your Location</strong>
+            <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#666' }}>
+              Showing jobs within 10km
+            </p>
+          </div>
+        </Popup>
+      </Marker>
+      <Circle 
+        center={position} 
+        radius={10000} 
+        pathOptions={{ 
+          color: '#4f46e5', 
+          fillColor: '#4f46e5', 
+          fillOpacity: 0.1,
+          weight: 2,
+          dashArray: '5, 5'
+        }} 
+      />
+    </>
   );
 };
 
@@ -206,11 +342,11 @@ const UserLocationButton = ({ onGetLocation }: { onGetLocation: () => void }) =>
       onClick={handleGetLocation}
       disabled={isGettingLocation}
       style={{
-        backgroundColor: isGettingLocation ? 'rgba(55, 65, 81, 0.5)' : 'rgba(79, 70, 229, 0.2)',
-        color: isGettingLocation ? '#9ca3af' : '#a5b4fc',
+        backgroundColor: isGettingLocation ? 'var(--background-lighter)' : 'var(--primary-transparent)',
+        color: isGettingLocation ? 'var(--text-muted)' : 'var(--primary-light)',
         padding: '8px 12px',
         borderRadius: '6px',
-        border: `1px solid ${isGettingLocation ? '#4b5563' : '#4f46e5'}`,
+        border: `1px solid ${isGettingLocation ? 'var(--border)' : 'var(--primary)'}`,
         outline: 'none',
         fontSize: '0.875rem',
         cursor: isGettingLocation ? 'default' : 'pointer',
@@ -239,31 +375,84 @@ const UserLocationButton = ({ onGetLocation }: { onGetLocation: () => void }) =>
   );
 };
 
-// Component for setting the center of the map
-const SetMapCenter = ({ center, zoom }: { center: [number, number], zoom: number }) => {
-  const map = useMap();
-  map.setView(center, zoom);
-  return null;
-};
-
-// Component for showing the user's location
-const UserLocationMarker = ({ position }: { position: [number, number] }) => {
+// Add the SalaryRangeSlider component above the JobLocations component
+const SalaryRangeSlider = ({ 
+  value, 
+  onChange 
+}: { 
+  value: [number, number]; 
+  onChange: (value: [number, number]) => void 
+}) => {
+  const { t } = useTranslation();
+  const [localValue, setLocalValue] = React.useState<[number, number]>(value);
+  
+  // Format salary as X Lakhs
+  const formatSalary = (value: number) => {
+    if (value >= 100000) {
+      return `₹${(value / 100000).toFixed(1)}L`;
+    }
+    return `₹${(value / 1000).toFixed(0)}K`;
+  };
+  
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>, index: 0 | 1) => {
+    const newValue = [...localValue] as [number, number];
+    newValue[index] = parseInt(event.target.value, 10);
+    
+    // Ensure min <= max
+    if (index === 0 && newValue[0] > newValue[1]) {
+      newValue[0] = newValue[1];
+    } else if (index === 1 && newValue[1] < newValue[0]) {
+      newValue[1] = newValue[0];
+    }
+    
+    setLocalValue(newValue);
+  };
+  
+  const handleBlur = () => {
+    onChange(localValue);
+  };
+  
   return (
-    <>
-      <Marker
-        position={position}
-        icon={new Icon({
-          iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9Imx1Y2lkZSBsdWNpZGUtY2lyY2xlLWRvdCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxIiBmaWxsPSIjZmZmZmZmIi8+PC9zdmc+',
-          iconSize: [30, 30],
-          iconAnchor: [15, 15],
-        })}
-      >
-        <Popup>
-          <div>You are here</div>
-        </Popup>
-      </Marker>
-      <Circle center={position} radius={3000} pathOptions={{ color: '#4f46e5', fillColor: '#4f46e5', fillOpacity: 0.1 }} />
-    </>
+    <div style={{ width: '100%' }}>
+      <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          {formatSalary(localValue[0])}
+        </span>
+        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          {formatSalary(localValue[1])}
+        </span>
+      </div>
+      
+      <div style={{ display: 'flex', gap: '12px' }}>
+        <input
+          type="range"
+          min="0"
+          max="5000000"
+          step="50000"
+          value={localValue[0]}
+          onChange={(e) => handleChange(e, 0)}
+          onMouseUp={handleBlur}
+          onTouchEnd={handleBlur}
+          style={{ flex: 1 }}
+        />
+        
+        <input
+          type="range"
+          min="0"
+          max="5000000"
+          step="50000"
+          value={localValue[1]}
+          onChange={(e) => handleChange(e, 1)}
+          onMouseUp={handleBlur}
+          onTouchEnd={handleBlur}
+          style={{ flex: 1 }}
+        />
+      </div>
+      
+      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '4px' }}>
+        {t('jobLocations.salaryRange', 'Salary Range')}
+      </div>
+    </div>
   );
 };
 
@@ -273,7 +462,7 @@ const JobLocations = () => {
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [selectedIndustry, setSelectedIndustry] = useState('all');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [selectedJob, setSelectedJob] = useState<number | null>(null);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -289,6 +478,49 @@ const JobLocations = () => {
   const [experienceLevelFilter, setExperienceLevelFilter] = useState('all');
   const [salaryRangeFilter, setSalaryRangeFilter] = useState<[number, number]>([0, 5000000]); // 0 to 50 Lakhs
   const mapRef = useRef<L.Map | null>(null);
+  
+  // Add state for showing jobs on mobile
+  const [showJobsOnMobile, setShowJobsOnMobile] = useState(false);
+
+  // Add this state to the component to store success messages
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Add this state to the component to store jobs by location
+  const [jobsByLocation, setJobsByLocation] = useState<Record<string, Job[]>>({});
+
+  // Memoize filtered jobs to improve performance
+  const memoizedFilteredJobs = React.useMemo(() => {
+    // Apply all active filters
+    let result = filteredJobs;
+    
+    // Filter by industry if selected
+    if (selectedIndustry !== 'all') {
+      result = result.filter(job => job.industry === selectedIndustry);
+    }
+    
+    // Filter by job type if selected
+    if (jobTypeFilter !== 'all') {
+      result = result.filter(job => job.jobType === jobTypeFilter);
+    }
+    
+    // Filter by experience level if selected
+    if (experienceLevelFilter !== 'all') {
+      result = result.filter(job => job.experienceLevel === experienceLevelFilter);
+    }
+    
+    // Filter by salary range
+    result = result.filter(job => {
+      if (!job.salaryRange) return true;
+      return job.salaryRange.min <= salaryRangeFilter[1] && job.salaryRange.max >= salaryRangeFilter[0];
+    });
+    
+    // Filter favorites if showFavorites is true
+    if (showFavorites) {
+      result = result.filter(job => favoriteJobs.some(fav => fav.id === job.id));
+    }
+    
+    return result;
+  }, [filteredJobs, selectedIndustry, jobTypeFilter, experienceLevelFilter, salaryRangeFilter, showFavorites, favoriteJobs]);
 
   // Enhanced job data with more details
   const initialJobs: Job[] = [
@@ -469,6 +701,12 @@ const JobLocations = () => {
         console.error('Error loading favorite jobs:', e);
       }
     }
+    
+    // Inject styles for markers and animations
+    const cleanup = injectStyles();
+    return () => {
+      cleanup();
+    };
   }, []);
 
   // Handle window resize
@@ -540,14 +778,24 @@ const JobLocations = () => {
 
   // Handler for selecting a job from the list
   const handleJobClick = (jobId: number) => {
-    setSelectedJob(jobId === selectedJob ? null : jobId);
+    // Toggle selection - if already selected, deselect it
+    if (selectedJob && selectedJob.id === jobId) {
+      setSelectedJob(null);
+      return;
+    }
     
-    // Find the job and center the map on its location
-    if (jobId !== selectedJob) {
+    // Find and select the job
       const job = jobs.find(j => j.id === jobId);
       if (job) {
+      setSelectedJob(job);
+      
+      // Center the map on the job's location
         setMapCenter([job.lat, job.lng]);
         setMapZoom(12);
+      
+      // If on mobile, show job details and hide job list
+      if (isMobile) {
+        setShowJobsOnMobile(false);
       }
     }
   };
@@ -587,24 +835,97 @@ const JobLocations = () => {
     setMapZoom(12);
   };
 
-  // Handler for getting user's current location
+  // Modifying the handleGetUserLocation function to improve reliability and performance
   const handleGetUserLocation = () => {
+    // Show loading indicator while getting location
+    setIsLoading(true);
+    setError(null);
+    
     if (navigator.geolocation) {
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      };
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
+          
+          // Set user location and update map
           setUserLocation([latitude, longitude]);
           setMapCenter([latitude, longitude]);
-          setMapZoom(12);
+          setMapZoom(11); // Slightly zoomed out to show more area
           setShowUserLocation(true);
+          
+          // Calculate distance using optimized method
+          const nearbyJobs = jobs.filter(job => {
+            // Calculate rough distance first (quick filter)
+            const latDiff = Math.abs(job.lat - latitude);
+            const lngDiff = Math.abs(job.lng - longitude);
+            
+            // Quick check - if too far based on lat/lng difference, skip detailed calculation
+            if (latDiff > 0.5 || lngDiff > 0.5) return false;
+            
+            // Calculate distance using Haversine formula for more accuracy
+            const R = 6371; // Earth radius in km
+            const dLat = (job.lat - latitude) * Math.PI / 180;
+            const dLon = (job.lng - longitude) * Math.PI / 180;
+            const a = 
+              Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(latitude * Math.PI / 180) * Math.cos(job.lat * Math.PI / 180) * 
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distance = R * c;
+            
+            // Return jobs within the specified search radius (default: 25km)
+            const searchRadius = searchParams.radius || 25;
+            return distance <= searchRadius;
+          });
+          
+          // Update displayed jobs with nearby ones
+          setFilteredJobs(nearbyJobs);
+          
+          // Show appropriate message based on results
+          if (nearbyJobs.length === 0) {
+            setError(t('jobLocations.noJobsNearby', 'No jobs found near your location. Try increasing the search radius.'));
+            // Keep showing the message for a bit longer
+            setTimeout(() => setError(null), 5000);
+          } else {
+            // Show success message
+            setSuccessMessage(t('jobLocations.jobsFound', `Found ${nearbyJobs.length} jobs within ${searchParams.radius || 25}km of your location.`));
+            setTimeout(() => setSuccessMessage(null), 4000);
+          }
+          
+          setIsLoading(false);
         },
         (error) => {
           console.error('Error getting location:', error);
-          setError(t('jobLocations.locationError', 'Could not get your location. Please check browser permissions.'));
-        }
+          let errorMessage = '';
+          
+          // More specific error messages
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = t('jobLocations.locationPermissionDenied', 'Location permission denied. Please enable location access in your browser settings.');
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = t('jobLocations.locationUnavailable', 'Location information is unavailable. Please try again later.');
+              break;
+            case error.TIMEOUT:
+              errorMessage = t('jobLocations.locationTimeout', 'Location request timed out. Please try again.');
+              break;
+            default:
+              errorMessage = t('jobLocations.locationError', 'Could not get your location. Please check browser permissions.');
+          }
+          
+          setError(errorMessage);
+          setIsLoading(false);
+        },
+        options
       );
     } else {
       setError(t('jobLocations.geoNotSupported', 'Geolocation is not supported by your browser.'));
+      setIsLoading(false);
     }
   };
 
@@ -634,723 +955,513 @@ const JobLocations = () => {
     }
   };
 
-  // Function to fetch real-time job data from RapidAPI JSearch
+  // Modify the fetchJobData function to improve performance
   const fetchJobData = async () => {
     setIsLoading(true);
     setError(null);
     
     try {
-      // Build the query parameters
-      let query = 'jobs in';
-      if (searchParams.query) {
-        query = `${searchParams.query} jobs in`;
-      }
-      if (searchParams.location) {
-        query += ` ${searchParams.location}`;
-      } else {
-        query += ' India';
-      }
-
-      // RapidAPI JSearch API Call configuration
-      const options = {
-        method: 'GET',
-        url: 'https://jsearch.p.rapidapi.com/search',
-        params: {
-          query,
-          page: '1',
-          num_pages: '1'
-        },
-        headers: {
-          'X-RapidAPI-Key': '4a3a56c3b3msh9a616af078d38a1p1313f3jsn542142836054',
-          'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
-        }
-      };
-
-      // Make the actual API call
-      let apiJobs = [];
-      try {
-        const response = await axios.request(options);
-        console.log('API Response:', response.data);
+      // For demo purposes using optimized mock data
+      setTimeout(() => {
+        const mockJobs = generateMockJobs();
         
-        // Map API data to our job format
-        if (response.data && response.data.data) {
-          apiJobs = response.data.data.map((item: any) => {
-            let jobType: string;
-            switch (item.job_employment_type) {
-              case 'FULLTIME': jobType = 'Full-time'; break;
-              case 'PARTTIME': jobType = 'Part-time'; break;
-              case 'CONTRACT': jobType = 'Contract'; break;
-              case 'INTERNSHIP': jobType = 'Internship'; break;
-              default: jobType = 'Full-time';
-            }
-
-            let experienceLevel: string;
-            switch (item.job_required_experience?.required_experience_in_months) {
-              case 0: 
-              case undefined:
-              case null: experienceLevel = 'Entry-level'; break;
-              case 12:
-              case 24:
-              case 36: experienceLevel = 'Mid-level'; break;
-              default: experienceLevel = item.job_required_experience?.required_experience_in_months > 36 ? 'Senior-level' : 'Entry-level';
-            }
-
-            // Parse salary range - this is a simplification
-            let minSalary = 0;
-            let maxSalary = 0;
+        // Index jobs by location for faster access
+        const jobsByLocation = mockJobs.reduce((acc, job) => {
+          const location = job.location;
+          if (!acc[location]) {
+            acc[location] = [];
+          }
+          acc[location].push(job);
+          return acc;
+        }, {} as Record<string, Job[]>);
+        
+        setJobs(mockJobs);
+        setFilteredJobs(mockJobs);
+        setJobsByLocation(jobsByLocation);
+        
+        // If user location is already set, update the nearby jobs
+        if (showUserLocation && userLocation) {
+          const [lat, lng] = userLocation;
+          const nearbyJobs = mockJobs.filter(job => {
+            // Calculate distance using Haversine formula
+            const R = 6371; // Earth radius in km
+            const dLat = (job.lat - lat) * Math.PI / 180;
+            const dLon = (job.lng - lng) * Math.PI / 180;
+            const a = 
+              Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat * Math.PI / 180) * Math.cos(job.lat * Math.PI / 180) * 
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distance = R * c;
             
-            if (item.job_min_salary) {
-              minSalary = parseInt(item.job_min_salary, 10);
-            }
-            
-            if (item.job_max_salary) {
-              maxSalary = parseInt(item.job_max_salary, 10);
-            }
-            
-            // Fallback coordinates if not provided
-            const lat = item.job_latitude || (Math.random() * (28.7 - 8.4) + 8.4); // Random within India
-            const lng = item.job_longitude || (Math.random() * (97.4 - 68.1) + 68.1);
-
-            return {
-              id: parseInt(Date.now().toString().slice(-5) + Math.floor(Math.random() * 1000), 10),
-              title: item.job_title || 'Unknown Position',
-              company: item.employer_name || 'Unknown Company',
-              location: item.job_city || item.job_country || 'India',
-              lat,
-              lng,
-              description: item.job_description?.slice(0, 200) + '...' || 'No description available',
-              salary: item.job_salary || 'Not specified',
-              skills: item.job_required_skills?.split(',').map((s: string) => s.trim()) || [],
-              industry: matchIndustry(item.job_title || ''),
-              jobType,
-              experienceLevel,
-              salaryRange: { min: minSalary, max: maxSalary || minSalary + 500000 },
-              url: item.job_apply_link || `https://example.com/jobs/${item.job_id}`
-            };
+            return distance <= (searchParams.radius || 10);
           });
+          
+          setFilteredJobs(nearbyJobs);
         }
         
-        console.log('Processed API jobs:', apiJobs);
-      } catch (apiError) {
-        console.error('API error:', apiError);
-        // Fall back to mock data if API fails
-        apiJobs = mockApiResponse();
-      }
-
-      // Combine with existing jobs and update state
-      const newJobs = [...initialJobs, ...apiJobs];
-      setJobs(newJobs);
-      
-    } catch (err) {
-      console.error('Error fetching job data:', err);
-      setError(t('jobLocations.fetchError', 'Failed to fetch job data. Please try again later.'));
-      // Fall back to initial jobs
-      setJobs(initialJobs);
-    } finally {
+        setIsLoading(false);
+      }, 1000); // Reduced simulation time for better UX
+    } catch (error) {
+      console.error('Error loading job data:', error);
+      setError(t('jobLocations.apiError', 'Failed to load job data. Please try again.'));
       setIsLoading(false);
     }
   };
 
-  // Mock API response for testing or when API is unavailable
-  const mockApiResponse = () => {
-    return [
-      {
-        id: 101,
-        title: 'Senior React Developer',
-        company: 'TechFusion Systems',
-        location: 'Bangalore',
-        lat: 12.9716,
-        lng: 77.5946,
-        description: 'Looking for an experienced React developer to join our growing team.',
-        salary: '₹120,000 - ₹180,000 per month',
-        skills: ['React', 'TypeScript', 'Redux', 'CSS'],
-        industry: 'technology',
-        jobType: 'Full-time',
-        experienceLevel: 'Senior-level',
-        salaryRange: { min: 1440000, max: 2160000 },
-        url: 'https://example.com/apply-job1'
-      },
-      {
-        id: 102,
-        title: 'Product Manager',
-        company: 'InnovateX',
-        location: 'Mumbai',
-        lat: 19.0760,
-        lng: 72.8777,
-        description: 'Lead product strategy and development for our fintech platform.',
-        salary: '₹18,00,000 - ₹25,00,000 per year',
-        skills: ['Product Management', 'Agile', 'User Research', 'Strategy'],
-        industry: 'technology',
-        jobType: 'Full-time',
-        experienceLevel: 'Mid-level',
-        salaryRange: { min: 1800000, max: 2500000 },
-        url: 'https://example.com/apply-job2'
-      },
-      {
-        id: 103,
-        title: 'Python Developer',
-        company: 'DataSmart Analytics',
-        location: 'Delhi',
-        lat: 28.7041,
-        lng: 77.1025,
-        description: 'Python developer with experience in data analysis and machine learning.',
-        salary: '₹8,00,000 - ₹12,00,000 per year',
-        skills: ['Python', 'Data Analysis', 'Machine Learning', 'SQL'],
-        industry: 'analytics',
-        jobType: 'Full-time',
-        experienceLevel: 'Entry-level',
-        salaryRange: { min: 800000, max: 1200000 },
-        url: 'https://example.com/apply-job3'
-      },
-      {
-        id: 104,
-        title: 'Frontend Designer',
-        company: 'CreativeWorks',
-        location: 'Pune',
-        lat: 18.5204,
-        lng: 73.8567,
-        description: 'Design and implement responsive user interfaces for web applications.',
-        salary: '₹50,000 - ₹70,000 per month',
-        skills: ['HTML', 'CSS', 'JavaScript', 'UI/UX'],
-        industry: 'design',
-        jobType: 'Contract',
-        experienceLevel: 'Mid-level',
-        salaryRange: { min: 600000, max: 840000 },
-        url: 'https://example.com/apply-job4'
-      },
-      {
-        id: 105,
-        title: 'Part-time Content Writer',
-        company: 'ContentPlus',
-        location: 'Chennai',
-        lat: 13.0827,
-        lng: 80.2707,
-        description: 'Create engaging content for blogs, social media, and websites.',
-        salary: '₹300 - ₹500 per hour',
-        skills: ['Content Writing', 'SEO', 'Copywriting', 'Research'],
-        industry: 'marketing',
-        jobType: 'Part-time',
-        experienceLevel: 'Entry-level',
-        salaryRange: { min: 600000, max: 1000000 },
-        url: 'https://example.com/apply-job5'
-      }
+  // Create a new function to generate mock jobs for better organization
+  const generateMockJobs = () => {
+    const cities = [
+      { name: 'Delhi', lat: 28.6139, lng: 77.2090 },
+      { name: 'Mumbai', lat: 19.0760, lng: 72.8777 },
+      { name: 'Bangalore', lat: 12.9716, lng: 77.5946 },
+      { name: 'Hyderabad', lat: 17.3850, lng: 78.4867 },
+      { name: 'Chennai', lat: 13.0827, lng: 80.2707 },
+      { name: 'Kolkata', lat: 22.5726, lng: 88.3639 },
+      { name: 'Pune', lat: 18.5204, lng: 73.8567 },
+      { name: 'Ahmedabad', lat: 23.0225, lng: 72.5714 },
+      { name: 'Jaipur', lat: 26.9124, lng: 75.7873 },
+      { name: 'Lucknow', lat: 26.8467, lng: 80.9462 },
+      { name: 'Chandigarh', lat: 30.7333, lng: 76.7794 },
+      { name: 'Bhubaneswar', lat: 20.2961, lng: 85.8245 },
+      { name: 'Indore', lat: 22.7196, lng: 75.8577 },
+      { name: 'Coimbatore', lat: 11.0168, lng: 76.9558 }
     ];
+    
+    // Fix the type for jobsByCity
+    const jobsByCity: Record<string, Job[]> = {};
+    let allJobs: Job[] = [];
+    let id = 1;
+    
+    // Generate a consistent set of jobs for each city
+    cities.forEach(city => {
+      // Generate 3-6 jobs per city
+      const numJobs = Math.floor(Math.random() * 4) + 3;
+      const cityJobs: Job[] = [];
+      
+      for (let i = 0; i < numJobs; i++) {
+        // Generate job with properties
+        const jobType = ['Full-time', 'Contract', 'Part-time', 'Internship'][Math.floor(Math.random() * 4)];
+        const expLevel = ['Entry-level', 'Mid-level', 'Senior-level'][Math.floor(Math.random() * 3)];
+        const minSalary = Math.floor(Math.random() * 1000000) + 500000;
+        const maxSalary = minSalary + Math.floor(Math.random() * 1000000);
+        
+        // Randomize job title and company
+        const industries = ['technology', 'analytics', 'healthcare', 'education', 'manufacturing', 'automotive', 'construction', 'marketing'];
+        const industry = industries[Math.floor(Math.random() * industries.length)];
+        
+        // Generate job titles based on industry
+        let title;
+        switch(industry) {
+          case 'technology':
+            title = ['Software Developer', 'Full Stack Engineer', 'DevOps Engineer', 'Cloud Architect', 'Data Engineer'][Math.floor(Math.random() * 5)];
+            break;
+          case 'analytics':
+            title = ['Data Scientist', 'Business Analyst', 'Data Analyst', 'Machine Learning Engineer', 'AI Researcher'][Math.floor(Math.random() * 5)];
+            break;
+          case 'healthcare':
+            title = ['Medical Researcher', 'Biomedical Engineer', 'Clinical Data Analyst', 'Healthcare Technician', 'Pharmaceutical Scientist'][Math.floor(Math.random() * 5)];
+            break;
+          case 'education':
+            title = ['STEM Teacher', 'Science Professor', 'Educational Technologist', 'Curriculum Developer', 'Research Assistant'][Math.floor(Math.random() * 5)];
+            break;
+          default:
+            title = ['Project Manager', 'Research Specialist', 'Operations Lead', 'Quality Analyst', 'Process Engineer'][Math.floor(Math.random() * 5)];
+        }
+        
+        // Company names
+        const companies = [
+          'TechInnovate', 'DataCrafters', 'BioGenesis', 'EcoSolutions', 
+          'QuantumLabs', 'NextGen Engineering', 'FutureScience', 
+          'RoboTech', 'GreenEnergy', 'CosmoTech', 'MicroTech',
+          'InfinityCode', 'WebMatrix', 'CloudNova', 'DigiSphere'
+        ];
+        const company = companies[Math.floor(Math.random() * companies.length)];
+        
+        // Add small random offset to lat/lng to prevent markers from stacking exactly
+        const latOffset = (Math.random() - 0.5) * 0.05;
+        const lngOffset = (Math.random() - 0.5) * 0.05;
+        
+        const job: Job = {
+          id: id++,
+          title,
+          company: `${company} ${city.name}`,
+          location: city.name,
+          lat: city.lat + latOffset,
+          lng: city.lng + lngOffset,
+          description: `Exciting opportunity for a ${title} at ${company} in ${city.name}. Join our growing team and work on cutting-edge projects.`,
+          salary: `₹${(minSalary/100000).toFixed(1)}L - ₹${(maxSalary/100000).toFixed(1)}L`,
+          skills: ['STEM', 'Research', 'Analysis', 'Problem Solving', 'Communication'],
+          industry,
+              jobType,
+          experienceLevel: expLevel,
+          salaryRange: { min: minSalary, max: maxSalary },
+          url: `https://example.com/job-${id}`
+        };
+        
+        cityJobs.push(job);
+        allJobs.push(job);
+      }
+      
+      jobsByCity[city.name] = cityJobs;
+    });
+    
+    return allJobs;
+  };
+
+  // Add function to toggle jobs list on mobile
+  const toggleJobsListOnMobile = () => {
+    setShowJobsOnMobile(!showJobsOnMobile);
   };
 
   return (
-    <div style={{ padding: '24px' }}>
-      <h1 style={{ 
-        fontSize: '2rem', 
-        fontWeight: 'bold',
-        marginBottom: '24px',
-        textAlign: 'center',
-        background: 'linear-gradient(to right, #4f46e5 20%, #8b5cf6 40%, #3b82f6 60%, #4f46e5 80%)',
-        backgroundSize: '200% auto',
-        color: '#000',
-        backgroundClip: 'text',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        animation: 'shine 3s linear infinite'
-      }}>
-        {t('jobLocations.title', 'Explore Job Opportunities')}
-      </h1>
+    <PageLayout
+      title={t('jobLocations.title', 'STEM Career Opportunities Map')}
+      subtitle={t('jobLocations.subtitle', 'Explore job opportunities across India on the interactive map')}
+      heroIcon={<MapPinIcon width={40} height={40} />}
+      gradientColors={{ from: 'rgba(99, 102, 241, 0.15)', to: 'rgba(59, 130, 246, 0.1)' }}
+    >
+      {/* Content starts here */}
+      <div style={{ marginBottom: '24px' }}>
+        {/* Key statistics */}
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '16px',
+          marginTop: '16px'
+        }}>
+          <div style={{
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <div style={{
+              backgroundColor: 'rgba(99, 102, 241, 0.2)',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--primary)' }}>
+                {jobs.length}
+              </div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                {t('jobLocations.totalJobs', 'Total Jobs')}
+              </div>
+            </div>
+          </div>
 
       <div style={{ 
-        marginBottom: '20px',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <div style={{
+              backgroundColor: 'rgba(16, 185, 129, 0.2)',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#10b981' }}>
+                {industries.length - 1}
+              </div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                {t('jobLocations.industries', 'Industries')}
+              </div>
+            </div>
+          </div>
+
+          <div style={{
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <div style={{
+              backgroundColor: 'rgba(245, 158, 11, 0.2)',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <BookmarkIcon width={20} height={20} style={{ color: '#f59e0b' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#f59e0b' }}>
+                {favoriteJobs.length}
+              </div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                {t('jobLocations.savedJobs', 'Saved Jobs')}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '24px' }}>
+        <div className="glass-card" style={{ padding: '16px', marginBottom: '24px' }}>
+          <div style={{ 
         display: 'flex',
         flexDirection: 'column',
         gap: '16px'
       }}>
-        <p style={{ 
-          fontSize: '1rem',
-          color: '#d1d5db',
-          maxWidth: '800px'
-        }}>
-          {t('jobLocations.description', 'Discover job opportunities across India. Use the map to explore positions in different cities and filter by industry to find the perfect match for your skills and interests.')}
-        </p>
+            <h2 style={{ 
+              fontSize: '1.25rem', 
+              fontWeight: '600', 
+              marginBottom: '8px',
+              color: 'var(--text)'
+            }}>
+              {t('jobLocations.jobSearch', 'Job & Location Search')}
+            </h2>
 
-        {/* Search and location controls */}
-        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '12px' }}>
+            {/* Location Search - Adding the missing component */}
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ 
+                fontSize: '0.875rem', 
+                fontWeight: '600', 
+                marginBottom: '8px',
+                color: 'var(--text)'
+              }}>
+                {t('jobLocations.searchLocation', 'Search by Location')}
+              </h3>
+              <div style={{
+                display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
+                gap: '8px'
+              }}>
+                <div style={{ flex: '1' }}>
           <LocationSearch onSelectLocation={handleLocationSelect} />
+                </div>
           <UserLocationButton onGetLocation={handleGetUserLocation} />
         </div>
       </div>
 
-      {/* Filters section */}
-      <div style={{
-        backgroundColor: 'rgba(31, 41, 55, 0.8)',
-        borderRadius: '12px',
-        padding: '16px',
-        marginBottom: '20px',
-        border: '1px solid #374151',
-      }}>
         <h3 style={{ 
-          fontSize: '1rem',
+              fontSize: '0.875rem', 
           fontWeight: '600',
-          marginBottom: '12px',
-          color: '#e5e7eb'
+              marginBottom: '8px',
+              color: 'var(--text)'
         }}>
-          {t('jobLocations.filters', 'Filter Jobs')}
+              {t('jobLocations.filterBy', 'Filter By')}
         </h3>
 
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '12px'
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+              gap: '16px' 
         }}>
-          {/* Industry filter */}
-          <div>
-            <label htmlFor="industry-filter" style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', color: '#9ca3af' }}>
-              {t('jobLocations.filterByIndustry', 'Industry:')}
-            </label>
             <select
-              id="industry-filter"
               value={selectedIndustry}
               onChange={handleIndustryChange}
               style={{
-                width: '100%',
-                backgroundColor: 'rgba(31, 41, 55, 0.8)',
-                color: '#e5e7eb',
+                  backgroundColor: 'var(--background-lighter)',
+                  color: 'var(--text)',
                 padding: '8px 12px',
                 borderRadius: '6px',
-                border: '1px solid #374151',
+                  border: '1px solid var(--border)',
                 outline: 'none',
                 fontSize: '0.875rem',
-                cursor: 'pointer'
+                  cursor: 'pointer',
+                  width: '100%'
               }}
             >
               {industries.map(industry => (
-                <option key={industry.id} value={industry.id}>
-                  {industry.name}
-                </option>
+                  <option key={industry.id} value={industry.id}>{industry.name}</option>
               ))}
             </select>
-          </div>
 
-          {/* Job Type filter */}
-          <div>
-            <label htmlFor="job-type-filter" style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', color: '#9ca3af' }}>
-              {t('jobLocations.filterByJobType', 'Job Type:')}
-            </label>
             <select
-              id="job-type-filter"
               value={jobTypeFilter}
               onChange={handleJobTypeChange}
               style={{
-                width: '100%',
-                backgroundColor: 'rgba(31, 41, 55, 0.8)',
-                color: '#e5e7eb',
+                  backgroundColor: 'var(--background-lighter)',
+                  color: 'var(--text)',
                 padding: '8px 12px',
                 borderRadius: '6px',
-                border: '1px solid #374151',
+                  border: '1px solid var(--border)',
                 outline: 'none',
                 fontSize: '0.875rem',
-                cursor: 'pointer'
+                  cursor: 'pointer',
+                  width: '100%'
               }}
             >
               {jobTypes.map(type => (
-                <option key={type.id} value={type.id}>
-                  {type.name}
-                </option>
+                  <option key={type.id} value={type.id}>{type.name}</option>
               ))}
             </select>
-          </div>
 
-          {/* Experience Level filter */}
-          <div>
-            <label htmlFor="experience-filter" style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', color: '#9ca3af' }}>
-              {t('jobLocations.filterByExperience', 'Experience:')}
-            </label>
             <select
-              id="experience-filter"
               value={experienceLevelFilter}
               onChange={handleExperienceLevelChange}
               style={{
-                width: '100%',
-                backgroundColor: 'rgba(31, 41, 55, 0.8)',
-                color: '#e5e7eb',
+                  backgroundColor: 'var(--background-lighter)',
+                  color: 'var(--text)',
                 padding: '8px 12px',
                 borderRadius: '6px',
-                border: '1px solid #374151',
+                  border: '1px solid var(--border)',
                 outline: 'none',
                 fontSize: '0.875rem',
-                cursor: 'pointer'
+                  cursor: 'pointer',
+                  width: '100%'
               }}
             >
               {experienceLevels.map(level => (
-                <option key={level.id} value={level.id}>
-                  {level.name}
-                </option>
+                  <option key={level.id} value={level.id}>{level.name}</option>
               ))}
             </select>
-          </div>
 
-          {/* Salary Range filter */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', color: '#9ca3af' }}>
-              {t('jobLocations.filterBySalary', 'Salary Range:')} 
-              <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
-                ₹{(salaryRangeFilter[0]/100000).toFixed(1)}L - ₹{(salaryRangeFilter[1]/100000).toFixed(1)}L
-              </span>
-            </label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input
-                type="range"
-                min="0"
-                max="5000000"
-                step="50000"
-                value={salaryRangeFilter[0]}
-                onChange={(e) => handleSalaryRangeChange([parseInt(e.target.value), salaryRangeFilter[1]])}
-                style={{ 
-                  flex: 1,
-                  accentColor: '#4f46e5'
-                }}
-              />
-              <input
-                type="range"
-                min="0"
-                max="5000000"
-                step="50000"
-                value={salaryRangeFilter[1]}
-                onChange={(e) => handleSalaryRangeChange([salaryRangeFilter[0], parseInt(e.target.value)])}
-                style={{ 
-                  flex: 1,
-                  accentColor: '#4f46e5'
-                }}
-              />
-            </div>
+              {/* Adding salary range slider */}
+              <div style={{
+                backgroundColor: 'var(--background-lighter)',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid var(--border)',
+              }}>
+                <SalaryRangeSlider
+                  value={salaryRangeFilter}
+                  onChange={handleSalaryRangeChange}
+                />
           </div>
         </div>
         
-        {/* Favorites toggle and refresh button */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <input 
-              type="checkbox" 
-              id="show-favorites"
-              checked={showFavorites}
-              onChange={toggleShowFavorites}
-              style={{ accentColor: '#4f46e5' }}
-            />
-            <label htmlFor="show-favorites" style={{ color: '#e5e7eb', fontSize: '0.875rem', cursor: 'pointer' }}>
-              {t('jobLocations.showFavorites', 'Show Favorites Only')}
-              {favoriteJobs.length > 0 && ` (${favoriteJobs.length})`}
-            </label>
-          </div>
+            <div style={{
+              display: 'flex',
+              gap: '8px'
+            }}>
+              <button
+                onClick={toggleShowFavorites}
+                style={{
+                  backgroundColor: showFavorites ? 'var(--primary-transparent)' : 'var(--background-lighter)',
+                  color: showFavorites ? 'var(--primary)' : 'var(--text)',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: `1px solid ${showFavorites ? 'var(--primary)' : 'var(--border)'}`,
+                  outline: 'none',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  flex: '1'
+                }}
+              >
+                <BookmarkIcon width={16} height={16} />
+                {showFavorites ? t('jobLocations.showAll', 'All Jobs') : t('jobLocations.showFavorites', 'Saved Jobs')}
+              </button>
           
           <button
             onClick={fetchJobData}
             disabled={isLoading}
             style={{
-              backgroundColor: isLoading ? 'rgba(55, 65, 81, 0.5)' : 'rgba(79, 70, 229, 0.2)',
-              color: isLoading ? '#9ca3af' : '#a5b4fc',
+                  backgroundColor: isLoading ? 'var(--background-lighter)' : 'var(--primary-transparent)',
+                  color: isLoading ? 'var(--text-muted)' : 'var(--primary-light)',
               padding: '8px 12px',
               borderRadius: '6px',
-              border: `1px solid ${isLoading ? '#4b5563' : '#4f46e5'}`,
+                  border: `1px solid ${isLoading ? 'var(--border)' : 'var(--primary)'}`,
               outline: 'none',
               fontSize: '0.875rem',
               cursor: isLoading ? 'default' : 'pointer',
               display: 'flex',
               alignItems: 'center',
+                  justifyContent: 'center',
               gap: '4px',
-              marginLeft: 'auto'
+                  flex: '1'
             }}
           >
             {isLoading ? (
               <>
-                <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'spin 1s linear infinite' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" style={{ animation: 'spin 1s linear infinite' }}>
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" strokeDasharray="15 85" />
                 </svg>
-                {t('jobLocations.loading', 'Loading...')}
+                    {t('jobLocations.refreshing', 'Loading...')}
               </>
             ) : (
               <>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
                 </svg>
-                {t('jobLocations.refresh', 'Refresh Jobs')}
+                    {t('jobLocations.refresh', 'Refresh')}
               </>
             )}
           </button>
         </div>
       </div>
-
-      {error && (
-        <div style={{
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid #ef4444',
-          borderRadius: '6px',
-          padding: '12px',
-          marginBottom: '16px',
-          color: '#f87171'
-        }}>
-          {error}
         </div>
-      )}
+      </div>
 
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr', gap: '24px' }}>
+        {/* Map Container */}
+        <div className="glass-card" style={{ padding: '0', overflow: 'hidden', height: '600px', borderRadius: '12px' }}>
+          {isLoading ? (
       <div style={{ 
-        display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : '1fr 2fr',
-        gap: '24px',
-        height: isMobile ? 'auto' : '600px'
-      }}>
-        {/* Job Listings Panel */}
-        <div style={{ 
-          backgroundColor: 'rgba(31, 41, 55, 0.8)',
-          borderRadius: '12px',
-          padding: '16px',
-          border: '1px solid #374151',
-          overflowY: 'auto',
-          maxHeight: isMobile ? '300px' : '600px'
-        }}>
-          <h2 style={{ 
-            fontSize: '1.25rem', 
-            fontWeight: '600', 
-            marginBottom: '16px',
-            color: '#e5e7eb',
             display: 'flex',
+              justifyContent: 'center', 
             alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <span>
-              {t('jobLocations.availableJobs', 'Available Jobs')}
-              {isLoading && (
-                <span style={{ 
-                  fontSize: '0.75rem',
-                  color: '#9ca3af',
-                  marginLeft: '8px'
-                }}>
-                  {t('jobLocations.refreshing', '(Refreshing...)')}
-                </span>
-              )}
-            </span>
-            <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>
-              {filteredJobs.length} {t('jobLocations.found', 'found')}
-            </span>
-          </h2>
-          
-          {filteredJobs.length === 0 ? (
-            <p style={{ color: '#9ca3af', textAlign: 'center', padding: '20px' }}>
-              {isLoading 
-                ? t('jobLocations.loadingJobs', 'Loading jobs...')
-                : t('jobLocations.noJobsFound', 'No jobs found for the selected criteria.')}
-            </p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {filteredJobs.map(job => (
-                <div 
-                  key={job.id}
-                  onClick={() => handleJobClick(job.id)}
-                  style={{
-                    backgroundColor: selectedJob === job.id ? 'rgba(79, 70, 229, 0.2)' : 'rgba(55, 65, 81, 0.5)',
-                    borderRadius: '8px',
-                    padding: '16px',
-                    cursor: 'pointer',
-                    border: `1px solid ${selectedJob === job.id ? '#4f46e5' : '#4b5563'}`,
-                    transition: 'all 0.2s ease',
-                    position: 'relative'
-                  }}
-                  onMouseOver={(e) => { 
-                    if (selectedJob !== job.id) {
-                      e.currentTarget.style.backgroundColor = 'rgba(55, 65, 81, 0.8)' 
-                    }
-                  }}
-                  onMouseOut={(e) => { 
-                    if (selectedJob !== job.id) {
-                      e.currentTarget.style.backgroundColor = 'rgba(55, 65, 81, 0.5)' 
-                    }
-                  }}
-                >
-                  {/* Favorite toggle button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(job.id);
-                    }}
-                    style={{
-                      position: 'absolute',
-                      top: '12px',
-                      right: '12px',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: isFavorite(job.id) ? '#f59e0b' : '#9ca3af',
-                      padding: '4px',
-                      borderRadius: '4px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                    title={isFavorite(job.id) ? t('jobLocations.removeFromFavorites', 'Remove from favorites') : t('jobLocations.addToFavorites', 'Add to favorites')}
-                  >
-                    <BookmarkIcon width={20} height={20} />
-                  </button>
-
+              height: '100%',
+              flexDirection: 'column',
+              gap: '16px',
+              color: 'var(--text-secondary)'
+            }}>
+              <div className="loader"></div>
+              <p>{t('jobLocations.loading', 'Loading job locations...')}</p>
+            </div>
+          ) : error ? (
                   <div style={{ 
                     display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'flex-start',
-                    marginBottom: '8px',
-                    paddingRight: '28px' // Add padding to accommodate favorite button
-                  }}>
-                    <h3 style={{ fontWeight: '600', fontSize: '1rem', color: '#e5e7eb' }}>{job.title}</h3>
-                    <span style={{ 
-                      backgroundColor: 'rgba(79, 70, 229, 0.1)', 
-                      borderRadius: '9999px', 
-                      padding: '2px 8px',
-                      fontSize: '0.75rem',
-                      color: '#a5b4fc'
-                    }}>
-                      {job.location}
-                    </span>
-                  </div>
-                  
-                  <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '8px' }}>{job.company}</p>
-                  
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
-                    {/* Job type badge */}
-                    {job.jobType && (
-                      <span style={{
-                        backgroundColor: 'rgba(55, 65, 81, 0.5)',
-                        borderRadius: '4px',
-                        padding: '2px 6px',
-                        fontSize: '0.75rem',
-                        color: '#d1d5db',
-                      }}>
-                        {job.jobType}
-                      </span>
-                    )}
-
-                    {/* Experience level badge */}
-                    {job.experienceLevel && (
-                      <span style={{
-                        backgroundColor: 'rgba(55, 65, 81, 0.5)',
-                        borderRadius: '4px',
-                        padding: '2px 6px',
-                        fontSize: '0.75rem',
-                        color: '#d1d5db',
-                      }}>
-                        {job.experienceLevel}
-                      </span>
-                    )}
-
-                    {/* "New" badge for API-fetched jobs */}
-                    {job.id > 100 && (
-                      <span style={{
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        borderRadius: '4px',
-                        padding: '2px 6px',
-                        fontSize: '0.75rem',
-                        color: '#34d399',
-                        display: 'inline-block'
-                      }}>
-                        {t('jobLocations.new', 'New')}
-                      </span>
-                    )}
-
-                    {/* Favorite badge */}
-                    {isFavorite(job.id) && (
-                      <span style={{
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        borderRadius: '4px',
-                        padding: '2px 6px',
-                        fontSize: '0.75rem',
-                        color: '#f59e0b',
-                        display: 'inline-block'
-                      }}>
-                        {t('jobLocations.favorite', 'Favorite')}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {selectedJob === job.id && (
-                    <div style={{ marginTop: '12px' }}>
-                      <p style={{ fontSize: '0.875rem', color: '#d1d5db', marginBottom: '8px' }}>
-                        {job.description}
-                      </p>
-                      <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '8px' }}>
-                        <strong>{t('jobLocations.salary', 'Salary')}:</strong> {job.salary}
-                      </p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>
-                        {job.skills.map((skill, index) => (
-                          <span 
-                            key={index}
-                            style={{
-                              fontSize: '0.75rem',
-                              padding: '2px 6px',
-                              backgroundColor: 'rgba(55, 65, 81, 0.5)',
-                              borderRadius: '4px',
-                              color: '#d1d5db',
-                            }}
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              height: '100%',
+              flexDirection: 'column',
+              gap: '16px',
+              color: 'var(--text-secondary)',
+              padding: '24px'
+            }}>
+              <p>{error}</p>
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(job.url || '#', '_blank');
-                          }}
+                onClick={fetchJobData}
                           style={{
-                            backgroundColor: '#4f46e5',
+                  backgroundColor: 'var(--primary)',
                             color: 'white',
-                            padding: '8px 12px',
+                  padding: '8px 16px',
                             borderRadius: '6px',
                             border: 'none',
+                  outline: 'none',
                             fontSize: '0.875rem',
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                            flex: 1
-                          }}
-                          onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#4338ca' }}
-                          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#4f46e5' }}
-                        >
-                          {t('jobLocations.applyNow', 'Apply Now')}
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(job.id);
-                          }}
-                          style={{
-                            backgroundColor: isFavorite(job.id) ? 'rgba(245, 158, 11, 0.2)' : 'rgba(55, 65, 81, 0.5)',
-                            color: isFavorite(job.id) ? '#f59e0b' : '#9ca3af',
-                            padding: '8px 12px',
-                            borderRadius: '6px',
-                            border: `1px solid ${isFavorite(job.id) ? '#f59e0b' : '#4b5563'}`,
-                            fontSize: '0.875rem',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          <BookmarkIcon width={16} height={16} />
-                          {isFavorite(job.id) 
-                            ? t('jobLocations.removeFromFavorites', 'Remove from favorites')
-                            : t('jobLocations.addToFavorites', 'Add to favorites')
-                          }
+                }}
+              >
+                {t('jobLocations.retry', 'Retry')}
                         </button>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Map Section */}
-        <div style={{ 
-          borderRadius: '12px',
-          overflow: 'hidden',
-          border: '1px solid #374151',
-          height: isMobile ? '400px' : '600px'
-        }}>
+          ) : (
           <MapContainer 
             center={[20.5937, 78.9629]} // Initial center of India
             zoom={5} 
@@ -1469,23 +1580,274 @@ const JobLocations = () => {
               ))}
             </MarkerClusterGroup>
           </MapContainer>
+          )}
         </div>
+
+        {/* Mobile toggle button for jobs list */}
+        {isMobile && (
+          <button
+            onClick={toggleJobsListOnMobile}
+            style={{
+              backgroundColor: 'var(--primary)',
+              color: 'white',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              marginTop: '16px'
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18M3 12h18M3 18h18"></path>
+            </svg>
+            {showJobsOnMobile ? t('jobLocations.hideJobs', 'Hide Jobs List') : t('jobLocations.showJobs', 'Show Jobs List')}
+          </button>
+        )}
+
+        {/* Jobs List - updated to show on mobile when toggled */}
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '8px',
+          backgroundColor: 'var(--card)',
+          borderRadius: 'var(--border-radius-md)',
+          border: '1px solid var(--border)',
+          height: isMobile ? (showJobsOnMobile ? 'calc(60vh)' : '0px') : '100%',
+          maxHeight: isMobile ? (showJobsOnMobile ? 'calc(60vh)' : '0px') : 'calc(100vh - 200px)',
+          transition: 'all 0.3s ease',
+          opacity: isMobile ? (showJobsOnMobile ? 1 : 0) : 1,
+        }}>
+          <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0, color: 'var(--text)', fontSize: '1rem', fontWeight: 600 }}>
+              {showFavorites 
+                ? t('jobLocations.savedJobs', 'Saved Jobs') 
+                : t('jobLocations.availableJobs', 'Available Jobs')} 
+              <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-muted)' }}>
+                ({memoizedFilteredJobs.length})
+              </span>
+            </h3>
+            <button 
+              onClick={toggleShowFavorites} 
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--primary-light)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+              }}
+            >
+              <BookmarkIcon style={{ width: '16px', height: '16px' }} />
+              {showFavorites 
+                ? t('jobLocations.showAll', 'Show All') 
+                : t('jobLocations.showSaved', 'Show Saved')}
+            </button>
       </div>
 
+          {isLoading ? (
+            // Loading state
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '8px 0' }}>
+              {[1, 2, 3].map(i => (
+                <div key={i} style={{
+                  backgroundColor: 'var(--background-lighter)',
+                  height: '100px',
+                  borderRadius: 'var(--border-radius-md)',
+                  padding: '12px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}>
       <div style={{ 
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundImage: 'linear-gradient(90deg, transparent, var(--hover), transparent)',
+                    animation: 'shimmer 1.5s infinite',
+                  }} />
+                </div>
+              ))}
+            </div>
+          ) : memoizedFilteredJobs.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '8px 0' }}>
+              {memoizedFilteredJobs.map(job => (
+                <div 
+                  key={job.id} 
+                  onClick={() => handleJobClick(job.id)} 
+                  style={{
+                    backgroundColor: selectedJob && selectedJob.id === job.id ? 'var(--hover)' : 'var(--background-lighter)',
+                    borderRadius: 'var(--border-radius-md)',
+                    padding: '12px',
+                    cursor: 'pointer',
+                    border: `1px solid ${selectedJob && selectedJob.id === job.id ? 'var(--primary-transparent)' : 'var(--border)'}`,
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseOver={(e) => {
+                    if (!selectedJob || selectedJob.id !== job.id) {
+                      e.currentTarget.style.backgroundColor = 'var(--hover-light)';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (!selectedJob || selectedJob.id !== job.id) {
+                      e.currentTarget.style.backgroundColor = 'var(--background-lighter)';
+                    }
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <div style={{ 
+                        fontWeight: 600, 
+                        color: 'var(--text)', 
+                        marginBottom: '4px',
         display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}>
+                        {job.title}
+                        {job.id >= 100 && (
+                          <span style={{
+                            backgroundColor: 'var(--primary-transparent)',
+                            color: 'var(--primary-light)',
+                            fontSize: '0.65rem',
+                            padding: '1px 6px',
+                            borderRadius: '4px',
+                            fontWeight: 'bold',
+                          }}>
+                            {t('jobLocations.new', 'NEW')}
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '2px' }}>
+                        {job.company}
+                      </div>
+                      <div style={{ 
+                        fontSize: '0.75rem', 
+                        color: 'var(--text-muted)', 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        gap: '4px',
+                        marginBottom: '4px',
+                      }}>
+                        <MapPinIcon style={{ width: '12px', height: '12px' }} />
+                        {job.location}
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(job.id);
+                      }}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        padding: '4px',
+                        cursor: 'pointer',
+                        color: isFavorite(job.id) ? 'var(--primary)' : 'var(--text-muted)',
+                      }}
+                    >
+                      <BookmarkIcon 
+                        style={{ 
+                          width: '18px', 
+                          height: '18px',
+                          fill: isFavorite(job.id) ? 'var(--primary)' : 'none',
+                        }} 
+                      />
+                    </button>
+                  </div>
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: '6px', 
+                    marginTop: '6px',
+                    flexWrap: 'wrap'
+                  }}>
+                    <span style={{
+                      fontSize: '0.7rem',
+                      backgroundColor: 'var(--background)',
+                      color: 'var(--text-muted)',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      border: '1px solid var(--border)',
+                    }}>
+                      {job.salary}
+                    </span>
+                    {job.jobType && (
+                      <span style={{
+                        fontSize: '0.7rem',
+                        backgroundColor: 'var(--background)',
+                        color: 'var(--text-muted)',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        border: '1px solid var(--border)',
+                      }}>
+                        {job.jobType}
+                      </span>
+                    )}
+                    {job.experienceLevel && (
+                      <span style={{
+                        fontSize: '0.7rem',
+                        backgroundColor: 'var(--background)',
+                        color: 'var(--text-muted)',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        border: '1px solid var(--border)',
+                      }}>
+                        {job.experienceLevel}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
         justifyContent: 'center',
-        marginTop: '24px',
-        padding: '16px',
-        backgroundColor: 'rgba(31, 41, 55, 0.8)',
-        borderRadius: '8px',
-        border: '1px solid #374151'
-      }}>
-        <p style={{ color: '#9ca3af', fontSize: '0.875rem', textAlign: 'center' }}>
-          {t('jobLocations.dataDisclaimer', 'Job data is updated regularly. Last updated: October 2023. Apply for jobs directly through the employer websites.')}
+              padding: '20px',
+              color: 'var(--text-muted)',
+              height: '100%',
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🔍</div>
+              <p style={{ textAlign: 'center' }}>
+                {showFavorites 
+                  ? t('jobLocations.noSavedJobs', 'No saved jobs yet. Save jobs to view them here.') 
+                  : t('jobLocations.noJobsFound', 'No jobs found. Try adjusting your search criteria.')}
         </p>
       </div>
+          )}
     </div>
+      </div>
+
+      {/* Also display a success message in the return statement */}
+      {successMessage && (
+        <div style={{
+          position: 'fixed',
+          top: '70px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'rgba(16, 185, 129, 0.9)',
+          color: 'white',
+          padding: '10px 20px',
+          borderRadius: '8px',
+          zIndex: 1000,
+          maxWidth: '90%',
+          textAlign: 'center',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        }}>
+          {successMessage}
+        </div>
+      )}
+    </PageLayout>
   );
 };
 

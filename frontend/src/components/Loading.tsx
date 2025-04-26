@@ -21,24 +21,28 @@ const Loading = ({ message = 'Loading...' }: LoadingProps) => {
       {/* Spinner */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        animate={{ 
+          opacity: 1,
+          rotate: 360
+        }}
+        transition={{ 
+          opacity: { duration: 0.5 },
+          rotate: {
+            duration: 1.2,
+            repeat: Infinity,
+            ease: 'linear',
+          }
+        }}
         style={{
           width: '50px',
           height: '50px',
           borderRadius: '50%',
-          border: '3px solid rgba(99, 102, 241, 0.1)',
-          borderTop: '3px solid rgba(99, 102, 241, 0.8)',
-          borderRight: '3px solid rgba(99, 102, 241, 0.6)',
-          borderBottom: '3px solid rgba(99, 102, 241, 0.4)',
-        }}
-        animate={{
-          rotate: 360,
-        }}
-        transition={{
-          duration: 1.2,
-          repeat: Infinity,
-          ease: 'linear',
+          border: '3px solid var(--primary-light)',
+          borderTopColor: 'var(--primary)',
+          borderRightColor: 'var(--secondary)',
+          borderBottomColor: 'var(--accent)',
+          opacity: 0.8,
+          boxShadow: '0 0 10px rgba(99, 102, 241, 0.3)',
         }}
       />
 
@@ -49,8 +53,8 @@ const Loading = ({ message = 'Loading...' }: LoadingProps) => {
         transition={{ duration: 0.5, delay: 0.3 }}
         style={{
           fontSize: '1rem',
-          color: '#6366f1',
-          fontWeight: 500,
+          color: 'var(--primary)',
+          fontWeight: 600,
           textAlign: 'center',
           maxWidth: '80%',
         }}
