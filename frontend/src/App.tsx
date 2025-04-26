@@ -22,6 +22,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // Import CSS files
 import './styles/advanced-ui.css';
+import './styles/mobile.css';
 
 // Create theme context
 export const ThemeContext = createContext({
@@ -143,16 +144,17 @@ const App = () => {
 
             {/* Chatbot Modal */}
             {isChatOpen && (
-              <div className="glass-card" style={{
+              <div className="glass-card chat-modal" style={{
                 position: 'fixed',
                 bottom: '20px',
                 right: '20px',
-                width: '350px',
-                height: '500px',
+                width: window.innerWidth < 768 ? '90%' : '350px',
+                height: window.innerWidth < 768 ? '450px' : '500px',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
                 zIndex: 1000,
+                maxWidth: '450px',
               }}>
                 {/* Chat Header */}
                 <div style={{
@@ -177,7 +179,7 @@ const App = () => {
                     }}>
                       {t('chatbot.title', 'STEM Assist')}
                     </h3>
-      </div>
+                  </div>
                   <button
                     onClick={toggleChat}
                     style={{
@@ -185,17 +187,22 @@ const App = () => {
                       border: 'none',
                       cursor: 'pointer',
                       color: 'var(--text-muted)',
+                      minHeight: '44px',
+                      minWidth: '44px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="18" y1="6" x2="6" y2="18"></line>
                       <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-        </button>
-      </div>
+                  </button>
+                </div>
                 
                 {/* Chat Content - using iframe to embed the actual chatbot */}
-                <div style={{ flex: 1, overflowY: 'auto' }}>
+                <div className="mobile-scroll" style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
                   <iframe 
                     src="/chatbot" 
                     title="STEM Assist Chatbot"
