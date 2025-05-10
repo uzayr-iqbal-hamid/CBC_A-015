@@ -9,14 +9,12 @@ import './i18n';
 import Scholarships from './pages/Scholarships';
 import Chatbot from './pages/Chatbot';
 import Loading from './components/Loading';
-import StemAssistant from './pages/StemAssistant';
 import CareerQuiz from './pages/CareerQuiz';
 import GamificationPage from './pages/Gamification';
 import Profile from './pages/Profile';
 import JobLocations from './pages/JobLocations';
 import Calendar from './pages/Calendar';
 import Auth from './pages/Auth';
-import ApkDownloads from './pages/ApkDownloads';
 import Attentiveness from './pages/Attentiveness';
 import ResumeBuilder from './pages/ResumeBuilder';
 import { AuthProvider } from './contexts/AuthContext';
@@ -100,10 +98,8 @@ const App = () => {
                   <Route path="/scholarships" element={<Scholarships />} />
                   <Route path="/chatbot" element={<Chatbot />} />
                   <Route path="/learning" element={<Learning />} />
-                  <Route path="/stem-assistant" element={<StemAssistant />} />
                   <Route path="/career-quiz" element={<CareerQuiz />} />
                   <Route path="/auth" element={<Auth />} />
-                  <Route path="/apk-downloads" element={<ApkDownloads />} />
                   <Route path="/resume-builder" element={<ResumeBuilder />} />
                   
                   {/* Protected routes that require authentication */}
