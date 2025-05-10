@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { LogOut, User, Edit, Mail, Save, X } from 'lucide-react';
+import { LogOut, User, Edit, Mail, Save, X, Trophy, Star, Award, Target, Zap, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
@@ -14,7 +14,45 @@ const Profile = () => {
     name: user?.user_metadata?.full_name || 'Student',
     email: user?.email || '',
     bio: 'STEM enthusiast looking to explore new opportunities.',
-    interests: ['Computer Science', 'Mathematics', 'Robotics']
+    interests: ['Computer Science', 'Mathematics', 'Robotics'],
+    achievements: [
+      {
+        id: 1,
+        title: 'Quiz Master',
+        description: 'Completed 10 career quizzes with high scores',
+        icon: Target,
+        progress: 100,
+        date: '2024-03-15',
+        color: 'var(--primary)'
+      },
+      {
+        id: 2,
+        title: 'Learning Streak',
+        description: 'Maintained a 7-day learning streak',
+        icon: Zap,
+        progress: 100,
+        date: '2024-03-10',
+        color: '#FFB800'
+      },
+      {
+        id: 3,
+        title: 'Knowledge Seeker',
+        description: 'Completed 5 learning modules',
+        icon: BookOpen,
+        progress: 60,
+        date: '2024-03-05',
+        color: '#00B8D9'
+      },
+      {
+        id: 4,
+        title: 'Career Explorer',
+        description: 'Explored 15 different career paths',
+        icon: Star,
+        progress: 75,
+        date: '2024-03-01',
+        color: '#FF5630'
+      }
+    ]
   });
   const [editableProfile, setEditableProfile] = useState({ ...userProfile });
 
@@ -257,20 +295,148 @@ const Profile = () => {
                 fontSize: '1.25rem', 
                 fontWeight: 'bold', 
                 marginBottom: '1rem',
-                color: 'var(--text)'
+                color: 'var(--text)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
               }}>
+                <Trophy size={20} />
                 {t('profile.achievements', 'Recent Achievements')}
               </h3>
               
               <div style={{ 
-                backgroundColor: 'var(--background)',
-                borderRadius: '0.5rem',
-                padding: '1rem',
-                border: '1px solid var(--border)',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                gap: '1rem',
+                marginBottom: '1rem'
               }}>
-                <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
-                  {t('profile.noAchievements', 'Complete quizzes and challenges to earn achievements')}
-                </p>
+                {userProfile.achievements.map((achievement) => (
+                  <div
+                    key={achievement.id}
+                    style={{
+                      backgroundColor: 'var(--background)',
+                      borderRadius: '0.75rem',
+                      padding: '1.25rem',
+                      border: '1px solid var(--border)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.75rem',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      transition: 'all 0.3s ease',
+                      cursor: 'pointer',
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: '60px',
+                      height: '60px',
+                      background: achievement.color,
+                      opacity: 0.1,
+                      borderRadius: '0 0 0 60px',
+                    }} />
+                    
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                    }}>
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '10px',
+                        backgroundColor: achievement.color,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                      }}>
+                        <achievement.icon size={20} />
+                      </div>
+                      <div>
+                        <h4 style={{
+                          fontSize: '1rem',
+                          fontWeight: '600',
+                          color: 'var(--text)',
+                          margin: 0,
+                        }}>
+                          {achievement.title}
+                        </h4>
+                        <p style={{
+                          fontSize: '0.875rem',
+                          color: 'var(--text-muted)',
+                          margin: '0.25rem 0 0 0',
+                        }}>
+                          {achievement.date}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <p style={{
+                      fontSize: '0.875rem',
+                      color: 'var(--text)',
+                      margin: 0,
+                      lineHeight: '1.5',
+                    }}>
+                      {achievement.description}
+                    </p>
+                    
+                    <div style={{
+                      width: '100%',
+                      height: '4px',
+                      backgroundColor: 'var(--border)',
+                      borderRadius: '2px',
+                      overflow: 'hidden',
+                    }}>
+                      <div style={{
+                        width: `${achievement.progress}%`,
+                        height: '100%',
+                        backgroundColor: achievement.color,
+                        borderRadius: '2px',
+                        transition: 'width 0.3s ease',
+                      }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div style={{
+                backgroundColor: 'var(--background)',
+                borderRadius: '0.75rem',
+                padding: '1.25rem',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+              }}>
+                <Award size={24} color="var(--text-muted)" />
+                <div>
+                  <h4 style={{
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    color: 'var(--text)',
+                    margin: 0,
+                  }}>
+                    {t('profile.keepGoing', 'Keep Going!')}
+                  </h4>
+                  <p style={{
+                    fontSize: '0.875rem',
+                    color: 'var(--text-muted)',
+                    margin: '0.25rem 0 0 0',
+                  }}>
+                    {t('profile.achievementHint', 'Complete more activities to unlock new achievements')}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
