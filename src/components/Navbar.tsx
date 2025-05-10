@@ -703,6 +703,9 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                           transition: 'all 0.2s ease',
                           fontWeight: isActive ? '600' : '500',
                           boxShadow: isActive ? `0 2px 6px ${darkMode ? 'rgba(79, 70, 229, 0.2)' : 'rgba(79, 70, 229, 0.15)'}` : 'none',
+                          whiteSpace: 'nowrap',
+                          fontSize: '0.875rem',
+                          minWidth: 'fit-content'
                         }}
                         onMouseOver={(e) => {
                           if (!isActive) {
