@@ -651,7 +651,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                           height: '20px',
                           color: isActive && darkMode ? 'rgba(147, 197, 253, 1)' : 'currentColor'
                         }} />
-                        <span>{t(`nav.${link.name}`)}</span>
+                        <span>{link.name === 'resumeBuilder' ? t('resumeBuilder') : t(`nav.${link.name}`)}</span>
                       </Link>
                     </li>
                   );
@@ -832,7 +832,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                           opacity: isActive ? 1 : 0.7
                         }} />
                         <span style={{ fontSize: '1rem' }}>
-                          {t(`nav.${link.name}`)}
+                          {link.name === 'resumeBuilder' ? t('resumeBuilder') : t(`nav.${link.name}`)}
                         </span>
                       </Link>
                     </li>
