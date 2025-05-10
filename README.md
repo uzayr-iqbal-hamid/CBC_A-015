@@ -1,6 +1,7 @@
 # Aarambh 2.0
 
-A modern web application to help students in rural India access career counseling, real-time scholarship information, and learning opportunities.
+## Problem Statement
+Millions of students in rural India face limited access to career counseling, scholarship opportunities, and structured learning resources. This lack of exposure significantly impacts their career outcomes and future potential.
 
 ## Features
 
