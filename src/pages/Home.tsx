@@ -333,7 +333,7 @@ const Home = () => {
                 {t('home.features.careerQuiz.description')}
               </p>
               
-              <Link to="/career-quiz" className="btn-3d" style={{
+              <Link to="/career-quiz" className="btn-glossy btn-primary" style={{
                 textDecoration: 'none',
                 fontSize: '16px',
                 display: 'inline-block',
@@ -391,7 +391,7 @@ const Home = () => {
                 {t('home.features.scholarships.description')}
               </p>
               
-              <Link to="/scholarships" className="btn-3d" style={{
+              <Link to="/scholarships" className="btn-glossy btn-secondary" style={{
                 textDecoration: 'none',
                 fontSize: '16px',
                 display: 'inline-block',
@@ -449,7 +449,7 @@ const Home = () => {
                 {t('home.features.courses.description')}
               </p>
               
-              <Link to="/stem-assistant" className="btn-3d" style={{
+              <Link to="/stem-assistant" className="btn-glossy btn-primary" style={{
                 textDecoration: 'none',
                 fontSize: '16px',
                 display: 'inline-block',
@@ -594,13 +594,8 @@ const Home = () => {
               }}>
                 <button 
                   onClick={fetchEvents}
+                  className="btn-glossy btn-primary btn-icon"
                   style={{
-                    padding: '8px 16px',
-                    backgroundColor: 'var(--primary)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
                     fontSize: '14px',
                     display: 'flex',
                     alignItems: 'center',
@@ -614,18 +609,14 @@ const Home = () => {
                   </svg>
                   Try Again
                 </button>
-                <Link to="/calendar"
+                <Link to="/calendar" 
+                  className="btn-glossy btn-secondary btn-icon"
                   style={{
-                    padding: '8px 16px',
-                    backgroundColor: 'transparent',
-                    color: 'var(--primary)',
-                    border: '1px solid var(--primary)',
-                    borderRadius: '4px',
-                    textDecoration: 'none',
                     fontSize: '14px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px'
+                    gap: '6px',
+                    textDecoration: 'none'
                   }}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -645,6 +636,7 @@ const Home = () => {
             }}>
               <p>No {eventCategory !== 'all' ? getCategoryLabel(eventCategory) + ' ' : ''}events found.</p>
               <Link to="/calendar" 
+                className="btn-glossy btn-primary btn-icon"
                 style={{
                   display: 'inline-block',
                   marginTop: '16px',
@@ -883,7 +875,7 @@ const Home = () => {
                 gap: '16px'
               }}>
                 <Link to="/calendar" 
-                  className="btn-3d"
+                  className="btn-glossy btn-primary btn-icon"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -898,17 +890,13 @@ const Home = () => {
                 
                 {getFilteredEvents().length > 3 && (
                   <Link to="/calendar" 
+                    className="btn-glossy btn-secondary btn-icon"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '6px',
-                      color: 'var(--primary)',
                       fontSize: '14px',
-                      textDecoration: 'none',
-                      padding: '10px 16px',
-                      border: '1px solid var(--primary-light)',
-                      borderRadius: '8px',
-                      backgroundColor: 'rgba(99, 102, 241, 0.1)'
+                      textDecoration: 'none'
                     }}
                   >
                     View all {getFilteredEvents().length} events
