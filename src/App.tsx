@@ -90,7 +90,7 @@ const App = () => {
             transition: 'background-color 0.3s ease, color 0.3s ease',
           }}>
             <Navbar darkMode={darkMode} setDarkMode={toggleTheme} />
-            <div style={{ paddingTop: '32px' }}>
+            <div style={{ paddingTop: '16px' }}>
               <Suspense fallback={<Loading />}>
                 <Routes>
                   {/* Public routes */}
