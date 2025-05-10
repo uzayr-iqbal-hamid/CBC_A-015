@@ -26,28 +26,28 @@ class CalendarService:
         
         demo_events = [
             {
-                "id": str(uuid.uuid4()),
                 "summary": "JEE Advanced Entrance Exam",
                 "description": "Joint Entrance Examination for IITs",
                 "start_time": (today + timedelta(days=7)).isoformat(),
                 "end_time": (today + timedelta(days=7, hours=3)).isoformat(),
-                "location": "Examination Centers Across India"
+                "location": "Examination Centers Across India",
+                "timezone": "Asia/Kolkata"
             },
             {
-                "id": str(uuid.uuid4()),
                 "summary": "NEET Application Deadline",
                 "description": "Last date to apply for NEET medical entrance exam",
                 "start_time": (today + timedelta(days=14)).isoformat(),
                 "end_time": (today + timedelta(days=14, hours=1)).isoformat(),
-                "location": "Online"
+                "location": "Online",
+                "timezone": "Asia/Kolkata"
             },
             {
-                "id": str(uuid.uuid4()),
                 "summary": "Class 12 Board Exams",
                 "description": "CBSE Class 12 Board Examinations",
                 "start_time": (today + timedelta(days=30)).isoformat(),
                 "end_time": (today + timedelta(days=30, hours=4)).isoformat(),
-                "location": "School Examination Centers"
+                "location": "School Examination Centers",
+                "timezone": "Asia/Kolkata"
             }
         ]
         
@@ -57,21 +57,15 @@ class CalendarService:
 
     def _format_event(self, event_data):
         """Format event data consistently"""
-        event_id = event_data.get("id", str(uuid.uuid4()))
+        event_id = str(uuid.uuid4())
         
         return {
             "id": event_id,
             "summary": event_data["summary"],
             "description": event_data.get("description", ""),
             "location": event_data.get("location", ""),
-            "start": {
-                "dateTime": event_data["start_time"],
-                "timeZone": event_data.get("timezone", "Asia/Kolkata")
-            },
-            "end": {
-                "dateTime": event_data["end_time"],
-                "timeZone": event_data.get("timezone", "Asia/Kolkata")
-            },
+            "start": event_data["start_time"],
+            "end": event_data["end_time"],
             "link": f"https://calendar.google.com/calendar/event?eid={event_id}"
         }
     
@@ -112,22 +106,11 @@ class CalendarService:
             # Sort events by start date
             sorted_events = sorted(
                 self.events,
-                key=lambda x: x["start"]["dateTime"]
+                key=lambda x: x["start"]
             )
             
-            # Format for API response
-            formatted_events = []
-            for event in sorted_events[:max_results]:
-                formatted_events.append({
-                    'id': event['id'],
-                    'summary': event['summary'],
-                    'description': event.get('description', ''),
-                    'location': event.get('location', ''),
-                    'start': event["start"]["dateTime"],
-                    'link': event['link']
-                })
-                
-            return formatted_events
+            # Return the requested number of events
+            return sorted_events[:max_results]
         except Exception as e:
             logger.error(f"Error getting events: {str(e)}")
             raise 
