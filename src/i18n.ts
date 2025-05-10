@@ -24,6 +24,8 @@ const resources = {
         jobLocations: 'Job Locations',
         attentiveness: 'Attentiveness'
       },
+      resumeBuilder: 'Resume Builder',
+      learning: 'Learning',
       home: {
         title: 'Welcome to Aarambh',
         subtitle: 'Your journey to a successful career starts here',
@@ -168,6 +170,8 @@ const resources = {
         jobLocations: 'नौकरी स्थान',
         attentiveness: 'ध्यान'
       },
+      resumeBuilder: 'रेज़्यूमे बिल्डर',
+      learning: 'सीखना',
       home: {
         title: 'आरंभ में आपका स्वागत है',
         subtitle: 'एक सफल कैरियर की आपकी यात्रा यहीं से शुरू होती है',
@@ -312,6 +316,8 @@ const resources = {
         jobLocations: 'ಉದ್ಯೋಗ ಸ್ಥಳಗಳು',
         attentiveness: 'ಗಮನ'
       },
+      resumeBuilder: 'ರೆಜ್ಯೂಮೆ ಬಿಲ್ಡರ್',
+      learning: 'ಕಲಿಸು',
       home: {
         title: 'ಆರಂಭಕ್ಕೆ ಸುಸ್ವಾಗತ',
         subtitle: 'ಯಶಸ್ವಿ ವೃತ್ತಿಗೆ ನಿಮ್ಮ ಪ್ರಯಾಣ ಇಲ್ಲಿಂದ ಪ್ರಾರಂಭವಾಗುತ್ತದೆ',
@@ -419,7 +425,7 @@ const resources = {
         retry: 'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ',
         noJobsNearby: 'ನಿಮ್ಮ ಸ್ಥಳದ ಸುತ್ತಲಿನಲ್ಲಿ ಯಾವುದೇ ಉದ್ಯೋಗಗಳು ಕಂಡುಬಂದಿಲ್ಲ. ಹುಡುಕಾಟ ವ್ಯಾಪ್ತಿಯನ್ನು ಹೆಚ್ಚಿಸಲು ಪ್ರಯತ್ನಿಸಿ.',
         jobsFound: 'ನಿಮ್ಮ ಸ್ಥಳದ {{radius}} ಕಿಮೀ ಒಳಗೆ {{count}} ಉದ್ಯೋಗಗಳು ಕಂಡುಬಂದಿವೆ.',
-        locationPermissionDenied: 'ಸ್ಥಳ ಅನುಮತಿ ನಿರಾಕರಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಬ್ರೌಸರ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ಸ್ಥಳ ಪ್ರವೇಶವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ.',
+        locationPermissionDenied: 'ಸ್ಥಳ ಅನುಮತಿ ನಿರಾಕರಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಬ್ರೌಸರ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ಸ್ಥಳ ಪಹುಂಚವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ.',
         locationUnavailable: 'ಸ್ಥಳ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
         locationTimeout: 'ಸ್ಥಳ ವಿನಂತಿ ಸಮಯ ಮೀರಿದೆ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
         locationError: 'ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಪಡೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಬ್ರೌಸರ್ ಅನುಮತಿಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.',
