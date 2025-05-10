@@ -17,6 +17,7 @@ import JobLocations from './pages/JobLocations';
 import Calendar from './pages/Calendar';
 import Auth from './pages/Auth';
 import ApkDownloads from './pages/ApkDownloads';
+import Attentiveness from './pages/Attentiveness';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -45,21 +46,35 @@ const App = () => {
 
   // Function to toggle theme
   const toggleTheme = () => {
-    setDarkMode(!darkMode);
-    localStorage.setItem('theme', !darkMode ? 'dark' : 'light');
+    setDarkMode(prevMode => {
+      const newMode = !prevMode;
+      localStorage.setItem('theme', newMode ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', newMode ? 'dark' : 'light');
+      return newMode;
+    });
   };
 
-  // Apply theme to the document
+  // Apply theme to the document on mount and when theme changes
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme ? savedTheme === 'dark' : prefersDark;
     
-    // Force a repaint to ensure all components update properly
-    const body = document.body;
-    body.style.display = 'none';
-    // This triggers a reflow
-    void body.offsetHeight;
-    body.style.display = '';
-  }, [darkMode]);
+    setDarkMode(initialTheme);
+    document.documentElement.setAttribute('data-theme', initialTheme ? 'dark' : 'light');
+    
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem('theme')) {
+        setDarkMode(e.matches);
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
@@ -108,6 +123,11 @@ const App = () => {
                   <Route path="/calendar" element={
                     <ProtectedRoute>
                       <Calendar />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/attentiveness" element={
+                    <ProtectedRoute>
+                      <Attentiveness />
                     </ProtectedRoute>
                   } />
                 </Routes>

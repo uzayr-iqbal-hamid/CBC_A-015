@@ -11,12 +11,15 @@ import {
   DocumentTextIcon,
   ChatBubbleLeftRightIcon,
   MapPinIcon,
-  ArrowDownTrayIcon
+  ArrowDownTrayIcon,
+  EyeIcon
 } from '@heroicons/react/24/outline';
 import { Sun, Moon, LogOut, LogIn, Globe } from 'lucide-react'; 
 import { useTranslation } from 'react-i18next';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
+import { Button } from './ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 // Custom styles for dark mode and active elements
 const navbarStyles = `
@@ -219,6 +222,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
 
   // Check if current page is STEM Assistant
   const isStemAssistant = location.pathname === '/stem-assistant';
@@ -277,19 +281,22 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
   }, [location]);
 
   const navLinks = [
-    { name: 'Home', path: '/', icon: HomeIcon },
-    { name: 'Career Quiz', path: '/career-quiz', icon: DocumentTextIcon },
-    { name: 'Scholarships', path: '/scholarships', icon: AcademicCapIcon },
-    { name: 'Achievements', path: '/achievements', icon: TrophyIcon },
-    { name: 'STEM Assistant', path: '/stem-assistant', icon: ChatBubbleLeftRightIcon },
-    { name: 'APK Downloads', path: '/apk-downloads', icon: ArrowDownTrayIcon },
-    { name: 'Profile', path: '/profile', icon: UserIcon },
-    { name: 'Job Locations', path: '/job-locations', icon: MapPinIcon },
+    { name: 'home', path: '/', icon: HomeIcon },
+    { name: 'careerQuiz', path: '/career-quiz', icon: DocumentTextIcon },
+    { name: 'scholarships', path: '/scholarships', icon: AcademicCapIcon },
+    { name: 'achievements', path: '/achievements', icon: TrophyIcon },
+    { name: 'stemAssistant', path: '/stem-assistant', icon: ChatBubbleLeftRightIcon },
+    { name: 'apkDownloads', path: '/apk-downloads', icon: ArrowDownTrayIcon },
+    { name: 'profile', path: '/profile', icon: UserIcon },
+    { name: 'jobLocations', path: '/job-locations', icon: MapPinIcon },
+    { name: 'attentiveness', path: '/attentiveness', icon: EyeIcon },
   ];
 
   // Change language function
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
+    localStorage.setItem('i18nextLng', lng);
+    setIsLanguageMenuOpen(false);
   };
 
   // Toggle mobile menu
@@ -303,6 +310,19 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
   };
 
   const currentLanguage = i18n.language === 'en' ? 'English' : 'हिन्दी';
+
+  // Close language menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.language-selector')) {
+        setIsLanguageMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <nav 
@@ -381,76 +401,138 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                 alignItems: 'center',
                 gap: '12px'
               }}>
-                {/* Language Button */}
-                <div style={{ position: 'relative' }}>
+                {/* Language Selector */}
+                <div className="language-selector" style={{ position: 'relative', marginLeft: '1rem' }}>
                   <button
-                    onClick={() => changeLanguage(i18n.language === 'en' ? 'hi' : 'en')}
+                    onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+                    className="nav-button"
                     style={{
-                      backgroundColor: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)',
-                      border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.5)'}`,
-                      borderRadius: '9999px',
-                      padding: '6px 12px',
                       display: 'flex',
                       alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.5rem 1rem',
+                      minWidth: '100px',
                       justifyContent: 'space-between',
-                      cursor: 'pointer',
-                      gap: '4px',
-                      height: '32px',
-                      color: 'var(--text-secondary)',
-                      fontSize: '14px',
-                      backdropFilter: 'blur(8px)',
-                      fontWeight: '500',
-                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.08)',
-                      transition: 'all 0.2s ease',
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.12)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.08)';
+                      backgroundColor: 'var(--background-lighter)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px',
                     }}
                   >
-                    <span>{currentLanguage}</span>
+                    <span>{i18n.language === 'en' ? 'English' : i18n.language === 'hi' ? 'हिंदी' : 'ಕನ್ನಡ'}</span>
+                    <svg 
+                      width="12" 
+                      height="12" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2"
+                      style={{
+                        transform: isLanguageMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease'
+                      }}
+                    >
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
                   </button>
+                  
+                  {isLanguageMenuOpen && (
+                    <div 
+                      className="language-menu" 
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        right: 0,
+                        marginTop: '0.5rem',
+                        backgroundColor: 'var(--background)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        zIndex: 1000,
+                        minWidth: '120px',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <button
+                        onClick={() => changeLanguage('en')}
+                        className="nav-button"
+                        style={{
+                          display: 'flex',
+                          width: '100%',
+                          padding: '0.75rem 1rem',
+                          border: 'none',
+                          background: 'none',
+                          cursor: 'pointer',
+                          color: i18n.language === 'en' ? 'var(--primary)' : 'var(--text)',
+                          justifyContent: 'flex-start',
+                          gap: '0.5rem',
+                          transition: 'background-color 0.2s ease'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.backgroundColor = 'var(--background-lighter)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        <span>English</span>
+                      </button>
+                      <button
+                        onClick={() => changeLanguage('hi')}
+                        className="nav-button"
+                        style={{
+                          display: 'flex',
+                          width: '100%',
+                          padding: '0.75rem 1rem',
+                          border: 'none',
+                          background: 'none',
+                          cursor: 'pointer',
+                          color: i18n.language === 'hi' ? 'var(--primary)' : 'var(--text)',
+                          justifyContent: 'flex-start',
+                          gap: '0.5rem',
+                          transition: 'background-color 0.2s ease'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.backgroundColor = 'var(--background-lighter)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        <span>हिंदी</span>
+                      </button>
+                      <button
+                        onClick={() => changeLanguage('kn')}
+                        className="nav-button"
+                        style={{
+                          display: 'flex',
+                          width: '100%',
+                          padding: '0.75rem 1rem',
+                          border: 'none',
+                          background: 'none',
+                          cursor: 'pointer',
+                          color: i18n.language === 'kn' ? 'var(--primary)' : 'var(--text)',
+                          justifyContent: 'flex-start',
+                          gap: '0.5rem',
+                          transition: 'background-color 0.2s ease'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.backgroundColor = 'var(--background-lighter)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        <span>ಕನ್ನಡ</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Authentication Button */}
                 {user ? (
-                  <button
-                    onClick={handleSignOut}
-                    style={{
-                      backgroundColor: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)',
-                      border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.5)'}`,
-                      borderRadius: '8px',
-                      padding: '6px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      height: '32px',
-                      color: 'var(--text-secondary)',
-                      fontSize: '14px',
-                      cursor: 'pointer',
-                      backdropFilter: 'blur(8px)',
-                      fontWeight: '500',
-                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.08)',
-                      transition: 'all 0.2s ease',
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.12)';
-                      e.currentTarget.style.color = darkMode ? '#ef4444' : '#dc2626';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.08)';
-                      e.currentTarget.style.color = 'var(--text-secondary)';
-                    }}
-                  >
-                    <LogOut size={14} />
-                    <span>{t('navbar.signOut', 'Sign Out')}</span>
-                  </button>
+                  <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                    {t('nav.signOut')}
+                  </Button>
                 ) : (
                   <Link 
                     to="/auth"
@@ -479,26 +561,36 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                     }}
                   >
                     <LogIn size={14} />
-                    <span>{t('navbar.signIn', 'Sign In')}</span>
+                    <span>{t('nav.signIn')}</span>
                   </Link>
                 )}
 
                 {/* Theme Toggle Button */}
                 <div className="tooltip" style={{ position: 'relative' }}>
-                  <button
-                    onClick={() => setDarkMode(!darkMode)}
-                    className={`theme-toggle ${darkMode ? 'dark' : 'light'}`}
-                    aria-label={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                  >
-                    {darkMode ? (
-                      <Sun className="toggle-icon" size={20} />
-                    ) : (
-                      <Moon className="toggle-icon" size={20} />
-                    )}
-                  </button>
-                  <span className="tooltip-text">
-                    {darkMode ? t('navbar.lightMode', 'Switch to Light Mode') : t('navbar.darkMode', 'Switch to Dark Mode')}
-                  </span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDarkMode(!darkMode)}
+                          className="w-9 px-0"
+                        >
+                          {darkMode ? (
+                            <Sun className="h-5 w-5" />
+                          ) : (
+                            <Moon className="h-5 w-5" />
+                          )}
+                          <span className="sr-only">
+                            {t(darkMode ? 'nav.lightMode' : 'nav.darkMode')}
+                          </span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{t(darkMode ? 'nav.lightMode' : 'nav.darkMode')}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
             </div>
@@ -565,7 +657,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                           height: '20px',
                           color: isActive && darkMode ? 'rgba(147, 197, 253, 1)' : 'currentColor'
                         }} />
-                        <span>{t(`navbar.${link.name.toLowerCase().replace(' ', '')}`, link.name)}</span>
+                        <span>{t(`nav.${link.name}`)}</span>
                       </Link>
                     </li>
                   );
@@ -746,7 +838,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                           opacity: isActive ? 1 : 0.7
                         }} />
                         <span style={{ fontSize: '1rem' }}>
-                          {t(`navbar.${link.name.toLowerCase().replace(' ', '')}`, link.name)}
+                          {t(`nav.${link.name}`)}
                         </span>
                       </Link>
                     </li>
@@ -778,7 +870,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                 >
                   {darkMode ? <Sun size={18} /> : <Moon size={18} />}
                   <span>
-                    {darkMode ? t('navbar.lightMode', 'Light') : t('navbar.darkMode', 'Dark')}
+                    {t(darkMode ? 'nav.lightMode' : 'nav.darkMode')}
                   </span>
                 </button>
               </div>
@@ -790,26 +882,9 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                 paddingTop: '1rem'
               }}>
                 {user ? (
-                  <button
-                    onClick={handleSignOut}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      width: '100%',
-                      padding: '0.75rem 1rem',
-                      backgroundColor: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)',
-                      borderRadius: '10px',
-                      color: darkMode ? 'rgba(239, 68, 68, 0.9)' : 'rgba(220, 38, 38, 1)',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontWeight: '500',
-                      boxShadow: `0 4px 8px ${darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)'}`
-                    }}
-                  >
-                    <LogOut size={18} />
-                    <span>{t('navbar.signOut', 'Sign Out')}</span>
-                  </button>
+                  <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                    {t('nav.signOut')}
+                  </Button>
                 ) : (
                   <Link 
                     to="/auth"
@@ -829,7 +904,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                     }}
                   >
                     <LogIn size={18} />
-                    <span>{t('navbar.signIn', 'Sign In')}</span>
+                    <span>{t('nav.signIn')}</span>
                   </Link>
                 )}
               </div>

@@ -257,7 +257,7 @@ const Home = () => {
                 marginBottom: '16px',
               }}
             >
-              Welcome to Aarambh
+              {t('home.title')}
             </motion.h1>
             
             <motion.p
@@ -270,7 +270,7 @@ const Home = () => {
                 marginBottom: '24px',
               }}
             >
-              Empowering rural students with career guidance, scholarship information, and learning resources
+              {t('home.subtitle')}
             </motion.p>
           </div>
         </div>
@@ -320,7 +320,7 @@ const Home = () => {
                 marginBottom: '16px',
                 color: 'var(--text)' 
               }}>
-                Career Discovery Quiz
+                {t('home.features.careerQuiz.title')}
               </h2>
               
               <p style={{ 
@@ -330,7 +330,7 @@ const Home = () => {
                 lineHeight: '1.6',
                 flex: 1
               }}>
-                Take our interactive quiz to discover career paths that match your interests and strengths. Get personalized recommendations and resources tailored to your profile.
+                {t('home.features.careerQuiz.description')}
               </p>
               
               <Link to="/career-quiz" className="btn-3d" style={{
@@ -340,65 +340,7 @@ const Home = () => {
                 textAlign: 'center',
                 width: 'fit-content'
               }}>
-                Start Quiz
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* Achievements Feature */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.5 }}
-            className="glass-card"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div style={{ 
-              padding: '24px', 
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-            }}>
-              <div style={{
-                backgroundColor: 'rgba(168, 85, 247, 0.15)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '20px',
-                width: 'fit-content'
-              }}>
-                <TrophyIcon style={{ width: '24px', height: '24px', color: 'var(--secondary)' }} />
-              </div>
-              
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: '600', 
-                marginBottom: '16px',
-                color: 'var(--text)' 
-              }}>
-                Achievements
-              </h2>
-              
-              <p style={{ 
-                fontSize: '16px', 
-                color: 'var(--text-secondary)', 
-                marginBottom: '24px',
-                lineHeight: '1.6',
-                flex: 1
-              }}>
-                Track your learning progress and earn badges as you complete quizzes, courses, and activities. Showcase your achievements and skills to potential universities and employers.
-              </p>
-              
-              <Link to="/achievements" className="btn-3d" style={{
-                textDecoration: 'none',
-                fontSize: '16px',
-                display: 'inline-block',
-                textAlign: 'center',
-                width: 'fit-content'
-              }}>
-                View Achievements
+                {t('careerQuiz.startButton')}
               </Link>
             </div>
           </motion.div>
@@ -436,7 +378,7 @@ const Home = () => {
                 marginBottom: '16px',
                 color: 'var(--text)' 
               }}>
-                Scholarships
+                {t('home.features.scholarships.title')}
               </h2>
               
               <p style={{ 
@@ -446,7 +388,7 @@ const Home = () => {
                 lineHeight: '1.6',
                 flex: 1
               }}>
-                Find scholarships that match your profile. We've curated opportunities from government, private institutions, and international organizations to help fund your education.
+                {t('home.features.scholarships.description')}
               </p>
               
               <Link to="/scholarships" className="btn-3d" style={{
@@ -456,65 +398,7 @@ const Home = () => {
                 textAlign: 'center',
                 width: 'fit-content'
               }}>
-                Find Scholarships
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* Map Feature */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.3 }}
-            className="glass-card"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div style={{ 
-              padding: '24px', 
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-            }}>
-              <div style={{
-                backgroundColor: 'rgba(59, 130, 246, 0.15)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '20px',
-                width: 'fit-content'
-              }}>
-                <MapPinIcon style={{ width: '24px', height: '24px', color: 'var(--accent)' }} />
-              </div>
-              
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: '600', 
-                marginBottom: '16px',
-                color: 'var(--text)' 
-              }}>
-                Job Locations
-              </h2>
-              
-              <p style={{ 
-                fontSize: '16px', 
-                color: 'var(--text-secondary)', 
-                marginBottom: '24px',
-                lineHeight: '1.6',
-                flex: 1
-              }}>
-                Explore an interactive map showing tech hubs, educational institutions, and companies across India where STEM graduates find employment opportunities.
-              </p>
-              
-              <Link to="/job-locations" className="btn-3d" style={{
-                textDecoration: 'none',
-                fontSize: '16px',
-                display: 'inline-block',
-                textAlign: 'center',
-                width: 'fit-content'
-              }}>
-                Explore Map
+                {t('scholarships.applyButton')}
               </Link>
             </div>
           </motion.div>
@@ -552,7 +436,7 @@ const Home = () => {
                 marginBottom: '16px',
                 color: 'var(--text)' 
               }}>
-                STEM Assistant
+                {t('nav.stemAssistant')}
               </h2>
               
               <p style={{ 
@@ -562,7 +446,7 @@ const Home = () => {
                 lineHeight: '1.6',
                 flex: 1
               }}>
-                Get help with STEM concepts, homework, and projects. Our AI-powered assistant provides explanations, examples, and step-by-step solutions to your questions.
+                {t('home.features.courses.description')}
               </p>
               
               <Link to="/stem-assistant" className="btn-3d" style={{
@@ -572,7 +456,7 @@ const Home = () => {
                 textAlign: 'center',
                 width: 'fit-content'
               }}>
-                Ask Assistant
+                {t('home.getAssistanceButton', 'Ask STEM Assistant')}
               </Link>
             </div>
           </motion.div>

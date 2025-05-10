@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircleIcon, ArrowRightIcon, ArrowLeftIcon, AcademicCapIcon, BriefcaseIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 import PageLayout from '../components/PageLayout';
 import AnimatedCard from '../components/AnimatedCard';
 import IconBlock from '../components/IconBlock';
@@ -20,6 +21,7 @@ interface CareerRecommendation {
 }
 
 const CareerQuiz = () => {
+  const { t } = useTranslation();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -236,7 +238,7 @@ const CareerQuiz = () => {
               backgroundColor="rgba(99, 102, 241, 0.15)"
             />
             <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '16px', color: 'var(--text)' }}>
-              Discover Your Ideal Career Path
+              {t('careerQuiz.title', 'Discover Your Ideal Career Path')}
             </h2>
             <p style={{ 
               fontSize: '16px', 
@@ -246,13 +248,13 @@ const CareerQuiz = () => {
               maxWidth: '600px',
               margin: '0 auto 32px'
             }}>
-              Answer a few questions about your interests, skills, and preferences to get personalized career recommendations. This quiz takes about 5 minutes to complete.
+              {t('careerQuiz.description', 'Answer a few questions about your interests, skills, and preferences to get personalized career recommendations. This quiz takes about 5 minutes to complete.')}
             </p>
             <button 
               onClick={startQuiz}
               className="btn-3d"
             >
-              Start Quiz
+              {t('careerQuiz.startButton', 'Start Quiz')}
             </button>
           </div>
         </AnimatedCard>
@@ -272,10 +274,10 @@ const CareerQuiz = () => {
               marginBottom: '16px',
               color: 'var(--text)' 
             }}>
-              Your Career Recommendations
+              {t('careerQuiz.resultsTitle', 'Your Career Recommendations')}
             </h2>
             <p style={{ color: 'var(--text-secondary)' }}>
-              Based on your answers, here are career paths that might be a good fit for you:
+              {t('careerQuiz.resultsDescription', 'Based on your answers, here are career paths that might be a good fit for you:')}
             </p>
           </div>
 
@@ -315,7 +317,7 @@ const CareerQuiz = () => {
                       marginBottom: '8px',
                       color: 'var(--text)' 
                     }}>
-                      Key Skills:
+                      {t('careerQuiz.keySkills', 'Key Skills:')}
                     </h4>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                       {career.skills.map((skill, i) => (
@@ -336,7 +338,7 @@ const CareerQuiz = () => {
                       marginBottom: '8px',
                       color: 'var(--text)' 
                     }}>
-                      Recommended Courses:
+                      {t('careerQuiz.recommendedCourses', 'Recommended Courses:')}
                     </h4>
                     <ul style={{ 
                       paddingLeft: '20px', 
@@ -358,7 +360,7 @@ const CareerQuiz = () => {
               onClick={restartQuiz}
               className="btn-3d"
             >
-              Retake Quiz
+              {t('careerQuiz.retakeButton', 'Retake Quiz')}
             </button>
           </div>
         </div>
@@ -394,7 +396,7 @@ const CareerQuiz = () => {
               marginBottom: '8px',
               color: 'var(--text)' 
             }}>
-              Question {currentQuestion + 1} of {questions.length}
+              {t('careerQuiz.questionNumber', 'Question {currentQuestion + 1} of {questions.length}')}
             </h2>
             <p style={{ 
               fontSize: '18px', 
@@ -466,7 +468,7 @@ const CareerQuiz = () => {
               disabled={currentQuestion === 0}
             >
               <ArrowLeftIcon width={16} height={16} />
-              Previous
+              {t('careerQuiz.previousButton', 'Previous')}
             </button>
             
             <button
@@ -485,7 +487,7 @@ const CareerQuiz = () => {
               }}
               disabled={answers[currentQuestion] === undefined}
             >
-              {currentQuestion === questions.length - 1 ? 'See Results' : 'Next'}
+              {currentQuestion === questions.length - 1 ? t('careerQuiz.seeResultsButton', 'See Results') : t('careerQuiz.nextButton', 'Next')}
               {currentQuestion < questions.length - 1 && <ArrowRightIcon width={16} height={16} />}
             </button>
           </div>
@@ -496,8 +498,8 @@ const CareerQuiz = () => {
 
   return (
     <PageLayout
-      title="Career Discovery Quiz"
-      subtitle="Find career paths that match your interests, skills, and preferences"
+      title={t('careerQuiz.pageTitle', 'Career Discovery Quiz')}
+      subtitle={t('careerQuiz.pageSubtitle', 'Find career paths that match your interests, skills, and preferences')}
       heroIcon={<DocumentTextIcon width={40} height={40} />}
       gradientColors={{ from: 'rgba(99, 102, 241, 0.15)', to: 'rgba(139, 92, 246, 0.1)' }}
     >
