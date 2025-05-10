@@ -1,4 +1,4 @@
-# Aarambh
+# Aarambh 2.0
 
 A modern web application to help students in rural India access career counseling, real-time scholarship information, and learning opportunities.
 
@@ -10,14 +10,14 @@ A modern web application to help students in rural India access career counselin
 - 📅 Calendar event creation
 - 🌐 Multilingual support (English, Hindi, Kannada)
 - 🎓 Learning resources integration
+- 👁️‍🗨️ Real-time attentiveness detection using webcam and AI
 
 ## Tech Stack
 
-- Frontend: React (Vite), Tailwind CSS, React Router, i18next
+- Frontend: React (Vite), Tailwind CSS, React Router, i18next, MediaPipe
 - Backend: FastAPI (Python), Uvicorn
 - Database: Supabase (PostgreSQL & Storage)
 - Integrations: Web Speech API, Twilio, Google Calendar API, A-Frame
-
 ## Setup Instructions
 
 ### Prerequisites
@@ -73,8 +73,9 @@ careerconnect/
 │
 ├── frontend/
 │   └── src/
-│       └── components/ (Chatbot, Navbar, Cards)
+│       └── components/ (Chatbot, Navbar, Cards, AttentivenessOverlay.jsx)
 │       └── pages/ (Home, Scholarships, Chatbot, Learning)
+│       └── hooks/ (useAttentiveness.js)
 │       └── App.jsx
 │       └── i18n.js
 │
