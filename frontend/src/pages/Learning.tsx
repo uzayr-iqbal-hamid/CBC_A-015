@@ -1,504 +1,464 @@
-import { useState, useEffect } from 'react';
-import { AcademicCapIcon, BookOpenIcon, VideoCameraIcon } from '@heroicons/react/24/outline';
+import React, { useState, useMemo } from 'react';
+import { 
+  Card, 
+  CardContent, 
+  Typography, 
+  Grid, 
+  Button, 
+  Container, 
+  Box,
+  TextField,
+  Chip,
+  InputAdornment,
+  Fade,
+  useTheme,
+  Paper,
+  Divider,
+  Zoom
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import SchoolIcon from '@mui/icons-material/School';
+import { motion } from 'framer-motion';
 
-interface Resource {
-  id: string;
-  title: string;
-  description: string;
-  type: 'video' | 'article' | 'course';
-  link: string;
-  platform: string;
-}
-
-const Learning = () => {
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  const resources: Resource[] = [
-    {
-      id: '1',
-      title: 'Introduction to Computer Science',
-      description: 'Learn the fundamentals of computer science and programming',
-      type: 'course',
-      link: 'https://www.khanacademy.org/computing/computer-science',
-      platform: 'Khan Academy'
+const ResourceCard = styled(Card)(({ theme }) => ({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+  backgroundColor: 'var(--background-lighter)',
+  color: 'var(--text)',
+  border: '1px solid var(--border)',
+  borderRadius: '20px',
+  overflow: 'hidden',
+  position: 'relative',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '4px',
+    background: 'linear-gradient(90deg, var(--primary), var(--secondary))',
+    opacity: 0,
+    transition: 'opacity 0.3s ease',
+  },
+  '&:hover': {
+    transform: 'translateY(-12px) scale(1.02)',
+    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+    borderColor: 'var(--primary)',
+    '&::before': {
+      opacity: 1,
     },
-    {
-      id: '2',
-      title: 'Mathematics for Engineers',
-      description: 'Essential mathematics concepts for engineering students',
-      type: 'video',
-      link: 'https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab',
-      platform: 'YouTube'
+    '& .resource-icon': {
+      transform: 'scale(1.15) rotate(5deg)',
     },
-    {
-      id: '3',
-      title: 'Career Guidance Articles',
-      description: 'Collection of articles about different career paths',
-      type: 'article',
-      link: 'https://www.careers360.com/articles',
-      platform: 'Careers360'
+    '& .visit-button': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
     },
-    {
-      id: '4',
-      title: 'Machine Learning Foundations',
-      description: 'Build a solid foundation in machine learning concepts',
-      type: 'course',
-      link: 'https://www.coursera.org/specializations/machine-learning',
-      platform: 'Coursera'
-    },
-    {
-      id: '5',
-      title: 'Programming Interview Preparation',
-      description: 'Prepare for technical interviews with these exercises',
-      type: 'article',
-      link: 'https://leetcode.com/explore/',
-      platform: 'LeetCode'
-    },
-    {
-      id: '6',
-      title: 'Web Development Bootcamp',
-      description: 'Complete guide to modern web development',
-      type: 'video',
-      link: 'https://www.udemy.com/course/the-web-developer-bootcamp/',
-      platform: 'Udemy'
-    }
-  ];
+  },
+}));
 
-  // Simulate loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+const CategoryChip = styled(Chip)(({ theme }) => ({
+  margin: '4px',
+  backgroundColor: 'var(--background)',
+  color: 'var(--text)',
+  border: '1px solid var(--border)',
+  borderRadius: '20px',
+  padding: '4px 12px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&.Mui-selected': {
+    background: 'linear-gradient(45deg, var(--primary), var(--secondary))',
+    color: 'white',
+    '&:hover': {
+      background: 'linear-gradient(45deg, var(--primary-dark), var(--secondary-dark))',
+    },
+  },
+  '&:hover': {
+    backgroundColor: 'var(--background-hover)',
+    transform: 'translateY(-2px) scale(1.05)',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  },
+}));
 
-  const filteredResources = resources
-    .filter(resource => selectedType === 'all' || resource.type === selectedType)
-    .filter(resource => 
-      searchQuery === '' || 
-      resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resource.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resource.platform.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+const SearchField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: 'var(--background)',
+    color: 'var(--text)',
+    borderRadius: '16px',
+    transition: 'all 0.3s ease',
+    '& fieldset': {
+      borderColor: 'var(--border)',
+      transition: 'all 0.3s ease',
+    },
+    '&:hover fieldset': {
+      borderColor: 'var(--primary)',
+      borderWidth: '2px',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: 'var(--primary)',
+      borderWidth: '2px',
+    },
+  },
+}));
 
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'video':
-        return <VideoCameraIcon style={{ width: '24px', height: '24px', color: '#3b82f6' }} />;
-      case 'article':
-        return <BookOpenIcon style={{ width: '24px', height: '24px', color: '#3b82f6' }} />;
-      case 'course':
-        return <AcademicCapIcon style={{ width: '24px', height: '24px', color: '#3b82f6' }} />;
-      default:
-        return null;
-    }
-  };
+const learningResources = [
+  {
+    title: 'Khan Academy',
+    description: 'Free online courses, lessons, and practice in math, science, and more.',
+    url: 'https://www.khanacademy.org',
+    category: 'General Education',
+    icon: '📚'
+  },
+  {
+    title: 'Coursera',
+    description: 'Access to free courses from top universities and companies.',
+    url: 'https://www.coursera.org',
+    category: 'Higher Education',
+    icon: '🎓'
+  },
+  {
+    title: 'edX',
+    description: 'Free courses from the world\'s best universities and institutions.',
+    url: 'https://www.edx.org',
+    category: 'Higher Education',
+    icon: '🌐'
+  },
+  {
+    title: 'Codecademy',
+    description: 'Free coding lessons and interactive exercises.',
+    url: 'https://www.codecademy.com',
+    category: 'Programming',
+    icon: '💻'
+  },
+  {
+    title: 'Duolingo',
+    description: 'Free language learning platform with interactive lessons.',
+    url: 'https://www.duolingo.com',
+    category: 'Languages',
+    icon: '🗣️'
+  },
+  {
+    title: 'MIT OpenCourseWare',
+    description: 'Free access to MIT\'s course materials.',
+    url: 'https://ocw.mit.edu',
+    category: 'Higher Education',
+    icon: '🎯'
+  },
+  {
+    title: 'YouTube EDU',
+    description: 'Educational content from top educators and institutions.',
+    url: 'https://www.youtube.com/education',
+    category: 'Video Learning',
+    icon: '🎥'
+  },
+  {
+    title: 'Google Digital Garage',
+    description: 'Free digital skills training and certification.',
+    url: 'https://learndigital.withgoogle.com/digitalgarage',
+    category: 'Digital Skills',
+    icon: '🔧'
+  },
+  {
+    title: 'OpenLearn',
+    description: 'Free learning resources from The Open University.',
+    url: 'https://www.open.edu/openlearn',
+    category: 'Higher Education',
+    icon: '📖'
+  }
+];
+
+const Learning: React.FC = () => {
+  const theme = useTheme();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Get unique categories
+  const categories = useMemo(() => 
+    Array.from(new Set(learningResources.map(resource => resource.category))),
+    []
+  );
+
+  // Filter resources based on search and category
+  const filteredResources = useMemo(() => {
+    return learningResources.filter(resource => {
+      const matchesSearch = 
+        resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        resource.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = !selectedCategory || resource.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, selectedCategory]);
 
   return (
-    <div style={{ 
-      paddingTop: '72px',
-      paddingBottom: '64px',
-      minHeight: '100vh',
-      backgroundColor: '#111827',
-      color: 'white'
-    }}>
+    <Container maxWidth="lg" sx={{ py: 6 }}>
       {/* Hero Section */}
-      <section style={{ position: 'relative', padding: '64px 0 48px' }}>
-        <div style={{ 
-          position: 'absolute', 
-          inset: 0, 
-          backgroundImage: 'linear-gradient(to bottom right, rgba(59, 130, 246, 0.2), rgba(124, 58, 237, 0.1))',
-          zIndex: 0
-        }} />
-        <div style={{ 
-          maxWidth: '1200px', 
-          margin: '0 auto', 
-          padding: '0 16px',
-          position: 'relative',
-          zIndex: 1
-        }}>
-          <div style={{ 
-            textAlign: 'center', 
-            maxWidth: '800px',
-            margin: '0 auto' 
-          }}>
-            <h1 style={{ 
-              fontSize: '36px',
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <Box 
+          sx={{ 
+            mb: 6, 
+            textAlign: 'center',
+            background: 'linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--secondary-rgb), 0.1) 100%)',
+            borderRadius: '30px',
+            padding: '64px 24px',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+            border: '1px solid rgba(var(--primary-rgb), 0.2)',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'radial-gradient(circle at top right, rgba(var(--primary-rgb), 0.1), transparent 70%)',
+              zIndex: 0,
+            },
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <SchoolIcon sx={{ 
+              fontSize: 80, 
+              color: 'var(--primary)',
+              mb: 3,
+              filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2))'
+            }} />
+          </motion.div>
+          <Typography 
+            variant="h2" 
+            component="h1" 
+            gutterBottom 
+            sx={{ 
+              color: 'var(--text)',
               fontWeight: 'bold',
-              marginBottom: '16px',
-              backgroundImage: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
+              background: 'linear-gradient(45deg, var(--primary), var(--secondary))',
               WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              color: 'transparent',
-            }}>
-              Learning Resources
-            </h1>
-            <p style={{ 
-              fontSize: '18px',
-              color: '#d1d5db',
-              marginBottom: '24px',
-            }}>
-              Discover curated resources to help you learn, grow, and excel in your career journey
-            </p>
+              WebkitTextFillColor: 'transparent',
+              mb: 3,
+              position: 'relative',
+              zIndex: 1,
+            }}
+          >
+            Free Learning Resources
+          </Typography>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              color: 'var(--text-muted)',
+              maxWidth: '600px',
+              margin: '0 auto',
+              lineHeight: 1.8,
+              position: 'relative',
+              zIndex: 1,
+            }} 
+            paragraph
+          >
+            Discover a world of knowledge with our curated collection of free educational resources. 
+            From programming to languages, find the perfect platform to fuel your learning journey.
+          </Typography>
+        </Box>
+      </motion.div>
 
-            <div style={{ position: 'relative', maxWidth: '500px', margin: '0 auto' }}>
-              <input
-                type="text"
+      {/* Search and Filter Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.6 }}
+      >
+        <Paper 
+          elevation={0}
+          sx={{ 
+            mb: 6,
+            p: 4,
+            borderRadius: '20px',
+            background: 'linear-gradient(135deg, var(--background-lighter) 0%, var(--background) 100%)',
+            border: '1px solid var(--border)',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          <Grid container spacing={3} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <SearchField
+                fullWidth
+                variant="outlined"
                 placeholder="Search resources..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px 16px 12px 44px',
-                  backgroundColor: '#1f2937',
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
-                  color: 'white',
-                  fontSize: '16px',
-                  outline: 'none',
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: 'var(--text-muted)' }} />
+                    </InputAdornment>
+                  ),
                 }}
               />
-              <svg 
-                style={{ 
-                  position: 'absolute', 
-                  left: '16px', 
-                  top: '50%', 
-                  transform: 'translateY(-50%)', 
-                  width: '20px', 
-                  height: '20px',
-                  color: '#6b7280'
-                }}
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Filter Section */}
-      <section style={{ 
-        maxWidth: '1200px',
-        margin: '0 auto 32px',
-        padding: '0 16px'
-      }}>
-        <div style={{ 
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '8px',
-          padding: '16px',
-          backgroundColor: '#1f2937',
-          borderRadius: '12px',
-          border: '1px solid #374151'
-        }}>
-          {[
-            { value: 'all', label: 'All Resources' },
-            { value: 'video', label: 'Videos', icon: <VideoCameraIcon style={{ width: '16px', height: '16px' }} /> },
-            { value: 'article', label: 'Articles', icon: <BookOpenIcon style={{ width: '16px', height: '16px' }} /> },
-            { value: 'course', label: 'Courses', icon: <AcademicCapIcon style={{ width: '16px', height: '16px' }} /> }
-          ].map((filter) => (
-            <button
-              key={filter.value}
-              onClick={() => setSelectedType(filter.value)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                borderRadius: '9999px',
-                fontSize: '14px',
-                fontWeight: '500',
-                backgroundColor: selectedType === filter.value ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-                color: selectedType === filter.value ? '#3b82f6' : '#d1d5db',
-                border: selectedType === filter.value ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid transparent',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >
-              {filter.icon}
-              {filter.label}
-            </button>
-          ))}
-        </div>
-      </section>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                <FilterListIcon sx={{ color: 'var(--text-muted)' }} />
+                {categories.map((category, index) => (
+                  <motion.div
+                    key={category}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <CategoryChip
+                      label={category}
+                      onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
+                      color={selectedCategory === category ? 'primary' : 'default'}
+                    />
+                  </motion.div>
+                ))}
+              </Box>
+            </Grid>
+          </Grid>
+        </Paper>
+      </motion.div>
 
       {/* Resources Grid */}
-      <section style={{ 
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '0 16px'
-      }}>
-        {isLoading ? (
-          <div style={{ 
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '200px'
-          }}>
-            <div style={{ 
-              width: '40px',
-              height: '40px',
-              border: '3px solid rgba(59, 130, 246, 0.1)',
-              borderTop: '3px solid #3b82f6',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }} />
-          </div>
-        ) : filteredResources.length > 0 ? (
-          <div style={{ 
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '24px'
-          }}>
-            {filteredResources.map((resource) => (
-              <div
-                key={resource.id}
-                style={{
-                  backgroundColor: '#1f2937',
-                  borderRadius: '12px',
-                  padding: '24px',
-                  border: '1px solid #374151',
-                  transition: 'all 0.3s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
-                  e.currentTarget.style.borderColor = '#3b82f6';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                  e.currentTarget.style.borderColor = '#374151';
-                }}
-              >
-                <div style={{ 
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  marginBottom: '16px'
-                }}>
-                  <div style={{ 
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderRadius: '8px',
-                    padding: '12px',
-                    marginRight: '16px'
-                  }}>
-                    {getIcon(resource.type)}
-                  </div>
-                  <div>
-                    <h2 style={{ 
-                      fontSize: '18px',
-                      fontWeight: '600',
-                      marginBottom: '4px'
-                    }}>
-                      {resource.title}
-                    </h2>
-                    <div style={{ 
-                      display: 'flex',
-                      alignItems: 'center',
-                      fontSize: '14px',
-                      color: '#9ca3af'
-                    }}>
-                      {resource.platform}
-                      <span style={{ 
-                        width: '4px',
-                        height: '4px',
-                        borderRadius: '50%',
-                        backgroundColor: '#9ca3af',
-                        margin: '0 8px'
-                      }}></span>
-                      <span style={{ textTransform: 'capitalize' }}>{resource.type}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <p style={{ 
-                  marginBottom: '16px',
-                  fontSize: '15px',
-                  color: '#d1d5db',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                }}>
-                  {resource.description}
-                </p>
-
-                <a
-                  href={resource.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    color: '#3b82f6',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    textDecoration: 'none',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#60a5fa';
-                    e.currentTarget.querySelector('svg')!.style.transform = 'translate(2px, -2px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#3b82f6';
-                    e.currentTarget.querySelector('svg')!.style.transform = 'translate(0, 0)';
-                  }}
-                >
-                  Access Resource
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="16" 
-                    height="16" 
-                    viewBox="0 0 20 20" 
-                    fill="currentColor"
-                    style={{ transition: 'transform 0.2s' }}
+      <Grid container spacing={3}>
+        {filteredResources.map((resource, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <ResourceCard>
+                <CardContent sx={{ flexGrow: 1, p: 4 }}>
+                  <Box 
+                    className="resource-icon"
+                    sx={{ 
+                      mb: 3,
+                      fontSize: '56px',
+                      textAlign: 'center',
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}
                   >
-                    <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
-                  </svg>
-                </a>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ 
-            textAlign: 'center',
-            padding: '64px 0'
-          }}>
-            <BookOpenIcon style={{ 
-              width: '48px',
-              height: '48px',
-              color: '#6b7280',
-              margin: '0 auto 16px'
-            }} />
-            <h3 style={{ 
-              fontSize: '24px',
-              fontWeight: '600',
-              color: '#d1d5db',
-              marginBottom: '8px'
-            }}>
-              No resources found
-            </h3>
-            <p style={{ color: '#9ca3af' }}>
-              Try adjusting your search or filter criteria
-            </p>
-          </div>
-        )}
-      </section>
+                    {resource.icon}
+                  </Box>
+                  <Typography 
+                    variant="h5" 
+                    component="div" 
+                    gutterBottom 
+                    sx={{ 
+                      color: 'var(--text)',
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                      mb: 2,
+                    }}
+                  >
+                    {resource.title}
+                  </Typography>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      mb: 3, 
+                      color: 'var(--text-muted)',
+                      textAlign: 'center',
+                      lineHeight: 1.8,
+                    }}
+                  >
+                    {resource.description}
+                  </Typography>
+                  <Divider sx={{ my: 3, borderColor: 'var(--border)' }} />
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      display: 'block', 
+                      mb: 3, 
+                      color: 'var(--text-muted)',
+                      textAlign: 'center',
+                      fontWeight: 500,
+                    }}
+                  >
+                    Category: {resource.category}
+                  </Typography>
+                  <Button
+                    className="visit-button"
+                    variant="contained"
+                    color="primary"
+                    href={resource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    fullWidth
+                    sx={{
+                      background: 'linear-gradient(45deg, var(--primary), var(--secondary))',
+                      borderRadius: '16px',
+                      py: 2,
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                      fontSize: '1rem',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      '&:hover': {
+                        background: 'linear-gradient(45deg, var(--primary-dark), var(--secondary-dark))',
+                      },
+                    }}
+                  >
+                    Visit Platform
+                  </Button>
+                </CardContent>
+              </ResourceCard>
+            </motion.div>
+          </Grid>
+        ))}
+      </Grid>
 
-      {/* STEM Assist Integration */}
-      <section style={{ 
-        maxWidth: '1200px',
-        margin: '64px auto 0',
-        padding: '0 16px'
-      }}>
-        <div style={{ 
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: '32px',
-          backgroundColor: '#1f2937',
-          borderRadius: '16px',
-          padding: '32px',
-          border: '1px solid #374151',
-          position: 'relative',
-          overflow: 'hidden',
-        }}>
-          <div style={{ 
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'linear-gradient(to bottom right, rgba(59, 130, 246, 0.05), rgba(124, 58, 237, 0.05))',
-            zIndex: 0
-          }} />
-
-          <div style={{ 
-            zIndex: 1,
-            textAlign: isMobile ? 'center' : 'left',
-            flex: 1,
-          }}>
-            <h2 style={{ 
-              fontSize: '28px',
-              fontWeight: 'bold',
-              marginBottom: '16px',
-              backgroundImage: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              color: 'transparent',
-            }}>
-              STEM Learning Assistant
-            </h2>
-            <p style={{ 
-              marginBottom: '24px',
-              color: '#d1d5db',
-              lineHeight: 1.6,
-            }}>
-              Get personalized help with STEM subjects through our interactive learning assistant.
-              Ask questions, solve problems, and improve your understanding with AI-powered guidance.
-            </p>
-            <div style={{ 
-              display: 'inline-block',
-              padding: '8px 12px',
-              backgroundColor: 'rgba(31, 41, 55, 0.7)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              borderRadius: '8px',
-              border: '1px solid #374151',
-              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            }}>
-              <span style={{ 
-                fontSize: '14px',
-                color: '#3b82f6',
-                fontWeight: '500',
-              }}>
-                AI-powered • Interactive • Real-time
-              </span>
-            </div>
-          </div>
-
-          <div style={{ 
-            width: '100%',
-            height: '400px',
-            zIndex: 1,
-            borderRadius: '12px',
-            overflow: 'hidden',
-            backgroundColor: 'rgba(31, 41, 55, 0.7)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            border: '1px solid #374151',
-            flex: 1,
-          }}>
-            <iframe
-              src="https://audio-stem-journey-nine.vercel.app"
-              style={{ 
-                width: '100%',
-                height: '100%',
-                border: 'none',
-                borderRadius: '8px'
+      {/* No Results Message */}
+      {filteredResources.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Box 
+            sx={{ 
+              textAlign: 'center', 
+              py: 8,
+              px: 4,
+              background: 'linear-gradient(135deg, var(--background-lighter) 0%, var(--background) 100%)',
+              borderRadius: '20px',
+              border: '1px solid var(--border)',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                color: 'var(--text-muted)',
+                mb: 2,
+                fontWeight: 'bold',
               }}
-              title="STEM Learning Assistant"
-            />
-          </div>
-        </div>
-      </section>
-    </div>
+            >
+              No resources found matching your criteria
+            </Typography>
+            <Typography 
+              variant="body1" 
+              sx={{ 
+                color: 'var(--text-muted)',
+                maxWidth: '400px',
+                margin: '0 auto',
+                lineHeight: 1.6,
+              }}
+            >
+              Try adjusting your search or filter settings to find what you're looking for
+            </Typography>
+          </Box>
+        </motion.div>
+      )}
+    </Container>
   );
 };
 
