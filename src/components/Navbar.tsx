@@ -226,14 +226,6 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
   const navigate = useNavigate();
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
 
-  // Check if current page is STEM Assistant
-  const isStemAssistant = location.pathname === '/stem-assistant';
-   
-  // If we're on STEM Assistant page, don't render the navbar
-  if (isStemAssistant) {
-    return null;
-  }
-
   // Inject custom styles
   useEffect(() => {
     const styleEl = document.createElement('style');
@@ -288,8 +280,6 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
     { name: 'careerQuiz', path: '/career-quiz', icon: DocumentTextIcon },
     { name: 'scholarships', path: '/scholarships', icon: AcademicCapIcon },
     { name: 'achievements', path: '/achievements', icon: TrophyIcon },
-    { name: 'stemAssistant', path: '/stem-assistant', icon: ChatBubbleLeftRightIcon },
-    { name: 'apkDownloads', path: '/apk-downloads', icon: ArrowDownTrayIcon },
     { name: 'resumeBuilder', path: '/resume-builder', icon: DocumentTextIcon },
     { name: 'profile', path: '/profile', icon: UserIcon },
     { name: 'jobLocations', path: '/job-locations', icon: MapPinIcon },
