@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Import our services
-from services.calendar_service import CalendarService
+from services.auth_service import AuthService
 
 app = FastAPI(
     title="Aarambh API",
@@ -25,35 +25,23 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For development - replace with specific origins in production
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Add your frontend URLs
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Initialize services
-calendar_service = CalendarService()
-
-# Get the Express server URL from environment variable or use default
-EXPRESS_SERVER_URL = os.getenv("EXPRESS_SERVER_URL", "http://localhost:3000")
+auth_service = AuthService()
 
 # Pydantic models for request validation
-class CalendarEventCreate(BaseModel):
-    summary: str = Field(..., description="Event title")
-    description: str = Field(..., description="Event description")
-    location: Optional[str] = Field(None, description="Event location")
-    start_time: str = Field(..., description="Start datetime in ISO format")
-    end_time: str = Field(..., description="End datetime in ISO format")
-    timezone: Optional[str] = Field("Asia/Kolkata", description="Timezone")
-    reminder_minutes: Optional[List[int]] = Field([60, 1440], description="Reminder minutes before event")
+class SignUpRequest(BaseModel):
+    email: str
+    password: str
 
-class CalendarEvent(BaseModel):
-    id: str
-    summary: str
-    description: Optional[str] = None
-    location: Optional[str] = None
-    start: Any
-    link: str
+class SignInRequest(BaseModel):
+    email: str
+    password: str
 
 class ErrorResponse(BaseModel):
     detail: str
@@ -73,104 +61,50 @@ async def get_auth_token(request: Request):
 async def root():
     return {"message": "Welcome to Aarambh API"}
 
-# Proxy route for authentication - forwards requests to Express server
-@app.post("/api/auth/{endpoint:path}")
-async def auth_proxy(endpoint: str, request: Request):
+# Authentication endpoints
+@app.post("/api/auth/signup")
+async def sign_up(request: SignUpRequest):
     try:
-        body = await request.json()
-        headers = {key: value for key, value in request.headers.items() 
-                   if key.lower() not in ('host', 'content-length')}
-        
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{EXPRESS_SERVER_URL}/auth/{endpoint}",
-                json=body,
-                headers=headers
-            )
-            
-            return JSONResponse(
-                content=response.json(),
-                status_code=response.status_code
-            )
+        logger.info(f"Attempting to sign up user: {request.email}")
+        result = await auth_service.sign_up(request.email, request.password)
+        logger.info(f"Successfully signed up user: {request.email}")
+        return result
     except Exception as e:
-        logger.error(f"Error in auth proxy: {str(e)}")
+        logger.error(f"Error in sign_up: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Calendar endpoints
-@app.post(
-    "/api/calendar/event", 
-    response_model=CalendarEvent,
-    status_code=status.HTTP_201_CREATED
-)
-async def create_calendar_event(event_data: CalendarEventCreate):
+@app.post("/api/auth/signin")
+async def sign_in(request: SignInRequest):
     try:
-        created_event = calendar_service.create_event(event_data.dict())
-        return created_event
+        logger.info(f"Attempting to sign in user: {request.email}")
+        result = await auth_service.sign_in(request.email, request.password)
+        logger.info(f"Successfully signed in user: {request.email}")
+        return result
     except Exception as e:
-        logger.error(f"Error creating calendar event: {str(e)}")
+        logger.error(f"Error in sign_in: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get(
-    "/api/calendar/events", 
-    response_model=List[CalendarEvent]
-)
-async def get_calendar_events(max_results: int = 10):
+@app.post("/api/auth/signout")
+async def sign_out(request: Request):
     try:
-        events = calendar_service.get_upcoming_events(max_results)
-        return events
+        token = await get_auth_token(request)
+        await auth_service.sign_out(token)
+        return {"message": "Successfully signed out"}
     except Exception as e:
-        logger.error(f"Error fetching calendar events: {str(e)}")
+        logger.error(f"Error in sign_out: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Proxy route for achievements - forwards requests to Express server
-@app.get("/api/achievements/{endpoint:path}")
-@app.post("/api/achievements/{endpoint:path}")
-async def achievements_proxy(endpoint: str, request: Request):
+@app.get("/api/auth/user")
+async def get_user(request: Request):
     try:
-        method = request.method.lower()
-        url = f"{EXPRESS_SERVER_URL}/achievements/{endpoint}"
-        
-        # Extract query parameters
-        params = {k: v for k, v in request.query_params.items()}
-        
-        # Extract headers
-        headers = {key: value for key, value in request.headers.items() 
-                   if key.lower() not in ('host', 'content-length')}
-        
-        # Get request body for POST requests
-        body = await request.body()
-        body = json.loads(body) if body else None
-        
-        async with httpx.AsyncClient() as client:
-            if method == "get":
-                response = await client.get(url, params=params, headers=headers)
-            elif method == "post":
-                response = await client.post(url, json=body, headers=headers)
-            else:
-                raise HTTPException(status_code=405, detail="Method not allowed")
-            
-            return JSONResponse(
-                content=response.json(),
-                status_code=response.status_code
-            )
+        token = await get_auth_token(request)
+        user = await auth_service.get_user(token)
+        if user:
+            return user
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
     except Exception as e:
-        logger.error(f"Error in achievements proxy: {str(e)}")
+        logger.error(f"Error in get_user: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
-# Scholarship endpoints (placeholder)
-@app.get("/api/scholarships")
-async def get_scholarships():
-    return {"message": "Scholarship data will be implemented"}
-
-# Chatbot endpoints (placeholder)
-@app.post("/api/chatbot")
-async def chatbot_interaction():
-    return {"message": "Chatbot interaction will be implemented"}
-
-# WhatsApp notification endpoints (placeholder)
-@app.post("/api/whatsapp/notify")
-async def send_whatsapp_notification():
-    return {"message": "WhatsApp notification will be implemented"}
 
 if __name__ == "__main__":
     import uvicorn
