@@ -100,6 +100,7 @@ const Profile = () => {
             overflow: 'hidden',
             border: '1px solid var(--border)'
           }}
+          className="glass-card card-gradient-border"
         >
           {/* Profile Header */}
           <div 
@@ -294,26 +295,19 @@ const Profile = () => {
                 {userProfile.achievements.map((achievement) => (
                   <div
                     key={achievement.id}
+                    className="glass-card card-glow"
                     style={{
                       backgroundColor: 'var(--background)',
                       borderRadius: '0.75rem',
                       padding: '1.25rem',
-                      border: '1px solid var(--border)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '0.75rem',
                       position: 'relative',
                       overflow: 'hidden',
-                      transition: 'all 0.3s ease',
+                      transition: 'box-shadow 0.3s ease',
                       cursor: 'pointer',
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = 'none';
+                      transform: 'none'
                     }}
                   >
                     <div style={{
@@ -391,15 +385,18 @@ const Profile = () => {
                 ))}
               </div>
               
-              <div style={{
-                backgroundColor: 'var(--background)',
-                borderRadius: '0.75rem',
-                padding: '1.25rem',
-                border: '1px solid var(--border)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-              }}>
+              <div 
+                className="glass-card card-shimmer"
+                style={{
+                  backgroundColor: 'var(--background)',
+                  borderRadius: '0.75rem',
+                  padding: '1.25rem',
+                  border: '1px solid var(--border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                }}
+              >
                 <Award size={24} color="var(--text-muted)" />
                 <div>
                   <h4 style={{
