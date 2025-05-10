@@ -27,40 +27,129 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/t
 const navbarStyles = `
   /* Active menu item styles for dark mode */
   .nav-link-active-dark {
-    background-color: rgba(79, 70, 229, 0.15) !important;
+    background: linear-gradient(
+      135deg,
+      rgba(79, 70, 229, 0.2) 0%,
+      rgba(99, 102, 241, 0.15) 100%
+    ) !important;
     color: rgba(147, 197, 253, 1) !important;
     font-weight: 600 !important;
     backdrop-filter: blur(4px);
+    box-shadow: 
+      0 4px 12px rgba(99, 102, 241, 0.2),
+      inset 0 0 0 1px rgba(99, 102, 241, 0.2) !important;
   }
 
   /* Active menu item styles for light mode */
   .nav-link-active-light {
-    background-color: rgba(79, 70, 229, 0.1) !important;
+    background: linear-gradient(
+      135deg,
+      rgba(79, 70, 229, 0.15) 0%,
+      rgba(99, 102, 241, 0.1) 100%
+    ) !important;
     color: rgba(79, 70, 229, 1) !important;
     font-weight: 600 !important;
     backdrop-filter: blur(4px);
+    box-shadow: 
+      0 4px 12px rgba(79, 70, 229, 0.15),
+      inset 0 0 0 1px rgba(79, 70, 229, 0.15) !important;
   }
 
   /* Glass effect styles - enhanced */
   .glass-effect-dark {
-    background: rgba(15, 23, 42, 0.4) !important;
+    background: linear-gradient(
+      135deg,
+      rgba(15, 23, 42, 0.4) 0%,
+      rgba(30, 41, 59, 0.3) 100%
+    ) !important;
     backdrop-filter: blur(12px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
-    border-bottom: 1px solid rgba(99, 102, 241, 0.12) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.15) !important;
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.15),
+      0 0 0 1px rgba(99, 102, 241, 0.1),
+      inset 0 0 20px rgba(99, 102, 241, 0.05) !important;
   }
   
   .glass-effect-light {
-    background: rgba(255, 255, 255, 0.3) !important;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.3) 0%,
+      rgba(255, 255, 255, 0.2) 100%
+    ) !important;
     backdrop-filter: blur(12px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.05),
+      0 0 0 1px rgba(255, 255, 255, 0.2),
+      inset 0 0 20px rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* Enhanced glow animation */
+  @keyframes subtleGlow {
+    0%, 100% {
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(99, 102, 241, 0.1),
+        inset 0 0 20px rgba(99, 102, 241, 0.05);
+    }
+    50% {
+      box-shadow: 
+        0 8px 32px rgba(99, 102, 241, 0.2),
+        0 0 0 1px rgba(99, 102, 241, 0.15),
+        inset 0 0 30px rgba(99, 102, 241, 0.1);
+    }
+  }
+
+  @keyframes subtleGlowLight {
+    0%, 100% {
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.05),
+        0 0 0 1px rgba(255, 255, 255, 0.2),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+    50% {
+      box-shadow: 
+        0 8px 32px rgba(255, 255, 255, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.3),
+        inset 0 0 30px rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  .glass-effect-dark {
+    animation: subtleGlow 4s ease-in-out infinite;
+  }
+
+  .glass-effect-light {
+    animation: subtleGlowLight 4s ease-in-out infinite;
   }
 
   /* Enhanced transition effects */
   .nav-element {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nav-element::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .nav-element:hover::after {
+    opacity: 1;
   }
 
   /* Pulse animation for active menu items */
