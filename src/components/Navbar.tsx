@@ -393,10 +393,10 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px'
+                gap: '8px'
               }}>
                 {/* Language Selector */}
-                <div className="language-selector" style={{ position: 'relative', marginLeft: '1rem' }}>
+                <div className="language-selector" style={{ position: 'relative' }}>
                   <button
                     onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
                     className="nav-button"
@@ -404,14 +404,29 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.5rem',
-                      padding: '0.5rem 1rem',
-                      minWidth: '100px',
+                      padding: '0.5rem 0.75rem',
+                      minWidth: '90px',
                       justifyContent: 'space-between',
-                      backgroundColor: 'var(--background-lighter)',
-                      border: '1px solid var(--border)',
+                      backgroundColor: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                      border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.5)'}`,
                       borderRadius: '8px',
+                      color: 'var(--text-secondary)',
+                      fontSize: '14px',
+                      backdropFilter: 'blur(8px)',
+                      fontWeight: '500',
+                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.08)',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.6)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)';
                     }}
                   >
+                    <Globe size={16} />
                     <span>{i18n.language === 'en' ? 'English' : i18n.language === 'hi' ? 'हिंदी' : 'ಕನ್ನಡ'}</span>
                     <svg 
                       width="12" 
@@ -437,13 +452,14 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                         top: '100%',
                         right: 0,
                         marginTop: '0.5rem',
-                        backgroundColor: 'var(--background)',
-                        border: '1px solid var(--border)',
+                        backgroundColor: darkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                        border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.5)'}`,
                         borderRadius: '8px',
                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
                         zIndex: 1000,
                         minWidth: '120px',
                         overflow: 'hidden',
+                        backdropFilter: 'blur(12px)',
                       }}
                     >
                       <button
@@ -459,15 +475,17 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                           color: i18n.language === 'en' ? 'var(--primary)' : 'var(--text)',
                           justifyContent: 'flex-start',
                           gap: '0.5rem',
-                          transition: 'background-color 0.2s ease'
+                          transition: 'all 0.2s ease',
+                          alignItems: 'center',
                         }}
                         onMouseOver={(e) => {
-                          e.currentTarget.style.backgroundColor = 'var(--background-lighter)';
+                          e.currentTarget.style.backgroundColor = darkMode ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)';
                         }}
                         onMouseOut={(e) => {
                           e.currentTarget.style.backgroundColor = 'transparent';
                         }}
                       >
+                        <Globe size={16} />
                         <span>English</span>
                       </button>
                       <button
@@ -483,15 +501,17 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                           color: i18n.language === 'hi' ? 'var(--primary)' : 'var(--text)',
                           justifyContent: 'flex-start',
                           gap: '0.5rem',
-                          transition: 'background-color 0.2s ease'
+                          transition: 'all 0.2s ease',
+                          alignItems: 'center',
                         }}
                         onMouseOver={(e) => {
-                          e.currentTarget.style.backgroundColor = 'var(--background-lighter)';
+                          e.currentTarget.style.backgroundColor = darkMode ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)';
                         }}
                         onMouseOut={(e) => {
                           e.currentTarget.style.backgroundColor = 'transparent';
                         }}
                       >
+                        <Globe size={16} />
                         <span>हिंदी</span>
                       </button>
                       <button
@@ -507,15 +527,17 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                           color: i18n.language === 'kn' ? 'var(--primary)' : 'var(--text)',
                           justifyContent: 'flex-start',
                           gap: '0.5rem',
-                          transition: 'background-color 0.2s ease'
+                          transition: 'all 0.2s ease',
+                          alignItems: 'center',
                         }}
                         onMouseOver={(e) => {
-                          e.currentTarget.style.backgroundColor = 'var(--background-lighter)';
+                          e.currentTarget.style.backgroundColor = darkMode ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)';
                         }}
                         onMouseOut={(e) => {
                           e.currentTarget.style.backgroundColor = 'transparent';
                         }}
                       >
+                        <Globe size={16} />
                         <span>ಕನ್ನಡ</span>
                       </button>
                     </div>
@@ -524,21 +546,48 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
 
                 {/* Authentication Button */}
                 {user ? (
-                  <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                    {t('nav.signOut')}
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleSignOut}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.5rem 0.75rem',
+                      backgroundColor: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                      border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.5)'}`,
+                      borderRadius: '8px',
+                      color: 'var(--text-secondary)',
+                      fontSize: '14px',
+                      backdropFilter: 'blur(8px)',
+                      fontWeight: '500',
+                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.08)',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.6)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)';
+                    }}
+                  >
+                    <LogOut size={16} />
+                    <span>{t('nav.signOut')}</span>
                   </Button>
                 ) : (
                   <Link 
                     to="/auth"
                     style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.5rem 0.75rem',
                       backgroundColor: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)',
                       border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.5)'}`,
                       borderRadius: '8px',
-                      padding: '6px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      height: '32px',
                       color: 'var(--text-secondary)',
                       fontSize: '14px',
                       textDecoration: 'none',
@@ -549,12 +598,14 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                     }}
                     onMouseOver={(e) => {
                       e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.6)';
                     }}
                     onMouseOut={(e) => {
                       e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)';
                     }}
                   >
-                    <LogIn size={14} />
+                    <LogIn size={16} />
                     <span>{t('nav.signIn')}</span>
                   </Link>
                 )}
@@ -568,7 +619,27 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                           variant="ghost"
                           size="sm"
                           onClick={() => setDarkMode(!darkMode)}
-                          className="w-9 px-0"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '0.5rem',
+                            backgroundColor: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                            border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.5)'}`,
+                            borderRadius: '8px',
+                            color: 'var(--text-secondary)',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.08)',
+                            transition: 'all 0.2s ease',
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                            e.currentTarget.style.backgroundColor = darkMode ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.6)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.backgroundColor = darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)';
+                          }}
                         >
                           {darkMode ? (
                             <Sun className="h-5 w-5" />
