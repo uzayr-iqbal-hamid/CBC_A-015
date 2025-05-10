@@ -57,7 +57,7 @@ const Scholarships = () => {
       heroIcon={<AcademicCapIcon width={40} height={40} />}
       gradientColors={{ from: 'rgba(99, 102, 241, 0.15)', to: 'rgba(139, 92, 246, 0.1)' }}
     >
-      <div style={{ marginBottom: '24px' }}>
+      <div style={{ marginBottom: '12px', marginTop: '-8px' }}>
         <input
           type="text"
           placeholder={t('scholarships.searchPlaceholder', 'Search scholarships...')}
@@ -129,8 +129,32 @@ const Scholarships = () => {
                 </ul>
               </div>
               <button 
-                className="btn-3d"
-                style={{ marginTop: '16px', width: '100%' }}
+                className="scholarship-apply-btn"
+                style={{
+                  marginTop: '16px',
+                  width: '100%',
+                  background: 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '1.1rem',
+                  border: 'none',
+                  borderRadius: '10px',
+                  padding: '14px 0',
+                  boxShadow: '0 2px 8px rgba(99,102,241,0.10)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  letterSpacing: '0.5px',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.03)';
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(99,102,241,0.18)';
+                  e.currentTarget.style.background = 'linear-gradient(90deg, #4f46e5 0%, #a78bfa 100%)';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(99,102,241,0.10)';
+                  e.currentTarget.style.background = 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)';
+                }}
               >
                 {t('scholarships.applyButton', 'Apply Now')}
               </button>

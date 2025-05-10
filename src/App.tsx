@@ -15,7 +15,6 @@ import Profile from './pages/Profile';
 import JobLocations from './pages/JobLocations';
 import Calendar from './pages/Calendar';
 import Auth from './pages/Auth';
-import Attentiveness from './pages/Attentiveness';
 import ResumeBuilder from './pages/ResumeBuilder';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -126,11 +125,6 @@ const App = () => {
                   <Route path="/calendar" element={
                     <ProtectedRoute>
                       <Calendar />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/attentiveness" element={
-                    <ProtectedRoute>
-                      <Attentiveness />
                     </ProtectedRoute>
                   } />
                 </Routes>

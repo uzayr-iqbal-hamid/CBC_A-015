@@ -77,7 +77,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
               style={{ 
                 fontSize: '36px',
                 fontWeight: 'bold',
-                marginBottom: '16px',
+                marginBottom: '4px',
               }}
             >
               {title}
@@ -91,7 +91,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
                 style={{ 
                   fontSize: '18px',
                   color: 'var(--text-secondary)',
-                  marginBottom: '24px',
+                  marginBottom: '20px',
                 }}
               >
                 {subtitle}
