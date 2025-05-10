@@ -13,7 +13,8 @@ import {
   MapPinIcon,
   ArrowDownTrayIcon,
   EyeIcon,
-  BookOpenIcon
+  BookOpenIcon,
+  CalendarIcon
 } from '@heroicons/react/24/outline';
 import { Sun, Moon, LogOut, LogIn, Globe } from 'lucide-react'; 
 import { useTranslation } from 'react-i18next';
@@ -289,9 +290,10 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
     { name: 'achievements', path: '/achievements', icon: TrophyIcon },
     { name: 'stemAssistant', path: '/stem-assistant', icon: ChatBubbleLeftRightIcon },
     { name: 'apkDownloads', path: '/apk-downloads', icon: ArrowDownTrayIcon },
+    { name: 'resumeBuilder', path: '/resume-builder', icon: DocumentTextIcon },
     { name: 'profile', path: '/profile', icon: UserIcon },
     { name: 'jobLocations', path: '/job-locations', icon: MapPinIcon },
-    { name: 'attentiveness', path: '/attentiveness', icon: EyeIcon },
+    { name: 'attentiveness', path: '/attentiveness', icon: CalendarIcon },
   ];
 
   // Change language function
