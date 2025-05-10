@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircleIcon, ArrowRightIcon, ArrowLeftIcon, AcademicCapIcon, BriefcaseIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
-import PageLayout from '../components/PageLayout';
 import AnimatedCard from '../components/AnimatedCard';
 import IconBlock from '../components/IconBlock';
+import { analyzeCareerQuiz } from '../lib/huggingface';
 
 interface QuizQuestion {
   id: number;
@@ -29,6 +29,9 @@ const CareerQuiz = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [quizStarted, setQuizStarted] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [aiSuggestions, setAiSuggestions] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   // Define quiz questions
   const questions: QuizQuestion[] = [
@@ -202,60 +205,193 @@ const CareerQuiz = () => {
     setRecommendations([]);
   };
 
-  const generateResults = () => {
-    // Simple algorithm to process answers and suggest careers
+  const generateResults = async () => {
+    // Simple algorithm to process answers and suggest careers (legacy fallback)
     const counts = [0, 0, 0, 0]; // Four career types (Tech, Creative, Social, Practical)
-    
     answers.forEach(answer => {
       if (answer !== undefined) {
         counts[answer]++;
       }
     });
-    
-    // Find primary and secondary career paths based on answer counts
     let primary = counts.indexOf(Math.max(...counts));
-    counts[primary] = -1; // Remove the primary from consideration for secondary
+    counts[primary] = -1;
     let secondary = counts.indexOf(Math.max(...counts));
-    
-    // Generate recommendations
-    const recommendations = [
-      careerPaths[primary],
-      careerPaths[secondary]
-    ];
-    
+    const recommendations = [careerPaths[primary], careerPaths[secondary]];
     setRecommendations(recommendations);
     setShowResults(true);
+
+    // AI-powered suggestions
+    setAiSuggestions(null);
+    setAiError(null);
+    setAiLoading(true);
+    try {
+      const aiResult = await analyzeCareerQuiz(answers, questions);
+      setAiSuggestions(aiResult);
+    } catch (err: any) {
+      console.error('Error generating AI suggestions:', err);
+      setAiError(err.message || 'Could not fetch AI suggestions. Please try again later.');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const renderContent = () => {
     if (!quizStarted) {
       return (
         <AnimatedCard>
-          <div style={{ padding: '32px', textAlign: 'center' }}>
-            <IconBlock 
-              icon={<DocumentTextIcon width={32} height={32} />}
-              color="var(--primary)"
-              backgroundColor="rgba(99, 102, 241, 0.15)"
-            />
-            <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '16px', color: 'var(--text)' }}>
+          <div style={{ 
+            padding: '48px 32px', 
+            textAlign: 'center',
+            maxWidth: '800px',
+            margin: '0 auto'
+          }}>
+            <div style={{ marginBottom: '32px' }}>
+              <IconBlock 
+                icon={<DocumentTextIcon width={48} height={48} />}
+                color="var(--primary)"
+                backgroundColor="rgba(99, 102, 241, 0.15)"
+              />
+            </div>
+            <h2 style={{ 
+              fontSize: '32px', 
+              fontWeight: '700', 
+              marginBottom: '24px', 
+              color: 'var(--text)',
+              lineHeight: '1.2'
+            }}>
               {t('careerQuiz.title', 'Discover Your Ideal Career Path')}
             </h2>
             <p style={{ 
-              fontSize: '16px', 
+              fontSize: '18px', 
               color: 'var(--text-secondary)', 
-              marginBottom: '32px',
+              marginBottom: '40px',
               lineHeight: '1.6',
               maxWidth: '600px',
-              margin: '0 auto 32px'
+              margin: '0 auto 40px'
             }}>
               {t('careerQuiz.description', 'Answer a few questions about your interests, skills, and preferences to get personalized career recommendations. This quiz takes about 5 minutes to complete.')}
             </p>
             <button 
               onClick={startQuiz}
-              className="btn-3d"
+              className="quiz-start-button"
+              style={{
+                padding: '16px 32px',
+                fontSize: '18px',
+                fontWeight: '600',
+                backgroundColor: 'var(--primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 6px rgba(99, 102, 241, 0.2)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}
             >
               {t('careerQuiz.startButton', 'Start Quiz')}
+              <ArrowRightIcon width={20} height={20} />
             </button>
+            
+            {/* Features Section */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '24px',
+              marginTop: '48px',
+              textAlign: 'left'
+            }}>
+              <div style={{
+                padding: '24px',
+                backgroundColor: 'var(--background-lighter)',
+                borderRadius: '12px',
+                border: '1px solid var(--border)'
+              }}>
+                <div style={{ marginBottom: '16px' }}>
+                  <IconBlock 
+                    icon={<AcademicCapIcon width={24} height={24} />}
+                    color="var(--primary)"
+                    backgroundColor="rgba(99, 102, 241, 0.15)"
+                  />
+                </div>
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '600', 
+                  marginBottom: '8px',
+                  color: 'var(--text)'
+                }}>
+                  Personalized Insights
+                </h3>
+                <p style={{ 
+                  fontSize: '14px', 
+                  color: 'var(--text-secondary)',
+                  lineHeight: '1.5'
+                }}>
+                  Get tailored career recommendations based on your unique preferences and strengths.
+                </p>
+              </div>
+              
+              <div style={{
+                padding: '24px',
+                backgroundColor: 'var(--background-lighter)',
+                borderRadius: '12px',
+                border: '1px solid var(--border)'
+              }}>
+                <div style={{ marginBottom: '16px' }}>
+                  <IconBlock 
+                    icon={<BriefcaseIcon width={24} height={24} />}
+                    color="var(--primary)"
+                    backgroundColor="rgba(99, 102, 241, 0.15)"
+                  />
+                </div>
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '600', 
+                  marginBottom: '8px',
+                  color: 'var(--text)'
+                }}>
+                  Career Paths
+                </h3>
+                <p style={{ 
+                  fontSize: '14px', 
+                  color: 'var(--text-secondary)',
+                  lineHeight: '1.5'
+                }}>
+                  Discover various career options that align with your interests and skills.
+                </p>
+              </div>
+              
+              <div style={{
+                padding: '24px',
+                backgroundColor: 'var(--background-lighter)',
+                borderRadius: '12px',
+                border: '1px solid var(--border)'
+              }}>
+                <div style={{ marginBottom: '16px' }}>
+                  <IconBlock 
+                    icon={<DocumentTextIcon width={24} height={24} />}
+                    color="var(--primary)"
+                    backgroundColor="rgba(99, 102, 241, 0.15)"
+                  />
+                </div>
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '600', 
+                  marginBottom: '8px',
+                  color: 'var(--text)'
+                }}>
+                  AI-Powered Analysis
+                </h3>
+                <p style={{ 
+                  fontSize: '14px', 
+                  color: 'var(--text-secondary)',
+                  lineHeight: '1.5'
+                }}>
+                  Get detailed insights and recommendations powered by advanced AI technology.
+                </p>
+              </div>
+            </div>
           </div>
         </AnimatedCard>
       );
@@ -353,6 +489,23 @@ const CareerQuiz = () => {
                 </div>
               </AnimatedCard>
             ))}
+          </div>
+          
+          {/* AI Suggestions Section */}
+          <div style={{
+            margin: '32px auto',
+            maxWidth: 600,
+            background: 'var(--background-lighter)',
+            borderRadius: '12px',
+            padding: '24px',
+            boxShadow: '0 2px 12px rgba(99,102,241,0.07)'
+          }}>
+            <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: 12, color: 'var(--primary)' }}>
+              AI-Powered Career Suggestions
+            </h3>
+            {aiLoading && <p style={{ color: 'var(--text-secondary)' }}>Analyzing your answers with AI...</p>}
+            {aiError && <p style={{ color: 'var(--red)' }}>{aiError}</p>}
+            {aiSuggestions && <pre style={{ whiteSpace: 'pre-wrap', color: 'var(--text)' }}>{aiSuggestions}</pre>}
           </div>
           
           <div style={{ textAlign: 'center' }}>
@@ -497,14 +650,26 @@ const CareerQuiz = () => {
   };
 
   return (
-    <PageLayout
-      title={t('careerQuiz.pageTitle', 'Career Discovery Quiz')}
-      subtitle={t('careerQuiz.pageSubtitle', 'Find career paths that match your interests, skills, and preferences')}
-      heroIcon={<DocumentTextIcon width={40} height={40} />}
-      gradientColors={{ from: 'rgba(99, 102, 241, 0.15)', to: 'rgba(139, 92, 246, 0.1)' }}
-    >
-      {renderContent()}
-    </PageLayout>
+    <div className="min-h-screen bg-gray-900">
+      {/* Header */}
+      <div className="bg-gray-800 border-b border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col items-center justify-center text-center">
+            <h1 className="text-4xl font-bold text-white mb-3">
+              Career Quiz
+            </h1>
+            <p className="text-gray-400 text-lg max-w-2xl">
+              Discover your ideal career path through our comprehensive assessment
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {renderContent()}
+      </div>
+    </div>
   );
 };
 

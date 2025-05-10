@@ -22,6 +22,7 @@ import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import logo from '../assets/logo.jpg';
 
 // Custom styles for dark mode and active elements
 const navbarStyles = `
@@ -439,34 +440,20 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
               marginBottom: '0.75rem',
             }}>
               {/* Logo */}
-              <Link to="/" style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem', 
-                textDecoration: 'none',
-                position: 'relative',
-                zIndex: 2
-              }}>
-                <div className="logo-container" style={{
-                  backgroundImage: 'linear-gradient(45deg, var(--primary), var(--secondary))',
-                  width: '42px',
-                  height: '42px',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 10px rgba(99, 102, 241, 0.3)',
-                  backdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)'
-                }}>
-                  <span style={{
-                    color: 'white',
-                    fontWeight: 'bold',
-                    fontSize: '24px',
-                  }}>
-                    A
-                  </span>
-                </div>
+              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
+                <img
+                  src={logo}
+                  alt="Aarambh Logo"
+                  style={{
+                    height: '40px',
+                    width: '40px',
+                    objectFit: 'cover',
+                    borderRadius: '10px',
+                    boxShadow: '0 2px 8px rgba(99,102,241,0.10)',
+                    background: 'white',
+                    border: '1px solid rgba(99,102,241,0.10)'
+                  }}
+                />
                 <span className="gradient-text" style={{
                   fontWeight: 'bold',
                   fontSize: '1.5rem',
@@ -888,37 +875,23 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
             borderBottom: scrolled ? '1px solid rgba(99, 102, 241, 0.12)' : 'none',
           }}>
             {/* Logo */}
-            <Link to="/" style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.75rem', 
-              textDecoration: 'none',
-              position: 'relative',
-              zIndex: 2
-            }}>
-              <div className="logo-container" style={{
-                backgroundImage: 'linear-gradient(45deg, var(--primary), var(--secondary))',
-                width: '36px',
-                height: '36px',
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 8px rgba(99, 102, 241, 0.3)',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255, 255, 255, 0.15)'
-              }}>
-                <span style={{
-                  color: 'white',
-                  fontWeight: 'bold',
-                  fontSize: '20px',
-                }}>
-                  A
-                </span>
-              </div>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
+              <img
+                src={logo}
+                alt="Aarambh Logo"
+                style={{
+                  height: '40px',
+                  width: '40px',
+                  objectFit: 'cover',
+                  borderRadius: '10px',
+                  boxShadow: '0 2px 8px rgba(99,102,241,0.10)',
+                  background: 'white',
+                  border: '1px solid rgba(99,102,241,0.10)'
+                }}
+              />
               <span className="gradient-text" style={{
                 fontWeight: 'bold',
-                fontSize: '1.25rem',
+                fontSize: '1.5rem',
                 letterSpacing: '0.5px',
                 textShadow: darkMode ? '0 2px 4px rgba(0, 0, 0, 0.2)' : 'none'
               }}>
