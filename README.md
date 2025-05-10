@@ -1,7 +1,7 @@
 # Aarambh 2.0
 
 ## Problem Statement
-Millions of students in rural India face limited access to career counseling, scholarship opportunities, and structured learning resources. This lack of exposure significantly impacts their career outcomes and future potential.
+Students in rural India face multiple educational challenges—limited access to career counseling, real-time scholarship information, and personalized learning resources. Additionally, with the rise of online education, maintaining student attentiveness and engagement has become a critical yet overlooked issue, especially in remote, unsupervised environments.
 
 ## Features
 
