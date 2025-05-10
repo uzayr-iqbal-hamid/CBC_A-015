@@ -369,10 +369,11 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
     { name: 'careerQuiz', path: '/career-quiz', icon: DocumentTextIcon },
     { name: 'scholarships', path: '/scholarships', icon: AcademicCapIcon },
     { name: 'resumeBuilder', path: '/resume-builder', icon: DocumentTextIcon },
-    { name: 'profile', path: '/profile', icon: UserIcon },
     { name: 'jobLocations', path: '/job-locations', icon: MapPinIcon },
     { name: 'attentiveness', path: '/attentiveness', icon: CalendarIcon },
   ];
+
+  const profileLink = { name: 'profile', path: '/profile', icon: UserIcon };
 
   // Change language function
   const changeLanguage = (lng: string) => {
@@ -746,6 +747,51 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                     </Tooltip>
                   </TooltipProvider>
                 </div>
+
+                {/* Profile Link */}
+                {user && (
+                  <Link
+                    to={profileLink.path}
+                    className={`nav-element nav-link-hover ${location.pathname === profileLink.path ? (darkMode ? 'nav-link-active-dark' : 'nav-link-active-light') : ''}`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.5rem 0.75rem',
+                      borderRadius: '8px',
+                      color: location.pathname === profileLink.path 
+                        ? (darkMode ? 'rgba(147, 197, 253, 1)' : 'var(--primary-light)')
+                        : 'var(--text-secondary)',
+                      backgroundColor: location.pathname === profileLink.path 
+                        ? (darkMode ? 'rgba(79, 70, 229, 0.15)' : 'rgba(79, 70, 229, 0.1)')
+                        : darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                      textDecoration: 'none',
+                      transition: 'all 0.2s ease',
+                      fontWeight: location.pathname === profileLink.path ? '600' : '500',
+                      boxShadow: location.pathname === profileLink.path 
+                        ? `0 2px 6px ${darkMode ? 'rgba(79, 70, 229, 0.2)' : 'rgba(79, 70, 229, 0.15)'}` 
+                        : '0 2px 5px rgba(0, 0, 0, 0.08)',
+                      backdropFilter: 'blur(8px)',
+                      border: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.5)'}`,
+                      fontSize: '14px',
+                    }}
+                    onMouseOver={(e) => {
+                      if (location.pathname !== profileLink.path) {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.backgroundColor = darkMode ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.6)';
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      if (location.pathname !== profileLink.path) {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.backgroundColor = darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.4)';
+                      }
+                    }}
+                  >
+                    <profileLink.icon className="h-4 w-4" />
+                    <span>{t(`nav.${profileLink.name}`)}</span>
+                  </Link>
+                )}
               </div>
             </div>
                 
