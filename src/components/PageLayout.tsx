@@ -21,13 +21,13 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 }) => {
   return (
     <div style={{ 
-      paddingTop: '72px',
+      paddingTop: '32px',
       minHeight: '100vh',
       backgroundColor: 'var(--background)',
       color: 'var(--text)'
     }}>
       {/* Hero Section */}
-      <section style={{ position: 'relative', padding: '64px 0 48px' }}>
+      <section style={{ position: 'relative', padding: '32px 0 32px' }}>
         <div style={{ 
           position: 'absolute', 
           inset: 0, 
