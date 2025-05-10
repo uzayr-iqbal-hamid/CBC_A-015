@@ -1,0 +1,2565 @@
+From 02e6824810507fa923087f78b847e7788198c19d Mon Sep 17 00:00:00 2001
+From: peterdig <petermuffins52@gmail.com>
+Date: Sat, 26 Apr 2025 00:19:43 +0530
+Subject: [PATCH] Fix JobLocations.tsx linter errors and update dependencies
+
+---
+ frontend/index.html                 |   20 +
+ frontend/package-lock.json          |  443 ++++++++
+ frontend/package.json               |   10 +
+ frontend/public/vite.svg            |    1 -
+ frontend/src/App.tsx                |    2 +
+ frontend/src/components/Navbar.tsx  |    4 +-
+ frontend/src/i18n.ts                |  189 +++-
+ frontend/src/pages/Home.tsx         |   78 +-
+ frontend/src/pages/JobLocations.tsx | 1492 +++++++++++++++++++++++++++
+ 9 files changed, 2234 insertions(+), 5 deletions(-)
+ delete mode 100644 frontend/public/vite.svg
+ create mode 100644 frontend/src/pages/JobLocations.tsx
+
+diff --git a/frontend/index.html b/frontend/index.html
+index e00f811..db6cccf 100644
+--- a/frontend/index.html
++++ b/frontend/index.html
+@@ -64,6 +64,26 @@
+           display: none !important;
+         }
+       }
++
++      /* Map and marker styles for JobLocations page */
++      .custom-marker-cluster {
++        background-color: rgba(79, 70, 229, 0.6);
++        border-radius: 50%;
++        display: flex;
++        align-items: center;
++        justify-content: center;
++        font-weight: bold;
++        color: white;
++        border: 2px solid #4f46e5;
++      }
++      
++      .new-job-marker {
++        filter: hue-rotate(120deg);
++      }
++      
++      .leaflet-container a {
++        color: #4f46e5;
++      }
+     </style>
+   </head>
+   <body>
+diff --git a/frontend/package-lock.json b/frontend/package-lock.json
+index 380386b..48a9d3b 100644
+--- a/frontend/package-lock.json
++++ b/frontend/package-lock.json
+@@ -10,11 +10,21 @@
+       "dependencies": {
+         "@headlessui/react": "^2.2.2",
+         "@heroicons/react": "^2.2.0",
++        "@types/geojson": "^7946.0.16",
++        "@types/leaflet": "^1.9.17",
++        "@types/leaflet.markercluster": "^1.5.5",
++        "axios": "^1.9.0",
++        "clean": "^4.0.2",
+         "framer-motion": "^12.9.1",
+         "i18next": "^25.0.1",
++        "leaflet": "^1.9.4",
++        "leaflet-geosearch": "^4.2.0",
++        "leaflet.markercluster": "^1.5.3",
+         "react": "^19.0.0",
+         "react-dom": "^19.0.0",
+         "react-i18next": "^15.5.1",
++        "react-leaflet": "^5.0.0",
++        "react-leaflet-markercluster": "^5.0.0-rc.0",
+         "react-router-dom": "^7.5.2"
+       },
+       "devDependencies": {
+@@ -971,6 +981,13 @@
+       "integrity": "sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==",
+       "license": "MIT"
+     },
++    "node_modules/@googlemaps/js-api-loader": {
++      "version": "1.16.8",
++      "resolved": "https://registry.npmjs.org/@googlemaps/js-api-loader/-/js-api-loader-1.16.8.tgz",
++      "integrity": "sha512-CROqqwfKotdO6EBjZO/gQGVTbeDps5V7Mt9+8+5Q+jTg5CRMi3Ii/L9PmV3USROrt2uWxtGzJHORmByxyo9pSQ==",
++      "license": "Apache-2.0",
++      "optional": true
++    },
+     "node_modules/@headlessui/react": {
+       "version": "2.2.2",
+       "resolved": "https://registry.npmjs.org/@headlessui/react/-/react-2.2.2.tgz",
+@@ -1224,6 +1241,17 @@
+         "react-dom": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1"
+       }
+     },
++    "node_modules/@react-leaflet/core": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/@react-leaflet/core/-/core-3.0.0.tgz",
++      "integrity": "sha512-3EWmekh4Nz+pGcr+xjf0KNyYfC3U2JjnkWsh0zcqaexYqmmB5ZhH37kz41JXGmKzpaMZCnPofBBm64i+YrEvGQ==",
++      "license": "Hippocratic-2.1",
++      "peerDependencies": {
++        "leaflet": "^1.9.0",
++        "react": "^19.0.0",
++        "react-dom": "^19.0.0"
++      }
++    },
+     "node_modules/@react-stately/flags": {
+       "version": "3.1.1",
+       "resolved": "https://registry.npmjs.org/@react-stately/flags/-/flags-3.1.1.tgz",
+@@ -1622,6 +1650,12 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/@types/geojson": {
++      "version": "7946.0.16",
++      "resolved": "https://registry.npmjs.org/@types/geojson/-/geojson-7946.0.16.tgz",
++      "integrity": "sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==",
++      "license": "MIT"
++    },
+     "node_modules/@types/json-schema": {
+       "version": "7.0.15",
+       "resolved": "https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.15.tgz",
+@@ -1629,6 +1663,24 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/@types/leaflet": {
++      "version": "1.9.17",
++      "resolved": "https://registry.npmjs.org/@types/leaflet/-/leaflet-1.9.17.tgz",
++      "integrity": "sha512-IJ4K6t7I3Fh5qXbQ1uwL3CFVbCi6haW9+53oLWgdKlLP7EaS21byWFJxxqOx9y8I0AP0actXSJLVMbyvxhkUTA==",
++      "license": "MIT",
++      "dependencies": {
++        "@types/geojson": "*"
++      }
++    },
++    "node_modules/@types/leaflet.markercluster": {
++      "version": "1.5.5",
++      "resolved": "https://registry.npmjs.org/@types/leaflet.markercluster/-/leaflet.markercluster-1.5.5.tgz",
++      "integrity": "sha512-TkWOhSHDM1ANxmLi+uK0PjsVcjIKBr8CLV2WoF16dIdeFmC0Cj5P5axkI3C1Xsi4+ht6EU8+BfEbbqEF9icPrg==",
++      "license": "MIT",
++      "dependencies": {
++        "@types/leaflet": "*"
++      }
++    },
+     "node_modules/@types/react": {
+       "version": "19.1.2",
+       "resolved": "https://registry.npmjs.org/@types/react/-/react-19.1.2.tgz",
+@@ -1951,6 +2003,18 @@
+       "dev": true,
+       "license": "Python-2.0"
+     },
++    "node_modules/async": {
++      "version": "0.9.2",
++      "resolved": "https://registry.npmjs.org/async/-/async-0.9.2.tgz",
++      "integrity": "sha512-l6ToIJIotphWahxxHyzK9bnLR6kM4jJIIgLShZeqLY7iboHoGkdgFl7W2/Ivi4SkMJYGKqW8vSuk0uKUj6qsSw==",
++      "license": "MIT"
++    },
++    "node_modules/asynckit": {
++      "version": "0.4.0",
++      "resolved": "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz",
++      "integrity": "sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==",
++      "license": "MIT"
++    },
+     "node_modules/autoprefixer": {
+       "version": "10.4.21",
+       "resolved": "https://registry.npmjs.org/autoprefixer/-/autoprefixer-10.4.21.tgz",
+@@ -1989,6 +2053,17 @@
+         "postcss": "^8.1.0"
+       }
+     },
++    "node_modules/axios": {
++      "version": "1.9.0",
++      "resolved": "https://registry.npmjs.org/axios/-/axios-1.9.0.tgz",
++      "integrity": "sha512-re4CqKTJaURpzbLHtIi6XpDv20/CnpXOtjRY5/CU32L8gU8ek9UIivcfvSWvmKEngmVbrUtPpdDwWDWL7DNHvg==",
++      "license": "MIT",
++      "dependencies": {
++        "follow-redirects": "^1.15.6",
++        "form-data": "^4.0.0",
++        "proxy-from-env": "^1.1.0"
++      }
++    },
+     "node_modules/balanced-match": {
+       "version": "1.0.2",
+       "resolved": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz",
+@@ -2053,6 +2128,19 @@
+         "node": "^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7"
+       }
+     },
++    "node_modules/call-bind-apply-helpers": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz",
++      "integrity": "sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==",
++      "license": "MIT",
++      "dependencies": {
++        "es-errors": "^1.3.0",
++        "function-bind": "^1.1.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
+     "node_modules/callsites": {
+       "version": "3.1.0",
+       "resolved": "https://registry.npmjs.org/callsites/-/callsites-3.1.0.tgz",
+@@ -2101,6 +2189,18 @@
+         "url": "https://github.com/chalk/chalk?sponsor=1"
+       }
+     },
++    "node_modules/clean": {
++      "version": "4.0.2",
++      "resolved": "https://registry.npmjs.org/clean/-/clean-4.0.2.tgz",
++      "integrity": "sha512-2LGVh4dNtI16L4UzqDHO6Hbl74YjG1vWvEUU78dgLO4kuyqJZFMNMPBx+EGtYKTFb14e24p+gWXgkabqxc1EUw==",
++      "license": "MIT",
++      "dependencies": {
++        "async": "^0.9.0",
++        "minimist": "^1.1.0",
++        "mix2": "^1.0.0",
++        "skema": "^1.0.0"
++      }
++    },
+     "node_modules/clsx": {
+       "version": "2.1.1",
+       "resolved": "https://registry.npmjs.org/clsx/-/clsx-2.1.1.tgz",
+@@ -2130,6 +2230,18 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/combined-stream": {
++      "version": "1.0.8",
++      "resolved": "https://registry.npmjs.org/combined-stream/-/combined-stream-1.0.8.tgz",
++      "integrity": "sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==",
++      "license": "MIT",
++      "dependencies": {
++        "delayed-stream": "~1.0.0"
++      },
++      "engines": {
++        "node": ">= 0.8"
++      }
++    },
+     "node_modules/concat-map": {
+       "version": "0.0.1",
+       "resolved": "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz",
+@@ -2200,6 +2312,29 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/delayed-stream": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/delayed-stream/-/delayed-stream-1.0.0.tgz",
++      "integrity": "sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=0.4.0"
++      }
++    },
++    "node_modules/dunder-proto": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/dunder-proto/-/dunder-proto-1.0.1.tgz",
++      "integrity": "sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==",
++      "license": "MIT",
++      "dependencies": {
++        "call-bind-apply-helpers": "^1.0.1",
++        "es-errors": "^1.3.0",
++        "gopd": "^1.2.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
+     "node_modules/electron-to-chromium": {
+       "version": "1.5.142",
+       "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.142.tgz",
+@@ -2207,6 +2342,51 @@
+       "dev": true,
+       "license": "ISC"
+     },
++    "node_modules/es-define-property": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/es-define-property/-/es-define-property-1.0.1.tgz",
++      "integrity": "sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
++    "node_modules/es-errors": {
++      "version": "1.3.0",
++      "resolved": "https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz",
++      "integrity": "sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
++    "node_modules/es-object-atoms": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/es-object-atoms/-/es-object-atoms-1.1.1.tgz",
++      "integrity": "sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==",
++      "license": "MIT",
++      "dependencies": {
++        "es-errors": "^1.3.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
++    "node_modules/es-set-tostringtag": {
++      "version": "2.1.0",
++      "resolved": "https://registry.npmjs.org/es-set-tostringtag/-/es-set-tostringtag-2.1.0.tgz",
++      "integrity": "sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==",
++      "license": "MIT",
++      "dependencies": {
++        "es-errors": "^1.3.0",
++        "get-intrinsic": "^1.2.6",
++        "has-tostringtag": "^1.0.2",
++        "hasown": "^2.0.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
+     "node_modules/esbuild": {
+       "version": "0.25.3",
+       "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.25.3.tgz",
+@@ -2574,6 +2754,41 @@
+       "dev": true,
+       "license": "ISC"
+     },
++    "node_modules/follow-redirects": {
++      "version": "1.15.9",
++      "resolved": "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.15.9.tgz",
++      "integrity": "sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==",
++      "funding": [
++        {
++          "type": "individual",
++          "url": "https://github.com/sponsors/RubenVerborgh"
++        }
++      ],
++      "license": "MIT",
++      "engines": {
++        "node": ">=4.0"
++      },
++      "peerDependenciesMeta": {
++        "debug": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/form-data": {
++      "version": "4.0.2",
++      "resolved": "https://registry.npmjs.org/form-data/-/form-data-4.0.2.tgz",
++      "integrity": "sha512-hGfm/slu0ZabnNt4oaRZ6uREyfCj6P4fT/n6A1rGV+Z0VdGXjfOhVUpkn6qVQONHGIFwmveGXyDs75+nr6FM8w==",
++      "license": "MIT",
++      "dependencies": {
++        "asynckit": "^0.4.0",
++        "combined-stream": "^1.0.8",
++        "es-set-tostringtag": "^2.1.0",
++        "mime-types": "^2.1.12"
++      },
++      "engines": {
++        "node": ">= 6"
++      }
++    },
+     "node_modules/fraction.js": {
+       "version": "4.3.7",
+       "resolved": "https://registry.npmjs.org/fraction.js/-/fraction.js-4.3.7.tgz",
+@@ -2630,6 +2845,15 @@
+         "node": "^8.16.0 || ^10.6.0 || >=11.0.0"
+       }
+     },
++    "node_modules/function-bind": {
++      "version": "1.1.2",
++      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz",
++      "integrity": "sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==",
++      "license": "MIT",
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/gensync": {
+       "version": "1.0.0-beta.2",
+       "resolved": "https://registry.npmjs.org/gensync/-/gensync-1.0.0-beta.2.tgz",
+@@ -2640,6 +2864,43 @@
+         "node": ">=6.9.0"
+       }
+     },
++    "node_modules/get-intrinsic": {
++      "version": "1.3.0",
++      "resolved": "https://registry.npmjs.org/get-intrinsic/-/get-intrinsic-1.3.0.tgz",
++      "integrity": "sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==",
++      "license": "MIT",
++      "dependencies": {
++        "call-bind-apply-helpers": "^1.0.2",
++        "es-define-property": "^1.0.1",
++        "es-errors": "^1.3.0",
++        "es-object-atoms": "^1.1.1",
++        "function-bind": "^1.1.2",
++        "get-proto": "^1.0.1",
++        "gopd": "^1.2.0",
++        "has-symbols": "^1.1.0",
++        "hasown": "^2.0.2",
++        "math-intrinsics": "^1.1.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/get-proto": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/get-proto/-/get-proto-1.0.1.tgz",
++      "integrity": "sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==",
++      "license": "MIT",
++      "dependencies": {
++        "dunder-proto": "^1.0.1",
++        "es-object-atoms": "^1.0.0"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
+     "node_modules/glob-parent": {
+       "version": "6.0.2",
+       "resolved": "https://registry.npmjs.org/glob-parent/-/glob-parent-6.0.2.tgz",
+@@ -2666,6 +2927,18 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
++    "node_modules/gopd": {
++      "version": "1.2.0",
++      "resolved": "https://registry.npmjs.org/gopd/-/gopd-1.2.0.tgz",
++      "integrity": "sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
+     "node_modules/graphemer": {
+       "version": "1.4.0",
+       "resolved": "https://registry.npmjs.org/graphemer/-/graphemer-1.4.0.tgz",
+@@ -2683,6 +2956,45 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/has-symbols": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/has-symbols/-/has-symbols-1.1.0.tgz",
++      "integrity": "sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/has-tostringtag": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/has-tostringtag/-/has-tostringtag-1.0.2.tgz",
++      "integrity": "sha512-NqADB8VjPFLM2V0VvHUewwwsw0ZWBaIdgo+ieHtK3hasLz4qeCRjYcqfB6AQrBggRKppKF8L52/VqdVsO47Dlw==",
++      "license": "MIT",
++      "dependencies": {
++        "has-symbols": "^1.0.3"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/hasown": {
++      "version": "2.0.2",
++      "resolved": "https://registry.npmjs.org/hasown/-/hasown-2.0.2.tgz",
++      "integrity": "sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==",
++      "license": "MIT",
++      "dependencies": {
++        "function-bind": "^1.1.2"
++      },
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
+     "node_modules/html-parse-stringify": {
+       "version": "3.0.1",
+       "resolved": "https://registry.npmjs.org/html-parse-stringify/-/html-parse-stringify-3.0.1.tgz",
+@@ -2877,6 +3189,31 @@
+         "json-buffer": "3.0.1"
+       }
+     },
++    "node_modules/leaflet": {
++      "version": "1.9.4",
++      "resolved": "https://registry.npmjs.org/leaflet/-/leaflet-1.9.4.tgz",
++      "integrity": "sha512-nxS1ynzJOmOlHp+iL3FyWqK89GtNL8U8rvlMOsQdTTssxZwCXh8N2NB3GDQOL+YR3XnWyZAxwQixURb+FA74PA==",
++      "license": "BSD-2-Clause"
++    },
++    "node_modules/leaflet-geosearch": {
++      "version": "4.2.0",
++      "resolved": "https://registry.npmjs.org/leaflet-geosearch/-/leaflet-geosearch-4.2.0.tgz",
++      "integrity": "sha512-UWNhFSaUcLlAP5UQY75ziWCl3cp0UCcmcFczPHLHjuAVPOHoPTe0nSgHJuI3pSTJBQm46NYoZOlgonrWceUznQ==",
++      "license": "MIT",
++      "optionalDependencies": {
++        "@googlemaps/js-api-loader": "^1.16.6",
++        "leaflet": "^1.6.0"
++      }
++    },
++    "node_modules/leaflet.markercluster": {
++      "version": "1.5.3",
++      "resolved": "https://registry.npmjs.org/leaflet.markercluster/-/leaflet.markercluster-1.5.3.tgz",
++      "integrity": "sha512-vPTw/Bndq7eQHjLBVlWpnGeLa3t+3zGiuM7fJwCkiMFq+nmRuG3RI3f7f4N4TDX7T4NpbAXpR2+NTRSEGfCSeA==",
++      "license": "MIT",
++      "peerDependencies": {
++        "leaflet": "^1.3.1"
++      }
++    },
+     "node_modules/levn": {
+       "version": "0.4.1",
+       "resolved": "https://registry.npmjs.org/levn/-/levn-0.4.1.tgz",
+@@ -2924,6 +3261,24 @@
+         "yallist": "^3.0.2"
+       }
+     },
++    "node_modules/make-array": {
++      "version": "0.1.2",
++      "resolved": "https://registry.npmjs.org/make-array/-/make-array-0.1.2.tgz",
++      "integrity": "sha512-bcFmxgZ+OTaMYJp/w6eifElKTcfum7Gi5H7vQ8KzAf9X6swdxkVuilCaG3ZjXr/qJsQT4JJ2Rq9SDYScWEdu9Q==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=0.10.0"
++      }
++    },
++    "node_modules/math-intrinsics": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/math-intrinsics/-/math-intrinsics-1.1.0.tgz",
++      "integrity": "sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.4"
++      }
++    },
+     "node_modules/merge2": {
+       "version": "1.4.1",
+       "resolved": "https://registry.npmjs.org/merge2/-/merge2-1.4.1.tgz",
+@@ -2948,6 +3303,27 @@
+         "node": ">=8.6"
+       }
+     },
++    "node_modules/mime-db": {
++      "version": "1.52.0",
++      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.52.0.tgz",
++      "integrity": "sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.6"
++      }
++    },
++    "node_modules/mime-types": {
++      "version": "2.1.35",
++      "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-2.1.35.tgz",
++      "integrity": "sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==",
++      "license": "MIT",
++      "dependencies": {
++        "mime-db": "1.52.0"
++      },
++      "engines": {
++        "node": ">= 0.6"
++      }
++    },
+     "node_modules/minimatch": {
+       "version": "3.1.2",
+       "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-3.1.2.tgz",
+@@ -2961,6 +3337,24 @@
+         "node": "*"
+       }
+     },
++    "node_modules/minimist": {
++      "version": "1.2.8",
++      "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.2.8.tgz",
++      "integrity": "sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==",
++      "license": "MIT",
++      "funding": {
++        "url": "https://github.com/sponsors/ljharb"
++      }
++    },
++    "node_modules/mix2": {
++      "version": "1.0.5",
++      "resolved": "https://registry.npmjs.org/mix2/-/mix2-1.0.5.tgz",
++      "integrity": "sha512-ybWz7nY+WHBBIyliND5eYaJKzkoa+qXRYNTmVqAxSLlFtL/umT2iv+pmyTu1oU7WNkrirwheqR8d9EaKVz0e5g==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=0.10.0"
++      }
++    },
+     "node_modules/motion-dom": {
+       "version": "12.9.1",
+       "resolved": "https://registry.npmjs.org/motion-dom/-/motion-dom-12.9.1.tgz",
+@@ -3175,6 +3569,12 @@
+         "node": ">= 0.8.0"
+       }
+     },
++    "node_modules/proxy-from-env": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/proxy-from-env/-/proxy-from-env-1.1.0.tgz",
++      "integrity": "sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==",
++      "license": "MIT"
++    },
+     "node_modules/punycode": {
+       "version": "2.3.1",
+       "resolved": "https://registry.npmjs.org/punycode/-/punycode-2.3.1.tgz",
+@@ -3253,6 +3653,38 @@
+         }
+       }
+     },
++    "node_modules/react-leaflet": {
++      "version": "5.0.0",
++      "resolved": "https://registry.npmjs.org/react-leaflet/-/react-leaflet-5.0.0.tgz",
++      "integrity": "sha512-CWbTpr5vcHw5bt9i4zSlPEVQdTVcML390TjeDG0cK59z1ylexpqC6M1PJFjV8jD7CF+ACBFsLIDs6DRMoLEofw==",
++      "license": "Hippocratic-2.1",
++      "dependencies": {
++        "@react-leaflet/core": "^3.0.0"
++      },
++      "peerDependencies": {
++        "leaflet": "^1.9.0",
++        "react": "^19.0.0",
++        "react-dom": "^19.0.0"
++      }
++    },
++    "node_modules/react-leaflet-markercluster": {
++      "version": "5.0.0-rc.0",
++      "resolved": "https://registry.npmjs.org/react-leaflet-markercluster/-/react-leaflet-markercluster-5.0.0-rc.0.tgz",
++      "integrity": "sha512-jWa4bPD5LfLV3Lid1RWgl+yKUuQtnqeYtJzzLb/fiRjvX+rtwzY8pMoUFuygqyxNrWxMTQlWKBHxkpI7Sxvu4Q==",
++      "license": "MIT",
++      "dependencies": {
++        "@react-leaflet/core": "^3.0.0",
++        "leaflet": "^1.9.4",
++        "leaflet.markercluster": "^1.5.3",
++        "react-leaflet": "^5.0.0"
++      },
++      "peerDependencies": {
++        "leaflet": "^1.9.4",
++        "leaflet.markercluster": "^1.5.3",
++        "react": "^19.0.0",
++        "react-leaflet": "^5.0.0"
++      }
++    },
+     "node_modules/react-refresh": {
+       "version": "0.17.0",
+       "resolved": "https://registry.npmjs.org/react-refresh/-/react-refresh-0.17.0.tgz",
+@@ -3438,6 +3870,17 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/skema": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/skema/-/skema-1.0.2.tgz",
++      "integrity": "sha512-5LWfF2RSW2B3xfOaY6j49X8aNwsnj9cRVrM5QMF7it+cZvpv5ufiOUT13ps2U52sIbAzs11bdRP6mi5qyg75VQ==",
++      "license": "MIT",
++      "dependencies": {
++        "async": "^0.9.0",
++        "make-array": "^0.1.2",
++        "mix2": "^1.0.0"
++      }
++    },
+     "node_modules/source-map-js": {
+       "version": "1.2.1",
+       "resolved": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.1.tgz",
+diff --git a/frontend/package.json b/frontend/package.json
+index ca79759..75c2200 100644
+--- a/frontend/package.json
++++ b/frontend/package.json
+@@ -12,11 +12,21 @@
+   "dependencies": {
+     "@headlessui/react": "^2.2.2",
+     "@heroicons/react": "^2.2.0",
++    "@types/geojson": "^7946.0.16",
++    "@types/leaflet": "^1.9.17",
++    "@types/leaflet.markercluster": "^1.5.5",
++    "axios": "^1.9.0",
++    "clean": "^4.0.2",
+     "framer-motion": "^12.9.1",
+     "i18next": "^25.0.1",
++    "leaflet": "^1.9.4",
++    "leaflet-geosearch": "^4.2.0",
++    "leaflet.markercluster": "^1.5.3",
+     "react": "^19.0.0",
+     "react-dom": "^19.0.0",
+     "react-i18next": "^15.5.1",
++    "react-leaflet": "^5.0.0",
++    "react-leaflet-markercluster": "^5.0.0-rc.0",
+     "react-router-dom": "^7.5.2"
+   },
+   "devDependencies": {
+diff --git a/frontend/public/vite.svg b/frontend/public/vite.svg
+deleted file mode 100644
+index e7b8dfb..0000000
+--- a/frontend/public/vite.svg
++++ /dev/null
+@@ -1 +0,0 @@
+-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+\ No newline at end of file
+diff --git a/frontend/src/App.tsx b/frontend/src/App.tsx
+index 74500cc..762f5e8 100644
+--- a/frontend/src/App.tsx
++++ b/frontend/src/App.tsx
+@@ -13,6 +13,7 @@ import StemAssistant from './pages/StemAssistant';
+ import CareerQuiz from './pages/CareerQuiz';
+ import GamificationPage from './pages/Gamification';
+ import Profile from './pages/Profile';
++import JobLocations from './pages/JobLocations';
+ 
+ const App = () => {
+   const { t } = useTranslation();
+@@ -43,6 +44,7 @@ const App = () => {
+               <Route path="/career-quiz" element={<CareerQuiz />} />
+               <Route path="/achievements" element={<GamificationPage />} />
+               <Route path="/profile" element={<Profile />} />
++              <Route path="/job-locations" element={<JobLocations />} />
+             </Routes>
+           </Suspense>
+         </div>
+diff --git a/frontend/src/components/Navbar.tsx b/frontend/src/components/Navbar.tsx
+index e2a0e24..d7ecb6f 100644
+--- a/frontend/src/components/Navbar.tsx
++++ b/frontend/src/components/Navbar.tsx
+@@ -9,7 +9,8 @@ import {
+   TrophyIcon,
+   UserIcon,
+   DocumentTextIcon,
+-  ChatBubbleLeftRightIcon
++  ChatBubbleLeftRightIcon,
++  MapPinIcon
+ } from '@heroicons/react/24/outline';
+ import { useTranslation } from 'react-i18next';
+ 
+@@ -81,6 +82,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
+     { name: 'Achievements', path: '/achievements', icon: TrophyIcon },
+     { name: 'STEM Assistant', path: '/stem-assistant', icon: ChatBubbleLeftRightIcon },
+     { name: 'Profile', path: '/profile', icon: UserIcon },
++    { name: 'Job Locations', path: '/job-locations', icon: MapPinIcon },
+   ];
+ 
+   const handleToggle = () => {
+diff --git a/frontend/src/i18n.ts b/frontend/src/i18n.ts
+index 1307535..4e188ea 100644
+--- a/frontend/src/i18n.ts
++++ b/frontend/src/i18n.ts
+@@ -8,7 +8,8 @@ const resources = {
+         home: 'Home',
+         scholarships: 'Scholarships',
+         chatbot: 'Career Chatbot',
+-        learning: 'Learning Resources'
++        learning: 'Learning Resources',
++        jobLocations: 'Job Locations'
+       },
+       home: {
+         title: 'Welcome to CareerConnect',
+@@ -22,6 +23,59 @@ const resources = {
+       },
+       footer: {
+         copyright: 'All rights reserved'
++      },
++      jobLocations: {
++        title: 'Explore Job Opportunities',
++        description: 'Discover job opportunities across India. Use the map to explore positions in different cities and filter by industry to find the perfect match for your skills and interests.',
++        filterByIndustry: 'Industry:',
++        filterByJobType: 'Job Type:',
++        filterByExperience: 'Experience:',
++        filterBySalary: 'Salary Range:',
++        availableJobs: 'Available Jobs',
++        noJobsFound: 'No jobs found for the selected criteria.',
++        salary: 'Salary',
++        applyNow: 'Apply Now',
++        viewDetails: 'View Details',
++        dataDisclaimer: 'Job data is updated regularly. Last updated: October 2023. Apply for jobs directly through the employer websites.',
++        allIndustries: 'All Industries',
++        allTypes: 'All Types',
++        allLevels: 'All Levels',
++        fullTime: 'Full-time',
++        partTime: 'Part-time',
++        contract: 'Contract',
++        freelance: 'Freelance',
++        internship: 'Internship',
++        entryLevel: 'Entry Level',
++        midLevel: 'Mid Level',
++        seniorLevel: 'Senior Level',
++        technology: 'Technology',
++        education: 'Education',
++        healthcare: 'Healthcare',
++        manufacturing: 'Manufacturing',
++        automotive: 'Automotive',
++        analytics: 'Analytics',
++        construction: 'Construction',
++        marketing: 'Marketing',
++        design: 'Design',
++        refresh: 'Refresh Jobs',
++        loading: 'Loading...',
++        loadingJobs: 'Loading jobs...',
++        refreshing: '(Refreshing...)',
++        new: 'New',
++        favorite: 'Favorite',
++        showFavorites: 'Show Favorites Only',
++        addToFavorites: 'Add to favorites',
++        removeFromFavorites: 'Remove from favorites',
++        filters: 'Filter Jobs',
++        found: 'found',
++        searchPlaceholder: 'Search locations in India...',
++        search: 'Search',
++        searching: 'Searching...',
++        findNearMe: 'Find Jobs Near Me',
++        locating: 'Locating...',
++        locationError: 'Could not get your location. Please check browser permissions.',
++        geoNotSupported: 'Geolocation is not supported by your browser.',
++        fetchError: 'Failed to fetch job data. Please try again later.'
+       }
+     }
+   },
+@@ -31,7 +85,8 @@ const resources = {
+         home: 'होम',
+         scholarships: 'छात्रवृत्ति',
+         chatbot: 'करियर चैटबॉट',
+-        learning: 'सीखने के संसाधन'
++        learning: 'सीखने के संसाधन',
++        jobLocations: 'नौकरी स्थान'
+       },
+       home: {
+         title: 'CareerConnect में आपका स्वागत है',
+@@ -45,6 +100,136 @@ const resources = {
+       },
+       footer: {
+         copyright: 'सर्वाधिकार सुरक्षित'
++      },
++      jobLocations: {
++        title: 'रोजगार के अवसर खोजें',
++        description: 'पूरे भारत में रोजगार के अवसर खोजें। विभिन्न शहरों में पदों का पता लगाने के लिए मानचित्र का उपयोग करें और अपने कौशल और रुचियों के लिए सही मिलान खोजने के लिए उद्योग के अनुसार फ़िल्टर करें।',
++        filterByIndustry: 'उद्योग:',
++        filterByJobType: 'नौकरी प्रकार:',
++        filterByExperience: 'अनुभव:',
++        filterBySalary: 'वेतन सीमा:',
++        availableJobs: 'उपलब्ध नौकरियां',
++        noJobsFound: 'चयनित मापदंडों के लिए कोई नौकरी नहीं मिली।',
++        salary: 'वेतन',
++        applyNow: 'अभी आवेदन करें',
++        viewDetails: 'विवरण देखें',
++        dataDisclaimer: 'नौकरी डेटा नियमित रूप से अपडेट किया जाता है। अंतिम अपडेट: अक्टूबर 2023। नियोक्ता वेबसाइटों के माध्यम से सीधे नौकरियों के लिए आवेदन करें।',
++        allIndustries: 'सभी उद्योग',
++        allTypes: 'सभी प्रकार',
++        allLevels: 'सभी स्तर',
++        fullTime: 'पूर्णकालिक',
++        partTime: 'अंशकालिक',
++        contract: 'अनुबंध',
++        freelance: 'फ्रीलांस',
++        internship: 'इंटर्नशिप',
++        entryLevel: 'प्रारंभिक स्तर',
++        midLevel: 'मध्य स्तर',
++        seniorLevel: 'वरिष्ठ स्तर',
++        technology: 'प्रौद्योगिकी',
++        education: 'शिक्षा',
++        healthcare: 'स्वास्थ्य सेवा',
++        manufacturing: 'विनिर्माण',
++        automotive: 'ऑटोमोटिव',
++        analytics: 'विश्लेषण',
++        construction: 'निर्माण',
++        marketing: 'मार्केटिंग',
++        design: 'डिज़ाइन',
++        refresh: 'नौकरियां रिफ्रेश करें',
++        loading: 'लोड हो रहा है...',
++        loadingJobs: 'नौकरियां लोड हो रही हैं...',
++        refreshing: '(रिफ्रेश हो रहा है...)',
++        new: 'नई',
++        favorite: 'पसंदीदा',
++        showFavorites: 'केवल पसंदीदा दिखाएं',
++        addToFavorites: 'पसंदीदा में जोड़ें',
++        removeFromFavorites: 'पसंदीदा से हटाएं',
++        filters: 'नौकरियां फ़िल्टर करें',
++        found: 'मिला',
++        searchPlaceholder: 'भारत में स्थान खोजें...',
++        search: 'खोजें',
++        searching: 'खोज रहा है...',
++        findNearMe: 'मेरे पास नौकरियां खोजें',
++        locating: 'स्थान पता कर रहा है...',
++        locationError: 'आपका स्थान प्राप्त नहीं कर सका। कृपया ब्राउज़र अनुमतियों की जांच करें।',
++        geoNotSupported: 'जियोलोकेशन आपके ब्राउज़र द्वारा समर्थित नहीं है।',
++        fetchError: 'नौकरी डेटा प्राप्त करने में विफल। कृपया बाद में पुनः प्रयास करें।'
++      }
++    }
++  },
++  kn: {
++    translation: {
++      nav: {
++        home: 'Home',
++        scholarships: 'Scholarships',
++        chatbot: 'Career Chatbot',
++        learning: 'Learning Resources',
++        jobLocations: 'ಉದ್ಯೋಗ ಸ್ಥಳಗಳು'
++      },
++      home: {
++        title: 'Welcome to CareerConnect',
++        subtitle: 'Your Gateway to Educational Opportunities',
++        features: {
++          chatbot: 'AI Career Guidance',
++          scholarships: 'Real-time Scholarships',
++          learning: 'Learning Resources',
++          calendar: 'Event Calendar'
++        }
++      },
++      footer: {
++        copyright: 'All rights reserved'
++      },
++      jobLocations: {
++        title: 'ಉದ್ಯೋಗ ಅವಕಾಶಗಳನ್ನು ಅನ್ವೇಷಿಸಿ',
++        description: 'ಭಾರತಾದ್ಯಂತ ಉದ್ಯೋಗ ಅವಕಾಶಗಳನ್ನು ಅನ್ವೇಷಿಸಿ. ವಿಭಿನ್ನ ನಗರಗಳಲ್ಲಿನ ಹುದ್ದೆಗಳನ್ನು ಅನ್ವೇಷಿಸಲು ನಕ್ಷೆಯನ್ನು ಬಳಸಿ ಮತ್ತು ನಿಮ್ಮ ಕೌಶಲ್ಯಗಳು ಮತ್ತು ಆಸಕ್ತಿಗಳಿಗೆ ಸರಿಹೊಂದುವ ಹುಡುಕಲು ಉದ್ಯಮದ ಮೂಲಕ ಫಿಲ್ಟರ್ ಮಾಡಿ.',
++        filterByIndustry: 'ಉದ್ಯಮ:',
++        filterByJobType: 'ಉದ್ಯೋಗ ಪ್ರಕಾರ:',
++        filterByExperience: 'ಅನುಭವ:',
++        filterBySalary: 'ಸಂಬಳ ಶ್ರೇಣಿ:',
++        availableJobs: 'ಲಭ್ಯವಿರುವ ಉದ್ಯೋಗಗಳು',
++        noJobsFound: 'ಆಯ್ಕೆ ಮಾಡಿದ ಮಾನದಂಡಗಳಿಗೆ ಯಾವುದೇ ಉದ್ಯೋಗಗಳು ಕಂಡುಬಂದಿಲ್ಲ.',
++        salary: 'ಸಂಬಳ',
++        applyNow: 'ಈಗ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ',
++        viewDetails: 'ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
++        dataDisclaimer: 'ಉದ್ಯೋಗ ಡೇಟಾವನ್ನು ನಿಯಮಿತವಾಗಿ ನವೀಕರಿಸಲಾಗುತ್ತದೆ. ಕೊನೆಯ ನವೀಕರಣ: ಅಕ್ಟೋಬರ್ 2023. ಉದ್ಯೋಗದಾತರ ವೆಬ್‌ಸೈಟ್‌ಗಳ ಮೂಲಕ ನೇರವಾಗಿ ಉದ್ಯೋಗಗಳಿಗೆ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ.',
++        allIndustries: 'ಎಲ್ಲಾ ಉದ್ಯಮಗಳು',
++        allTypes: 'ಎಲ್ಲಾ ಪ್ರಕಾರಗಳು',
++        allLevels: 'ಎಲ್ಲಾ ಹಂತಗಳು',
++        fullTime: 'ಪೂರ್ಣಾವಧಿ',
++        partTime: 'ಪಾರ್ಟ್-ಟೈಮ್',
++        contract: 'ಒಪ್ಪಂದ',
++        freelance: 'ಫ್ರೀಲಾನ್ಸ್',
++        internship: 'ಇಂಟರ್ನ್‌ಶಿಪ್',
++        entryLevel: 'ಎಂಟ್ರಿ ಲೆವೆಲ್',
++        midLevel: 'ಮಧ್ಯಮ ಹಂತ',
++        seniorLevel: 'ಹಿರಿಯ ಹಂತ',
++        technology: 'ತಂತ್ರಜ್ಞಾನ',
++        education: 'ಶಿಕ್ಷಣ',
++        healthcare: 'ಆರೋಗ್ಯ ರಕ್ಷಣೆ',
++        manufacturing: 'ಉತ್ಪಾದನೆ',
++        automotive: 'ಆಟೋಮೋಟಿವ್',
++        analytics: 'ವಿಶ್ಲೇಷಣೆ',
++        construction: 'ನಿರ್ಮಾಣ',
++        marketing: 'ಮಾರ್ಕೆಟಿಂಗ್',
++        design: 'ಡಿಸೈನ್',
++        refresh: 'ಉದ್ಯೋಗಗಳನ್ನು ರಿಫ್ರೆಶ್ ಮಾಡಿ',
++        loading: 'ಲೋಡ್ ಆಗುತ್ತಿದೆ...',
++        loadingJobs: 'ಉದ್ಯೋಗಗಳು ಲೋಡ್ ಆಗುತ್ತಿವೆ...',
++        refreshing: '(ರಿಫ್ರೆಶ್ ಆಗುತ್ತಿದೆ...)',
++        new: 'ಹೊಸ',
++        favorite: 'ಮೆಚ್ಚಿನ',
++        showFavorites: 'ಮೆಚ್ಚಿನವುಗಳನ್ನು ಮಾತ್ರ ತೋರಿಸಿ',
++        addToFavorites: 'ಮೆಚ್ಚಿನವುಗಳಿಗೆ ಸೇರಿಸಿ',
++        removeFromFavorites: 'ಮೆಚ್ಚಿನವುಗಳಿಂದ ತೆಗೆದುಹಾಕಿ',
++        filters: 'ಉದ್ಯೋಗಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ',
++        found: 'ಕಂಡುಬಂದಿದೆ',
++        searchPlaceholder: 'ಭಾರತದಲ್ಲಿ ಸ್ಥಳಗಳನ್ನು ಹುಡುಕಿ...',
++        search: 'ಹುಡುಕಿ',
++        searching: 'ಹುಡುಕುತ್ತಿದೆ...',
++        findNearMe: 'ನನ್ನ ಹತ್ತಿರದಲ್ಲಿ ಉದ್ಯೋಗಗಳನ್ನು ಹುಡುಕಿ',
++        locating: 'ಸ್ಥಳವನ್ನು ಪತ್ತೆ ಮಾಡುತ್ತಿದೆ...',
++        locationError: 'ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಪಡೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಬ್ರೌಸರ್ ಅನುಮತಿಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.',
++        geoNotSupported: 'ಜಿಯೋಲೊಕೇಶನ್ ನಿಮ್ಮ ಬ್ರೌಸರ್ ಮೂಲಕ ಬೆಂಬಲಿತವಾಗಿಲ್ಲ.',
++        fetchError: 'ಉದ್ಯೋಗ ಡೇಟಾವನ್ನು ಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ. ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.'
+       }
+     }
+   }
+diff --git a/frontend/src/pages/Home.tsx b/frontend/src/pages/Home.tsx
+index e184a84..5aeff04 100644
+--- a/frontend/src/pages/Home.tsx
++++ b/frontend/src/pages/Home.tsx
+@@ -1,7 +1,13 @@
+ import { useState, useEffect } from 'react';
+ import { motion } from 'framer-motion';
+ import { Link } from 'react-router-dom';
+-import { AcademicCapIcon, TrophyIcon, LightBulbIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
++import { 
++  AcademicCapIcon, 
++  TrophyIcon, 
++  LightBulbIcon, 
++  DocumentTextIcon, 
++  MapPinIcon
++} from '@heroicons/react/24/outline';
+ 
+ const Home = () => {
+   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+@@ -367,6 +373,76 @@ const Home = () => {
+               </Link>
+             </div>
+           </motion.div>
++
++          {/* Job Locations Feature */}
++          <motion.div
++            initial={{ opacity: 0, y: 20 }}
++            animate={{ opacity: 1, y: 0 }}
++            transition={{ duration: 0.3, delay: 0.5 }}
++            style={{
++              backgroundColor: '#1f2937',
++              borderRadius: '16px',
++              overflow: 'hidden',
++              border: '1px solid #374151',
++              display: 'flex',
++              flexDirection: 'column',
++            }}
++          >
++            <div style={{ 
++              padding: '24px', 
++              flex: 1,
++              display: 'flex',
++              flexDirection: 'column',
++            }}>
++              <div style={{
++                backgroundColor: 'rgba(239, 68, 68, 0.1)',
++                borderRadius: '12px',
++                padding: '16px',
++                marginBottom: '20px',
++                width: 'fit-content'
++              }}>
++                <MapPinIcon style={{ width: '24px', height: '24px', color: '#ef4444' }} />
++              </div>
++              
++              <h2 style={{ 
++                fontSize: '24px', 
++                fontWeight: '600', 
++                marginBottom: '16px',
++                color: '#e5e7eb' 
++              }}>
++                Job Locations
++              </h2>
++              
++              <p style={{ 
++                fontSize: '16px', 
++                color: '#9ca3af', 
++                marginBottom: '24px',
++                lineHeight: '1.6',
++                flex: 1
++              }}>
++                Explore job opportunities across India on an interactive map.
++              </p>
++              
++              <Link to="/job-locations" style={{
++                backgroundColor: '#ef4444',
++                color: 'white',
++                padding: '12px 24px',
++                borderRadius: '8px',
++                textDecoration: 'none',
++                fontSize: '16px',
++                fontWeight: '500',
++                display: 'inline-block',
++                textAlign: 'center',
++                transition: 'background-color 0.2s ease',
++                width: '100%'
++              }}
++              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#dc2626' }}
++              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#ef4444' }}
++              >
++                Explore Job Locations
++              </Link>
++            </div>
++          </motion.div>
+         </div>
+       </section>
+     </div>
+diff --git a/frontend/src/pages/JobLocations.tsx b/frontend/src/pages/JobLocations.tsx
+new file mode 100644
+index 0000000..e3e3336
+--- /dev/null
++++ b/frontend/src/pages/JobLocations.tsx
+@@ -0,0 +1,1492 @@
++/* cSpell:ignore markercluster geosearch jsearch rapidapi fintech PARTTIME spiderfy */
++import React, { useState, useEffect, useRef } from 'react';
++import { 
++  MapContainer, 
++  TileLayer, 
++  Marker, 
++  Popup, 
++  useMap,
++  Circle 
++} from 'react-leaflet';
++import 'leaflet/dist/leaflet.css';
++import 'leaflet.markercluster/dist/leaflet.markercluster.js';
++import 'leaflet.markercluster/dist/MarkerCluster.css';
++import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
++import MarkerClusterGroup from 'react-leaflet-markercluster';
++import { Icon, divIcon, point } from 'leaflet';
++import { useTranslation } from 'react-i18next';
++import markerIcon from 'leaflet/dist/images/marker-icon.png';
++import markerShadow from 'leaflet/dist/images/marker-shadow.png';
++import { OpenStreetMapProvider } from 'leaflet-geosearch';
++import L from 'leaflet';
++import { BookmarkIcon } from '@heroicons/react/24/outline';
++import axios from 'axios';
++
++// Fix for default marker icon in React
++const defaultIcon = new Icon({
++  iconUrl: markerIcon,
++  shadowUrl: markerShadow,
++  iconSize: [25, 41],
++  iconAnchor: [12, 41],
++  popupAnchor: [1, -34],
++  shadowSize: [41, 41]
++});
++
++// Update the job type to include url property
++type Job = {
++  id: number;
++  title: string;
++  company: string;
++  location: string;
++  lat: number;
++  lng: number;
++  description: string;
++  salary: string;
++  skills: string[];
++  industry: string;
++  url?: string; // Optional url property
++  jobType?: string; // Added job type (full-time, part-time, etc.)
++  experienceLevel?: string; // Added experience level
++  salaryRange?: {
++    min: number;
++    max: number;
++  };
++};
++
++// Define a type for favorite jobs
++type FavoriteJob = {
++  id: number;
++  dateAdded: string;
++};
++
++// Define params for the search
++type SearchParams = {
++  query: string;
++  location?: string;
++  radius?: number;  // in km
++  jobType?: string;
++  minSalary?: number;
++  maxSalary?: number;
++  experienceLevel?: string;
++};
++
++// Function to create marker clusters
++// This needs to be outside of the component due to React's rendering cycle
++const createClusterCustomIcon = function (cluster: any) {
++  return divIcon({
++    html: `<span class="cluster-icon">${cluster.getChildCount()}</span>`,
++    className: 'custom-marker-cluster',
++    iconSize: point(33, 33, true)
++  });
++};
++
++// Define a component to handle location search
++const LocationSearch = ({ onSelectLocation }: { onSelectLocation: (lat: number, lng: number) => void }) => {
++  const [searchQuery, setSearchQuery] = useState('');
++  const [searchResults, setSearchResults] = useState<any[]>([]);
++  const [isSearching, setIsSearching] = useState(false);
++  const provider = new OpenStreetMapProvider();
++  const { t } = useTranslation();
++
++  const handleSearch = async () => {
++    if (searchQuery.trim() === '') {
++      return;
++    }
++    
++    setIsSearching(true);
++    try {
++      const results = await provider.search({ query: searchQuery + ' India' });
++      setSearchResults(results.slice(0, 5)); // Limit to 5 results
++    } catch (error) {
++      console.error('Error searching locations:', error);
++    } finally {
++      setIsSearching(false);
++    }
++  };
++
++  const handleLocationSelect = (lat: number, lng: number, displayName: string) => {
++    onSelectLocation(lat, lng);
++    setSearchResults([]);
++    setSearchQuery(displayName);
++  };
++
++  return (
++    <div style={{ position: 'relative', marginBottom: '10px' }}>
++      <div style={{ display: 'flex', gap: '8px' }}>
++        <input
++          type="text"
++          value={searchQuery}
++          onChange={(e) => setSearchQuery(e.target.value)}
++          placeholder={t('jobLocations.searchPlaceholder', 'Search locations in India...')}
++          style={{
++            flex: 1,
++            backgroundColor: 'rgba(31, 41, 55, 0.8)',
++            color: '#e5e7eb',
++            padding: '8px 12px',
++            borderRadius: '6px',
++            border: '1px solid #374151',
++            outline: 'none',
++            fontSize: '0.875rem',
++          }}
++          onKeyPress={(e) => {
++            if (e.key === 'Enter') {
++              handleSearch();
++            }
++          }}
++        />
++        <button
++          onClick={handleSearch}
++          disabled={isSearching}
++          style={{
++            backgroundColor: isSearching ? 'rgba(55, 65, 81, 0.5)' : 'rgba(79, 70, 229, 0.2)',
++            color: isSearching ? '#9ca3af' : '#a5b4fc',
++            padding: '8px 12px',
++            borderRadius: '6px',
++            border: `1px solid ${isSearching ? '#4b5563' : '#4f46e5'}`,
++            outline: 'none',
++            fontSize: '0.875rem',
++            cursor: isSearching ? 'default' : 'pointer',
++          }}
++        >
++          {isSearching ? t('jobLocations.searching', 'Searching...') : t('jobLocations.search', 'Search')}
++        </button>
++      </div>
++
++      {searchResults.length > 0 && (
++        <div style={{
++          position: 'absolute',
++          top: '100%',
++          left: 0,
++          right: 0,
++          zIndex: 1000,
++          backgroundColor: 'rgba(31, 41, 55, 0.95)',
++          borderRadius: '6px',
++          border: '1px solid #374151',
++          marginTop: '4px',
++          maxHeight: '200px',
++          overflowY: 'auto',
++        }}>
++          {searchResults.map((result, index) => (
++            <div
++              key={index}
++              style={{
++                padding: '8px 12px',
++                borderBottom: index < searchResults.length - 1 ? '1px solid #374151' : 'none',
++                cursor: 'pointer',
++                color: '#e5e7eb',
++                fontSize: '0.875rem',
++              }}
++              onClick={() => handleLocationSelect(result.y, result.x, result.label)}
++              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(55, 65, 81, 0.8)' }}
++              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
++            >
++              {result.label}
++            </div>
++          ))}
++        </div>
++      )}
++    </div>
++  );
++};
++
++// Component to get user's current location
++const UserLocationButton = ({ onGetLocation }: { onGetLocation: () => void }) => {
++  const { t } = useTranslation();
++  const [isGettingLocation, setIsGettingLocation] = useState(false);
++
++  const handleGetLocation = () => {
++    setIsGettingLocation(true);
++    onGetLocation();
++    // Reset after a timeout in case geolocation is blocked or takes too long
++    setTimeout(() => setIsGettingLocation(false), 3000);
++  };
++
++  return (
++    <button
++      onClick={handleGetLocation}
++      disabled={isGettingLocation}
++      style={{
++        backgroundColor: isGettingLocation ? 'rgba(55, 65, 81, 0.5)' : 'rgba(79, 70, 229, 0.2)',
++        color: isGettingLocation ? '#9ca3af' : '#a5b4fc',
++        padding: '8px 12px',
++        borderRadius: '6px',
++        border: `1px solid ${isGettingLocation ? '#4b5563' : '#4f46e5'}`,
++        outline: 'none',
++        fontSize: '0.875rem',
++        cursor: isGettingLocation ? 'default' : 'pointer',
++        display: 'flex',
++        alignItems: 'center',
++        gap: '4px',
++      }}
++    >
++      {isGettingLocation ? (
++        <>
++          <svg width="16" height="16" viewBox="0 0 24 24" style={{ animation: 'spin 1s linear infinite' }}>
++            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" strokeDasharray="15 85" />
++          </svg>
++          {t('jobLocations.locating', 'Locating...')}
++        </>
++      ) : (
++        <>
++          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++            <path d="M12 2a10 10 0 1 0 0 20 10 10 0 1 0 0-20z" />
++            <path d="M12 8a4 4 0 1 0 0 8 4 4 0 1 0 0-8z" />
++          </svg>
++          {t('jobLocations.findNearMe', 'Find Jobs Near Me')}
++        </>
++      )}
++    </button>
++  );
++};
++
++// Component for setting the center of the map
++const SetMapCenter = ({ center, zoom }: { center: [number, number], zoom: number }) => {
++  const map = useMap();
++  map.setView(center, zoom);
++  return null;
++};
++
++// Component for showing the user's location
++const UserLocationMarker = ({ position }: { position: [number, number] }) => {
++  return (
++    <>
++      <Marker
++        position={position}
++        icon={new Icon({
++          iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9Imx1Y2lkZSBsdWNpZGUtY2lyY2xlLWRvdCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxIiBmaWxsPSIjZmZmZmZmIi8+PC9zdmc+',
++          iconSize: [30, 30],
++          iconAnchor: [15, 15],
++        })}
++      >
++        <Popup>
++          <div>You are here</div>
++        </Popup>
++      </Marker>
++      <Circle center={position} radius={3000} pathOptions={{ color: '#4f46e5', fillColor: '#4f46e5', fillOpacity: 0.1 }} />
++    </>
++  );
++};
++
++const JobLocations = () => {
++  const { t } = useTranslation();
++  const [jobs, setJobs] = useState<Job[]>([]);
++  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
++  const [selectedIndustry, setSelectedIndustry] = useState('all');
++  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
++  const [selectedJob, setSelectedJob] = useState<number | null>(null);
++  const [isLoading, setIsLoading] = useState(false);
++  const [error, setError] = useState<string | null>(null);
++  
++  // New state variables for enhanced features
++  const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629]); // Center of India
++  const [mapZoom, setMapZoom] = useState(5);
++  const [searchParams] = useState<SearchParams>({ query: '' });
++  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
++  const [showUserLocation, setShowUserLocation] = useState(false);
++  const [favoriteJobs, setFavoriteJobs] = useState<FavoriteJob[]>([]);
++  const [showFavorites, setShowFavorites] = useState(false);
++  const [jobTypeFilter, setJobTypeFilter] = useState('all');
++  const [experienceLevelFilter, setExperienceLevelFilter] = useState('all');
++  const [salaryRangeFilter, setSalaryRangeFilter] = useState<[number, number]>([0, 5000000]); // 0 to 50 Lakhs
++  const mapRef = useRef<L.Map | null>(null);
++
++  // Enhanced job data with more details
++  const initialJobs: Job[] = [
++    { 
++      id: 1, 
++      title: 'Software Engineer', 
++      company: 'TechCorp India', 
++      location: 'Bangalore', 
++      lat: 12.9716, 
++      lng: 77.5946,
++      description: 'Full-stack developer role for recent graduates',
++      salary: '₹6,00,000 - ₹8,00,000',
++      skills: ['JavaScript', 'React', 'Node.js'],
++      industry: 'technology',
++      jobType: 'Full-time',
++      experienceLevel: 'Entry-level',
++      salaryRange: { min: 600000, max: 800000 },
++      url: 'https://example.com/job1'
++    },
++    { 
++      id: 2, 
++      title: 'Science Teacher', 
++      company: 'Delhi Public School', 
++      location: 'Delhi', 
++      lat: 28.7041, 
++      lng: 77.1025,
++      description: 'Teaching science for 8th-10th grade students',
++      salary: '₹4,00,000 - ₹5,00,000',
++      skills: ['Teaching', 'Science', 'Curriculum Development'],
++      industry: 'education',
++      jobType: 'Full-time',
++      experienceLevel: 'Mid-level',
++      salaryRange: { min: 400000, max: 500000 },
++      url: 'https://example.com/job2'
++    },
++    { 
++      id: 3, 
++      title: 'Mechanical Engineer', 
++      company: 'Tata Motors', 
++      location: 'Pune', 
++      lat: 18.5204, 
++      lng: 73.8567,
++      description: 'Entry-level mechanical engineering position',
++      salary: '₹5,00,000 - ₹7,00,000',
++      skills: ['CAD', 'Mechanical Design', 'Problem Solving'],
++      industry: 'automotive',
++      jobType: 'Full-time',
++      experienceLevel: 'Entry-level',
++      salaryRange: { min: 500000, max: 700000 },
++      url: 'https://example.com/job3'
++    },
++    { 
++      id: 4, 
++      title: 'Data Analyst', 
++      company: 'Analytics India', 
++      location: 'Hyderabad', 
++      lat: 17.3850, 
++      lng: 78.4867,
++      description: 'Entry-level data analysis position with focus on business intelligence',
++      salary: '₹5,50,000 - ₹7,50,000',
++      skills: ['SQL', 'Python', 'Data Visualization'],
++      industry: 'analytics',
++      jobType: 'Full-time',
++      experienceLevel: 'Entry-level',
++      salaryRange: { min: 550000, max: 750000 },
++      url: 'https://example.com/job4'
++    },
++    { 
++      id: 5, 
++      title: 'Civil Engineer', 
++      company: 'Infrastructure Solutions', 
++      location: 'Mumbai', 
++      lat: 19.0760, 
++      lng: 72.8777,
++      description: 'Junior civil engineer for infrastructure projects',
++      salary: '₹4,50,000 - ₹6,00,000',
++      skills: ['AutoCAD', 'Structural Analysis', 'Project Management'],
++      industry: 'construction',
++      jobType: 'Full-time',
++      experienceLevel: 'Entry-level',
++      salaryRange: { min: 450000, max: 600000 },
++      url: 'https://example.com/job5'
++    },
++    { 
++      id: 6, 
++      title: 'Marketing Coordinator', 
++      company: 'Global Brands', 
++      location: 'Mumbai', 
++      lat: 19.0730, 
++      lng: 72.8830,
++      description: 'Support marketing campaigns and social media initiatives',
++      salary: '₹3,50,000 - ₹5,00,000',
++      skills: ['Social Media', 'Content Marketing', 'Analytics'],
++      industry: 'marketing',
++      jobType: 'Part-time',
++      experienceLevel: 'Entry-level',
++      salaryRange: { min: 350000, max: 500000 },
++      url: 'https://example.com/job6'
++    },
++    { 
++      id: 7, 
++      title: 'Senior Software Architect', 
++      company: 'TechGlobal', 
++      location: 'Bangalore', 
++      lat: 12.9789, 
++      lng: 77.5917,
++      description: 'Lead architecture design for enterprise applications',
++      salary: '₹25,00,000 - ₹35,00,000',
++      skills: ['Java', 'Microservices', 'AWS', 'System Design'],
++      industry: 'technology',
++      jobType: 'Full-time',
++      experienceLevel: 'Senior-level',
++      salaryRange: { min: 2500000, max: 3500000 },
++      url: 'https://example.com/job7'
++    },
++    { 
++      id: 8, 
++      title: 'UI/UX Designer', 
++      company: 'Creative Solutions', 
++      location: 'Pune', 
++      lat: 18.5150, 
++      lng: 73.8560,
++      description: 'Design user interfaces for web and mobile applications',
++      salary: '₹7,00,000 - ₹12,00,000',
++      skills: ['Figma', 'Adobe XD', 'User Research', 'Prototyping'],
++      industry: 'design',
++      jobType: 'Contract',
++      experienceLevel: 'Mid-level',
++      salaryRange: { min: 700000, max: 1200000 },
++      url: 'https://example.com/job8'
++    }
++  ];
++
++  // List of industries for the filter
++  const industries = [
++    { id: 'all', name: t('jobLocations.allIndustries', 'All Industries') },
++    { id: 'technology', name: t('jobLocations.technology', 'Technology') },
++    { id: 'education', name: t('jobLocations.education', 'Education') },
++    { id: 'healthcare', name: t('jobLocations.healthcare', 'Healthcare') },
++    { id: 'manufacturing', name: t('jobLocations.manufacturing', 'Manufacturing') },
++    { id: 'automotive', name: t('jobLocations.automotive', 'Automotive') },
++    { id: 'analytics', name: t('jobLocations.analytics', 'Analytics') },
++    { id: 'construction', name: t('jobLocations.construction', 'Construction') },
++    { id: 'marketing', name: t('jobLocations.marketing', 'Marketing') },
++    { id: 'design', name: t('jobLocations.design', 'Design') }
++  ];
++
++  // Job types for filtering
++  const jobTypes = [
++    { id: 'all', name: t('jobLocations.allTypes', 'All Types') },
++    { id: 'Full-time', name: t('jobLocations.fullTime', 'Full-time') },
++    { id: 'Part-time', name: t('jobLocations.partTime', 'Part-time') },
++    { id: 'Contract', name: t('jobLocations.contract', 'Contract') },
++    { id: 'Freelance', name: t('jobLocations.freelance', 'Freelance') },
++    { id: 'Internship', name: t('jobLocations.internship', 'Internship') }
++  ];
++
++  // Experience levels for filtering
++  const experienceLevels = [
++    { id: 'all', name: t('jobLocations.allLevels', 'All Levels') },
++    { id: 'Entry-level', name: t('jobLocations.entryLevel', 'Entry Level') },
++    { id: 'Mid-level', name: t('jobLocations.midLevel', 'Mid Level') },
++    { id: 'Senior-level', name: t('jobLocations.seniorLevel', 'Senior Level') }
++  ];
++
++  // Initialize jobs on component mount
++  useEffect(() => {
++    // Set initial jobs
++    setJobs(initialJobs);
++    setFilteredJobs(initialJobs);
++    
++    // Load saved favorite jobs from localStorage
++    const savedFavorites = localStorage.getItem('favoriteJobs');
++    if (savedFavorites) {
++      try {
++        setFavoriteJobs(JSON.parse(savedFavorites));
++      } catch (e) {
++        console.error('Error loading favorite jobs:', e);
++      }
++    }
++  }, []);
++
++  // Handle window resize
++  useEffect(() => {
++    const handleResize = () => {
++      setIsMobile(window.innerWidth < 768);
++    };
++
++    window.addEventListener('resize', handleResize);
++    return () => {
++      window.removeEventListener('resize', handleResize);
++    };
++  }, []);
++
++  // Filter jobs when criteria change
++  useEffect(() => {
++    let filtered = jobs;
++
++    // Filter by industry
++    if (selectedIndustry !== 'all') {
++      filtered = filtered.filter(job => job.industry === selectedIndustry);
++    }
++
++    // Filter by job type
++    if (jobTypeFilter !== 'all') {
++      filtered = filtered.filter(job => job.jobType === jobTypeFilter);
++    }
++
++    // Filter by experience level
++    if (experienceLevelFilter !== 'all') {
++      filtered = filtered.filter(job => job.experienceLevel === experienceLevelFilter);
++    }
++
++    // Filter by salary range
++    filtered = filtered.filter(job => 
++      job.salaryRange && 
++      job.salaryRange.min <= salaryRangeFilter[1] && 
++      job.salaryRange.max >= salaryRangeFilter[0]
++    );
++
++    // Filter favorites if needed
++    if (showFavorites) {
++      const favoriteIds = favoriteJobs.map(fav => fav.id);
++      filtered = filtered.filter(job => favoriteIds.includes(job.id));
++    }
++
++    setFilteredJobs(filtered);
++  }, [selectedIndustry, jobs, jobTypeFilter, experienceLevelFilter, salaryRangeFilter, showFavorites, favoriteJobs]);
++
++  // Handler for industry filter change
++  const handleIndustryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
++    setSelectedIndustry(e.target.value);
++  };
++
++  // Handler for job type filter change
++  const handleJobTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
++    setJobTypeFilter(e.target.value);
++  };
++
++  // Handler for experience level filter change
++  const handleExperienceLevelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
++    setExperienceLevelFilter(e.target.value);
++  };
++
++  // Handler for salary range filter change
++  const handleSalaryRangeChange = (range: [number, number]) => {
++    setSalaryRangeFilter(range);
++  };
++
++  // Handler for selecting a job from the list
++  const handleJobClick = (jobId: number) => {
++    setSelectedJob(jobId === selectedJob ? null : jobId);
++    
++    // Find the job and center the map on its location
++    if (jobId !== selectedJob) {
++      const job = jobs.find(j => j.id === jobId);
++      if (job) {
++        setMapCenter([job.lat, job.lng]);
++        setMapZoom(12);
++      }
++    }
++  };
++
++  // Function to toggle favorite status
++  const toggleFavorite = (jobId: number) => {
++    const isCurrentlyFavorite = favoriteJobs.some(job => job.id === jobId);
++    
++    let newFavorites: FavoriteJob[];
++    if (isCurrentlyFavorite) {
++      // Remove from favorites
++      newFavorites = favoriteJobs.filter(job => job.id !== jobId);
++    } else {
++      // Add to favorites
++      newFavorites = [...favoriteJobs, { id: jobId, dateAdded: new Date().toISOString() }];
++    }
++    
++    setFavoriteJobs(newFavorites);
++    
++    // Save to localStorage
++    localStorage.setItem('favoriteJobs', JSON.stringify(newFavorites));
++  };
++
++  // Check if a job is a favorite
++  const isFavorite = (jobId: number): boolean => {
++    return favoriteJobs.some(job => job.id === jobId);
++  };
++
++  // Toggle showing only favorites
++  const toggleShowFavorites = () => {
++    setShowFavorites(!showFavorites);
++  };
++
++  // Handler for location search selection
++  const handleLocationSelect = (lat: number, lng: number) => {
++    setMapCenter([lat, lng]);
++    setMapZoom(12);
++  };
++
++  // Handler for getting user's current location
++  const handleGetUserLocation = () => {
++    if (navigator.geolocation) {
++      navigator.geolocation.getCurrentPosition(
++        (position) => {
++          const { latitude, longitude } = position.coords;
++          setUserLocation([latitude, longitude]);
++          setMapCenter([latitude, longitude]);
++          setMapZoom(12);
++          setShowUserLocation(true);
++        },
++        (error) => {
++          console.error('Error getting location:', error);
++          setError(t('jobLocations.locationError', 'Could not get your location. Please check browser permissions.'));
++        }
++      );
++    } else {
++      setError(t('jobLocations.geoNotSupported', 'Geolocation is not supported by your browser.'));
++    }
++  };
++
++  // Function to match industry based on job title
++  const matchIndustry = (title: string): string => {
++    title = title.toLowerCase();
++    if (title.includes('software') || title.includes('developer') || title.includes('engineer') || title.includes('tech') || title.includes('it ')) {
++      return 'technology';
++    } else if (title.includes('teacher') || title.includes('tutor') || title.includes('professor')) {
++      return 'education';
++    } else if (title.includes('doctor') || title.includes('nurse') || title.includes('health')) {
++      return 'healthcare';
++    } else if (title.includes('manufacturing') || title.includes('production')) {
++      return 'manufacturing';
++    } else if (title.includes('car') || title.includes('vehicle') || title.includes('automotive')) {
++      return 'automotive';
++    } else if (title.includes('data') || title.includes('analyst') || title.includes('analytics')) {
++      return 'analytics';
++    } else if (title.includes('construction') || title.includes('civil')) {
++      return 'construction';
++    } else if (title.includes('marketing') || title.includes('brand') || title.includes('sales')) {
++      return 'marketing';
++    } else if (title.includes('design') || title.includes('ux') || title.includes('ui')) {
++      return 'design';
++    } else {
++      return 'technology'; // Default
++    }
++  };
++
++  // Function to fetch real-time job data from RapidAPI JSearch
++  const fetchJobData = async () => {
++    setIsLoading(true);
++    setError(null);
++    
++    try {
++      // Build the query parameters
++      let query = 'jobs in';
++      if (searchParams.query) {
++        query = `${searchParams.query} jobs in`;
++      }
++      if (searchParams.location) {
++        query += ` ${searchParams.location}`;
++      } else {
++        query += ' India';
++      }
++
++      // RapidAPI JSearch API Call configuration
++      const options = {
++        method: 'GET',
++        url: 'https://jsearch.p.rapidapi.com/search',
++        params: {
++          query,
++          page: '1',
++          num_pages: '1'
++        },
++        headers: {
++          'X-RapidAPI-Key': '4a3a56c3b3msh9a616af078d38a1p1313f3jsn542142836054',
++          'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
++        }
++      };
++
++      // Make the actual API call
++      let apiJobs = [];
++      try {
++        const response = await axios.request(options);
++        console.log('API Response:', response.data);
++        
++        // Map API data to our job format
++        if (response.data && response.data.data) {
++          apiJobs = response.data.data.map((item: any) => {
++            let jobType: string;
++            switch (item.job_employment_type) {
++              case 'FULLTIME': jobType = 'Full-time'; break;
++              case 'PARTTIME': jobType = 'Part-time'; break;
++              case 'CONTRACT': jobType = 'Contract'; break;
++              case 'INTERNSHIP': jobType = 'Internship'; break;
++              default: jobType = 'Full-time';
++            }
++
++            let experienceLevel: string;
++            switch (item.job_required_experience?.required_experience_in_months) {
++              case 0: 
++              case undefined:
++              case null: experienceLevel = 'Entry-level'; break;
++              case 12:
++              case 24:
++              case 36: experienceLevel = 'Mid-level'; break;
++              default: experienceLevel = item.job_required_experience?.required_experience_in_months > 36 ? 'Senior-level' : 'Entry-level';
++            }
++
++            // Parse salary range - this is a simplification
++            let minSalary = 0;
++            let maxSalary = 0;
++            
++            if (item.job_min_salary) {
++              minSalary = parseInt(item.job_min_salary, 10);
++            }
++            
++            if (item.job_max_salary) {
++              maxSalary = parseInt(item.job_max_salary, 10);
++            }
++            
++            // Fallback coordinates if not provided
++            const lat = item.job_latitude || (Math.random() * (28.7 - 8.4) + 8.4); // Random within India
++            const lng = item.job_longitude || (Math.random() * (97.4 - 68.1) + 68.1);
++
++            return {
++              id: parseInt(Date.now().toString().slice(-5) + Math.floor(Math.random() * 1000), 10),
++              title: item.job_title || 'Unknown Position',
++              company: item.employer_name || 'Unknown Company',
++              location: item.job_city || item.job_country || 'India',
++              lat,
++              lng,
++              description: item.job_description?.slice(0, 200) + '...' || 'No description available',
++              salary: item.job_salary || 'Not specified',
++              skills: item.job_required_skills?.split(',').map((s: string) => s.trim()) || [],
++              industry: matchIndustry(item.job_title || ''),
++              jobType,
++              experienceLevel,
++              salaryRange: { min: minSalary, max: maxSalary || minSalary + 500000 },
++              url: item.job_apply_link || `https://example.com/jobs/${item.job_id}`
++            };
++          });
++        }
++        
++        console.log('Processed API jobs:', apiJobs);
++      } catch (apiError) {
++        console.error('API error:', apiError);
++        // Fall back to mock data if API fails
++        apiJobs = mockApiResponse();
++      }
++
++      // Combine with existing jobs and update state
++      const newJobs = [...initialJobs, ...apiJobs];
++      setJobs(newJobs);
++      
++    } catch (err) {
++      console.error('Error fetching job data:', err);
++      setError(t('jobLocations.fetchError', 'Failed to fetch job data. Please try again later.'));
++      // Fall back to initial jobs
++      setJobs(initialJobs);
++    } finally {
++      setIsLoading(false);
++    }
++  };
++
++  // Mock API response for testing or when API is unavailable
++  const mockApiResponse = () => {
++    return [
++      {
++        id: 101,
++        title: 'Senior React Developer',
++        company: 'TechFusion Systems',
++        location: 'Bangalore',
++        lat: 12.9716,
++        lng: 77.5946,
++        description: 'Looking for an experienced React developer to join our growing team.',
++        salary: '₹120,000 - ₹180,000 per month',
++        skills: ['React', 'TypeScript', 'Redux', 'CSS'],
++        industry: 'technology',
++        jobType: 'Full-time',
++        experienceLevel: 'Senior-level',
++        salaryRange: { min: 1440000, max: 2160000 },
++        url: 'https://example.com/apply-job1'
++      },
++      {
++        id: 102,
++        title: 'Product Manager',
++        company: 'InnovateX',
++        location: 'Mumbai',
++        lat: 19.0760,
++        lng: 72.8777,
++        description: 'Lead product strategy and development for our fintech platform.',
++        salary: '₹18,00,000 - ₹25,00,000 per year',
++        skills: ['Product Management', 'Agile', 'User Research', 'Strategy'],
++        industry: 'technology',
++        jobType: 'Full-time',
++        experienceLevel: 'Mid-level',
++        salaryRange: { min: 1800000, max: 2500000 },
++        url: 'https://example.com/apply-job2'
++      },
++      {
++        id: 103,
++        title: 'Python Developer',
++        company: 'DataSmart Analytics',
++        location: 'Delhi',
++        lat: 28.7041,
++        lng: 77.1025,
++        description: 'Python developer with experience in data analysis and machine learning.',
++        salary: '₹8,00,000 - ₹12,00,000 per year',
++        skills: ['Python', 'Data Analysis', 'Machine Learning', 'SQL'],
++        industry: 'analytics',
++        jobType: 'Full-time',
++        experienceLevel: 'Entry-level',
++        salaryRange: { min: 800000, max: 1200000 },
++        url: 'https://example.com/apply-job3'
++      },
++      {
++        id: 104,
++        title: 'Frontend Designer',
++        company: 'CreativeWorks',
++        location: 'Pune',
++        lat: 18.5204,
++        lng: 73.8567,
++        description: 'Design and implement responsive user interfaces for web applications.',
++        salary: '₹50,000 - ₹70,000 per month',
++        skills: ['HTML', 'CSS', 'JavaScript', 'UI/UX'],
++        industry: 'design',
++        jobType: 'Contract',
++        experienceLevel: 'Mid-level',
++        salaryRange: { min: 600000, max: 840000 },
++        url: 'https://example.com/apply-job4'
++      },
++      {
++        id: 105,
++        title: 'Part-time Content Writer',
++        company: 'ContentPlus',
++        location: 'Chennai',
++        lat: 13.0827,
++        lng: 80.2707,
++        description: 'Create engaging content for blogs, social media, and websites.',
++        salary: '₹300 - ₹500 per hour',
++        skills: ['Content Writing', 'SEO', 'Copywriting', 'Research'],
++        industry: 'marketing',
++        jobType: 'Part-time',
++        experienceLevel: 'Entry-level',
++        salaryRange: { min: 600000, max: 1000000 },
++        url: 'https://example.com/apply-job5'
++      }
++    ];
++  };
++
++  return (
++    <div style={{ padding: '24px' }}>
++      <h1 style={{ 
++        fontSize: '2rem', 
++        fontWeight: 'bold',
++        marginBottom: '24px',
++        textAlign: 'center',
++        background: 'linear-gradient(to right, #4f46e5 20%, #8b5cf6 40%, #3b82f6 60%, #4f46e5 80%)',
++        backgroundSize: '200% auto',
++        color: '#000',
++        backgroundClip: 'text',
++        WebkitBackgroundClip: 'text',
++        WebkitTextFillColor: 'transparent',
++        animation: 'shine 3s linear infinite'
++      }}>
++        {t('jobLocations.title', 'Explore Job Opportunities')}
++      </h1>
++
++      <div style={{ 
++        marginBottom: '20px',
++        display: 'flex',
++        flexDirection: 'column',
++        gap: '16px'
++      }}>
++        <p style={{ 
++          fontSize: '1rem',
++          color: '#d1d5db',
++          maxWidth: '800px'
++        }}>
++          {t('jobLocations.description', 'Discover job opportunities across India. Use the map to explore positions in different cities and filter by industry to find the perfect match for your skills and interests.')}
++        </p>
++
++        {/* Search and location controls */}
++        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '12px' }}>
++          <LocationSearch onSelectLocation={handleLocationSelect} />
++          <UserLocationButton onGetLocation={handleGetUserLocation} />
++        </div>
++      </div>
++
++      {/* Filters section */}
++      <div style={{
++        backgroundColor: 'rgba(31, 41, 55, 0.8)',
++        borderRadius: '12px',
++        padding: '16px',
++        marginBottom: '20px',
++        border: '1px solid #374151',
++      }}>
++        <h3 style={{ 
++          fontSize: '1rem',
++          fontWeight: '600',
++          marginBottom: '12px',
++          color: '#e5e7eb'
++        }}>
++          {t('jobLocations.filters', 'Filter Jobs')}
++        </h3>
++
++        <div style={{ 
++          display: 'grid', 
++          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
++          gap: '12px'
++        }}>
++          {/* Industry filter */}
++          <div>
++            <label htmlFor="industry-filter" style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', color: '#9ca3af' }}>
++              {t('jobLocations.filterByIndustry', 'Industry:')}
++            </label>
++            <select
++              id="industry-filter"
++              value={selectedIndustry}
++              onChange={handleIndustryChange}
++              style={{
++                width: '100%',
++                backgroundColor: 'rgba(31, 41, 55, 0.8)',
++                color: '#e5e7eb',
++                padding: '8px 12px',
++                borderRadius: '6px',
++                border: '1px solid #374151',
++                outline: 'none',
++                fontSize: '0.875rem',
++                cursor: 'pointer'
++              }}
++            >
++              {industries.map(industry => (
++                <option key={industry.id} value={industry.id}>
++                  {industry.name}
++                </option>
++              ))}
++            </select>
++          </div>
++
++          {/* Job Type filter */}
++          <div>
++            <label htmlFor="job-type-filter" style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', color: '#9ca3af' }}>
++              {t('jobLocations.filterByJobType', 'Job Type:')}
++            </label>
++            <select
++              id="job-type-filter"
++              value={jobTypeFilter}
++              onChange={handleJobTypeChange}
++              style={{
++                width: '100%',
++                backgroundColor: 'rgba(31, 41, 55, 0.8)',
++                color: '#e5e7eb',
++                padding: '8px 12px',
++                borderRadius: '6px',
++                border: '1px solid #374151',
++                outline: 'none',
++                fontSize: '0.875rem',
++                cursor: 'pointer'
++              }}
++            >
++              {jobTypes.map(type => (
++                <option key={type.id} value={type.id}>
++                  {type.name}
++                </option>
++              ))}
++            </select>
++          </div>
++
++          {/* Experience Level filter */}
++          <div>
++            <label htmlFor="experience-filter" style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', color: '#9ca3af' }}>
++              {t('jobLocations.filterByExperience', 'Experience:')}
++            </label>
++            <select
++              id="experience-filter"
++              value={experienceLevelFilter}
++              onChange={handleExperienceLevelChange}
++              style={{
++                width: '100%',
++                backgroundColor: 'rgba(31, 41, 55, 0.8)',
++                color: '#e5e7eb',
++                padding: '8px 12px',
++                borderRadius: '6px',
++                border: '1px solid #374151',
++                outline: 'none',
++                fontSize: '0.875rem',
++                cursor: 'pointer'
++              }}
++            >
++              {experienceLevels.map(level => (
++                <option key={level.id} value={level.id}>
++                  {level.name}
++                </option>
++              ))}
++            </select>
++          </div>
++
++          {/* Salary Range filter */}
++          <div>
++            <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', color: '#9ca3af' }}>
++              {t('jobLocations.filterBySalary', 'Salary Range:')} 
++              <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
++                ₹{(salaryRangeFilter[0]/100000).toFixed(1)}L - ₹{(salaryRangeFilter[1]/100000).toFixed(1)}L
++              </span>
++            </label>
++            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
++              <input
++                type="range"
++                min="0"
++                max="5000000"
++                step="50000"
++                value={salaryRangeFilter[0]}
++                onChange={(e) => handleSalaryRangeChange([parseInt(e.target.value), salaryRangeFilter[1]])}
++                style={{ 
++                  flex: 1,
++                  accentColor: '#4f46e5'
++                }}
++              />
++              <input
++                type="range"
++                min="0"
++                max="5000000"
++                step="50000"
++                value={salaryRangeFilter[1]}
++                onChange={(e) => handleSalaryRangeChange([salaryRangeFilter[0], parseInt(e.target.value)])}
++                style={{ 
++                  flex: 1,
++                  accentColor: '#4f46e5'
++                }}
++              />
++            </div>
++          </div>
++        </div>
++        
++        {/* Favorites toggle and refresh button */}
++        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
++          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
++            <input 
++              type="checkbox" 
++              id="show-favorites"
++              checked={showFavorites}
++              onChange={toggleShowFavorites}
++              style={{ accentColor: '#4f46e5' }}
++            />
++            <label htmlFor="show-favorites" style={{ color: '#e5e7eb', fontSize: '0.875rem', cursor: 'pointer' }}>
++              {t('jobLocations.showFavorites', 'Show Favorites Only')}
++              {favoriteJobs.length > 0 && ` (${favoriteJobs.length})`}
++            </label>
++          </div>
++          
++          <button
++            onClick={fetchJobData}
++            disabled={isLoading}
++            style={{
++              backgroundColor: isLoading ? 'rgba(55, 65, 81, 0.5)' : 'rgba(79, 70, 229, 0.2)',
++              color: isLoading ? '#9ca3af' : '#a5b4fc',
++              padding: '8px 12px',
++              borderRadius: '6px',
++              border: `1px solid ${isLoading ? '#4b5563' : '#4f46e5'}`,
++              outline: 'none',
++              fontSize: '0.875rem',
++              cursor: isLoading ? 'default' : 'pointer',
++              display: 'flex',
++              alignItems: 'center',
++              gap: '4px',
++              marginLeft: 'auto'
++            }}
++          >
++            {isLoading ? (
++              <>
++                <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'spin 1s linear infinite' }}>
++                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" strokeDasharray="15 85" />
++                </svg>
++                {t('jobLocations.loading', 'Loading...')}
++              </>
++            ) : (
++              <>
++                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++                  <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
++                </svg>
++                {t('jobLocations.refresh', 'Refresh Jobs')}
++              </>
++            )}
++          </button>
++        </div>
++      </div>
++
++      {error && (
++        <div style={{
++          backgroundColor: 'rgba(239, 68, 68, 0.1)',
++          border: '1px solid #ef4444',
++          borderRadius: '6px',
++          padding: '12px',
++          marginBottom: '16px',
++          color: '#f87171'
++        }}>
++          {error}
++        </div>
++      )}
++
++      <div style={{ 
++        display: 'grid',
++        gridTemplateColumns: isMobile ? '1fr' : '1fr 2fr',
++        gap: '24px',
++        height: isMobile ? 'auto' : '600px'
++      }}>
++        {/* Job Listings Panel */}
++        <div style={{ 
++          backgroundColor: 'rgba(31, 41, 55, 0.8)',
++          borderRadius: '12px',
++          padding: '16px',
++          border: '1px solid #374151',
++          overflowY: 'auto',
++          maxHeight: isMobile ? '300px' : '600px'
++        }}>
++          <h2 style={{ 
++            fontSize: '1.25rem', 
++            fontWeight: '600', 
++            marginBottom: '16px',
++            color: '#e5e7eb',
++            display: 'flex',
++            alignItems: 'center',
++            justifyContent: 'space-between'
++          }}>
++            <span>
++              {t('jobLocations.availableJobs', 'Available Jobs')}
++              {isLoading && (
++                <span style={{ 
++                  fontSize: '0.75rem',
++                  color: '#9ca3af',
++                  marginLeft: '8px'
++                }}>
++                  {t('jobLocations.refreshing', '(Refreshing...)')}
++                </span>
++              )}
++            </span>
++            <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>
++              {filteredJobs.length} {t('jobLocations.found', 'found')}
++            </span>
++          </h2>
++          
++          {filteredJobs.length === 0 ? (
++            <p style={{ color: '#9ca3af', textAlign: 'center', padding: '20px' }}>
++              {isLoading 
++                ? t('jobLocations.loadingJobs', 'Loading jobs...')
++                : t('jobLocations.noJobsFound', 'No jobs found for the selected criteria.')}
++            </p>
++          ) : (
++            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
++              {filteredJobs.map(job => (
++                <div 
++                  key={job.id}
++                  onClick={() => handleJobClick(job.id)}
++                  style={{
++                    backgroundColor: selectedJob === job.id ? 'rgba(79, 70, 229, 0.2)' : 'rgba(55, 65, 81, 0.5)',
++                    borderRadius: '8px',
++                    padding: '16px',
++                    cursor: 'pointer',
++                    border: `1px solid ${selectedJob === job.id ? '#4f46e5' : '#4b5563'}`,
++                    transition: 'all 0.2s ease',
++                    position: 'relative'
++                  }}
++                  onMouseOver={(e) => { 
++                    if (selectedJob !== job.id) {
++                      e.currentTarget.style.backgroundColor = 'rgba(55, 65, 81, 0.8)' 
++                    }
++                  }}
++                  onMouseOut={(e) => { 
++                    if (selectedJob !== job.id) {
++                      e.currentTarget.style.backgroundColor = 'rgba(55, 65, 81, 0.5)' 
++                    }
++                  }}
++                >
++                  {/* Favorite toggle button */}
++                  <button
++                    onClick={(e) => {
++                      e.stopPropagation();
++                      toggleFavorite(job.id);
++                    }}
++                    style={{
++                      position: 'absolute',
++                      top: '12px',
++                      right: '12px',
++                      background: 'none',
++                      border: 'none',
++                      cursor: 'pointer',
++                      color: isFavorite(job.id) ? '#f59e0b' : '#9ca3af',
++                      padding: '4px',
++                      borderRadius: '4px',
++                      display: 'flex',
++                      alignItems: 'center',
++                      justifyContent: 'center'
++                    }}
++                    title={isFavorite(job.id) ? t('jobLocations.removeFromFavorites', 'Remove from favorites') : t('jobLocations.addToFavorites', 'Add to favorites')}
++                  >
++                    <BookmarkIcon width={20} height={20} />
++                  </button>
++
++                  <div style={{ 
++                    display: 'flex', 
++                    justifyContent: 'space-between', 
++                    alignItems: 'flex-start',
++                    marginBottom: '8px',
++                    paddingRight: '28px' // Add padding to accommodate favorite button
++                  }}>
++                    <h3 style={{ fontWeight: '600', fontSize: '1rem', color: '#e5e7eb' }}>{job.title}</h3>
++                    <span style={{ 
++                      backgroundColor: 'rgba(79, 70, 229, 0.1)', 
++                      borderRadius: '9999px', 
++                      padding: '2px 8px',
++                      fontSize: '0.75rem',
++                      color: '#a5b4fc'
++                    }}>
++                      {job.location}
++                    </span>
++                  </div>
++                  
++                  <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '8px' }}>{job.company}</p>
++                  
++                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
++                    {/* Job type badge */}
++                    {job.jobType && (
++                      <span style={{
++                        backgroundColor: 'rgba(55, 65, 81, 0.5)',
++                        borderRadius: '4px',
++                        padding: '2px 6px',
++                        fontSize: '0.75rem',
++                        color: '#d1d5db',
++                      }}>
++                        {job.jobType}
++                      </span>
++                    )}
++
++                    {/* Experience level badge */}
++                    {job.experienceLevel && (
++                      <span style={{
++                        backgroundColor: 'rgba(55, 65, 81, 0.5)',
++                        borderRadius: '4px',
++                        padding: '2px 6px',
++                        fontSize: '0.75rem',
++                        color: '#d1d5db',
++                      }}>
++                        {job.experienceLevel}
++                      </span>
++                    )}
++
++                    {/* "New" badge for API-fetched jobs */}
++                    {job.id > 100 && (
++                      <span style={{
++                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
++                        borderRadius: '4px',
++                        padding: '2px 6px',
++                        fontSize: '0.75rem',
++                        color: '#34d399',
++                        display: 'inline-block'
++                      }}>
++                        {t('jobLocations.new', 'New')}
++                      </span>
++                    )}
++
++                    {/* Favorite badge */}
++                    {isFavorite(job.id) && (
++                      <span style={{
++                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
++                        borderRadius: '4px',
++                        padding: '2px 6px',
++                        fontSize: '0.75rem',
++                        color: '#f59e0b',
++                        display: 'inline-block'
++                      }}>
++                        {t('jobLocations.favorite', 'Favorite')}
++                      </span>
++                    )}
++                  </div>
++                  
++                  {selectedJob === job.id && (
++                    <div style={{ marginTop: '12px' }}>
++                      <p style={{ fontSize: '0.875rem', color: '#d1d5db', marginBottom: '8px' }}>
++                        {job.description}
++                      </p>
++                      <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '8px' }}>
++                        <strong>{t('jobLocations.salary', 'Salary')}:</strong> {job.salary}
++                      </p>
++                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>
++                        {job.skills.map((skill, index) => (
++                          <span 
++                            key={index}
++                            style={{
++                              fontSize: '0.75rem',
++                              padding: '2px 6px',
++                              backgroundColor: 'rgba(55, 65, 81, 0.5)',
++                              borderRadius: '4px',
++                              color: '#d1d5db',
++                            }}
++                          >
++                            {skill}
++                          </span>
++                        ))}
++                      </div>
++                      <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
++                        <button
++                          onClick={(e) => {
++                            e.stopPropagation();
++                            window.open(job.url || '#', '_blank');
++                          }}
++                          style={{
++                            backgroundColor: '#4f46e5',
++                            color: 'white',
++                            padding: '8px 12px',
++                            borderRadius: '6px',
++                            border: 'none',
++                            fontSize: '0.875rem',
++                            cursor: 'pointer',
++                            transition: 'all 0.2s ease',
++                            flex: 1
++                          }}
++                          onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#4338ca' }}
++                          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#4f46e5' }}
++                        >
++                          {t('jobLocations.applyNow', 'Apply Now')}
++                        </button>
++                        <button
++                          onClick={(e) => {
++                            e.stopPropagation();
++                            toggleFavorite(job.id);
++                          }}
++                          style={{
++                            backgroundColor: isFavorite(job.id) ? 'rgba(245, 158, 11, 0.2)' : 'rgba(55, 65, 81, 0.5)',
++                            color: isFavorite(job.id) ? '#f59e0b' : '#9ca3af',
++                            padding: '8px 12px',
++                            borderRadius: '6px',
++                            border: `1px solid ${isFavorite(job.id) ? '#f59e0b' : '#4b5563'}`,
++                            fontSize: '0.875rem',
++                            cursor: 'pointer',
++                            transition: 'all 0.2s ease',
++                            display: 'flex',
++                            alignItems: 'center',
++                            justifyContent: 'center',
++                            gap: '4px'
++                          }}
++                        >
++                          <BookmarkIcon width={16} height={16} />
++                          {isFavorite(job.id) 
++                            ? t('jobLocations.removeFromFavorites', 'Remove from favorites')
++                            : t('jobLocations.addToFavorites', 'Add to favorites')
++                          }
++                        </button>
++                      </div>
++                    </div>
++                  )}
++                </div>
++              ))}
++            </div>
++          )}
++        </div>
++
++        {/* Map Section */}
++        <div style={{ 
++          borderRadius: '12px',
++          overflow: 'hidden',
++          border: '1px solid #374151',
++          height: isMobile ? '400px' : '600px'
++        }}>
++          <MapContainer 
++            center={[20.5937, 78.9629]} // Initial center of India
++            zoom={5} 
++            style={{ height: '100%', width: '100%' }}
++            scrollWheelZoom={true}
++            ref={(ref) => { mapRef.current = ref; }}
++          >
++            <TileLayer
++              attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
++              url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
++            />
++            
++            {/* User location marker */}
++            {showUserLocation && userLocation && (
++              <UserLocationMarker position={userLocation} />
++            )}
++            
++            {/* Update center when mapCenter changes */}
++            <SetMapCenter center={mapCenter} zoom={mapZoom} />
++            
++            {/* Job markers with clustering */}
++            <MarkerClusterGroup
++              iconCreateFunction={createClusterCustomIcon}
++              maxClusterRadius={50}
++              spiderfyOnMaxZoom={true}
++              showCoverageOnHover={false}
++            >
++              {filteredJobs.map(job => (
++                <Marker 
++                  key={job.id} 
++                  position={[job.lat, job.lng]}
++                  icon={job.id > 100 ? new Icon({
++                    iconUrl: markerIcon,
++                    shadowUrl: markerShadow,
++                    iconSize: [25, 41],
++                    iconAnchor: [12, 41],
++                    popupAnchor: [1, -34],
++                    shadowSize: [41, 41],
++                    className: 'new-job-marker' // Add a class for styling
++                  }) : defaultIcon}
++                  eventHandlers={{
++                    click: () => {
++                      handleJobClick(job.id);
++                    },
++                  }}
++                >
++                  <Popup>
++                    <div style={{ padding: '4px' }}>
++                      <h3 style={{ fontWeight: 'bold', marginBottom: '4px' }}>{job.title}</h3>
++                      <p style={{ fontSize: '14px', marginBottom: '4px' }}>{job.company}</p>
++                      <p style={{ fontSize: '12px', marginBottom: '4px' }}>{job.location}</p>
++                      
++                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '4px' }}>
++                        {/* Job type badge */}
++                        {job.jobType && (
++                          <span style={{
++                            backgroundColor: '#f3f4f6',
++                            borderRadius: '4px',
++                            padding: '2px 6px',
++                            fontSize: '10px',
++                            color: '#1f2937',
++                            display: 'inline-block'
++                          }}>
++                            {job.jobType}
++                          </span>
++                        )}
++                        
++                        {/* New badge */}
++                        {job.id > 100 && (
++                          <span style={{
++                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
++                            borderRadius: '4px',
++                            padding: '2px 6px',
++                            fontSize: '10px',
++                            color: '#34d399',
++                            display: 'inline-block'
++                          }}>
++                            {t('jobLocations.new', 'New')}
++                          </span>
++                        )}
++                        
++                        {/* Favorite badge */}
++                        {isFavorite(job.id) && (
++                          <span style={{
++                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
++                            borderRadius: '4px',
++                            padding: '2px 6px',
++                            fontSize: '10px',
++                            color: '#f59e0b',
++                            display: 'inline-block'
++                          }}>
++                            {t('jobLocations.favorite', 'Favorite')}
++                          </span>
++                        )}
++                      </div>
++                      
++                      <button
++                        onClick={() => handleJobClick(job.id)}
++                        style={{
++                          backgroundColor: '#4f46e5',
++                          color: 'white',
++                          padding: '4px 8px',
++                          borderRadius: '4px',
++                          border: 'none',
++                          fontSize: '12px',
++                          cursor: 'pointer',
++                          width: '100%',
++                          marginTop: '4px'
++                        }}
++                      >
++                        {t('jobLocations.viewDetails', 'View Details')}
++                      </button>
++                    </div>
++                  </Popup>
++                </Marker>
++              ))}
++            </MarkerClusterGroup>
++          </MapContainer>
++        </div>
++      </div>
++
++      <div style={{ 
++        display: 'flex',
++        justifyContent: 'center',
++        marginTop: '24px',
++        padding: '16px',
++        backgroundColor: 'rgba(31, 41, 55, 0.8)',
++        borderRadius: '8px',
++        border: '1px solid #374151'
++      }}>
++        <p style={{ color: '#9ca3af', fontSize: '0.875rem', textAlign: 'center' }}>
++          {t('jobLocations.dataDisclaimer', 'Job data is updated regularly. Last updated: October 2023. Apply for jobs directly through the employer websites.')}
++        </p>
++      </div>
++    </div>
++  );
++};
++
++export default JobLocations; 
+\ No newline at end of file
+-- 
+2.47.1.windows.2
+

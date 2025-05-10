@@ -1,0 +1,127 @@
+/* Mobile-specific styles for RuralSTEM Labs */
+
+/* Base responsive adjustments */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 28px !important;
+  }
+  
+  h2 {
+    font-size: 24px !important;
+  }
+  
+  h3 {
+    font-size: 20px !important;
+  }
+  
+  p {
+    font-size: 16px !important;
+  }
+  
+  /* Padding and margin adjustments */
+  section {
+    padding: 24px 16px !important;
+  }
+  
+  /* Improved touch targets */
+  button, 
+  a.button,
+  .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Fix modal dimensions */
+  .modal-container {
+    width: 95% !important;
+    margin: 0 auto !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Fix for flex layouts */
+  .flex-row-to-column {
+    flex-direction: column !important;
+  }
+  
+  /* Chatbot adjustments */
+  .chat-modal {
+    width: 90% !important;
+    max-width: 350px !important;
+    height: 450px !important;
+    bottom: 80px !important;
+  }
+  
+  /* Card adjustments */
+  .mobile-card-padding {
+    padding: 16px !important;
+  }
+  
+  /* Grid adjustments for mobile */
+  .mobile-full-width {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+  
+  /* Adjustments for smaller icons */
+  .mobile-icon-adjust {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  
+  /* Text truncation for mobile */
+  .mobile-truncate {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    max-width: 200px !important;
+  }
+  
+  /* Fix for mobile nav spacing */
+  .mobile-nav-spacing {
+    padding: 12px 8px !important;
+  }
+  
+  /* Improved mobile scrolling */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* Small mobile phones */
+@media (max-width: 375px) {
+  h1 {
+    font-size: 24px !important;
+  }
+  
+  h2 {
+    font-size: 20px !important;
+  }
+  
+  h3 {
+    font-size: 18px !important;
+  }
+  
+  p {
+    font-size: 14px !important;
+  }
+  
+  /* Even smaller padding */
+  .mobile-card-padding {
+    padding: 12px !important;
+  }
+  
+  /* Reduce icon sizes further */
+  .mobile-icon-adjust {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+
+/* Fix for iOS safari bottom area */
+@supports (-webkit-touch-callout: none) {
+  .ios-bottom-padding {
+    padding-bottom: env(safe-area-inset-bottom, 16px) !important;
+  }
+} 
