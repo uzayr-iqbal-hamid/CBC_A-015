@@ -257,6 +257,33 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
+      {/* Hero Header Section */}
+      <section style={{
+        width: '100%',
+        background: 'linear-gradient(90deg, rgba(99,102,241,0.10) 0%, rgba(139,92,246,0.10) 100%)',
+        padding: '32px 0 16px 0',
+        textAlign: 'center',
+        marginBottom: '12px',
+      }}>
+        <h1 style={{
+          fontSize: '2.2rem',
+          fontWeight: 800,
+          color: 'var(--primary)',
+          marginBottom: '8px',
+          letterSpacing: '-1px',
+        }}>
+          Welcome to Aarambh
+        </h1>
+        <h2 style={{
+          fontSize: '1.1rem',
+          fontWeight: 500,
+          color: 'var(--text-secondary)',
+          marginBottom: 0,
+        }}>
+          Empowering Students for a Brighter Future
+        </h2>
+      </section>
+      {/* Main Content Grid and Sections */}
       <div style={{ 
         paddingTop: '2px',
         minHeight: '100vh',

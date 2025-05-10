@@ -371,7 +371,6 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
     { name: 'scholarships', path: '/scholarships', icon: AcademicCapIcon },
     { name: 'resumeBuilder', path: '/resume-builder', icon: DocumentTextIcon },
     { name: 'jobLocations', path: '/job-locations', icon: MapPinIcon },
-    { name: 'attentiveness', path: '/attentiveness', icon: CalendarIcon },
   ];
 
   // Change language function
@@ -850,7 +849,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
                         height: '20px',
                         color: location.pathname === '/profile' && darkMode ? 'rgba(147, 197, 253, 1)' : 'currentColor'
                       }} />
-                      <span>{t('nav.profile')}</span>
+                      <span>{user && user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : t('nav.profile')}</span>
                     </Link>
                   </li>
                 )}
