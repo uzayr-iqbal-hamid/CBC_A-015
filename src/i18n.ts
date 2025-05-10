@@ -26,6 +26,75 @@ const resources = {
       },
       resumeBuilder: 'Resume Builder',
       learning: 'Learning',
+      learningResources: {
+        title: 'Learning Resources',
+        subtitle: 'Explore our comprehensive collection of educational materials',
+        categories: {
+          all: 'All Resources',
+          videos: 'Video Tutorials',
+          articles: 'Articles',
+          courses: 'Online Courses',
+          practice: 'Practice Exercises'
+        },
+        searchPlaceholder: 'Search resources...',
+        filterBy: 'Filter By',
+        sortBy: 'Sort By',
+        difficulty: {
+          beginner: 'Beginner',
+          intermediate: 'Intermediate',
+          advanced: 'Advanced'
+        },
+        duration: {
+          short: 'Short (< 30 min)',
+          medium: 'Medium (30-60 min)',
+          long: 'Long (> 60 min)'
+        },
+        noResults: 'No resources found matching your criteria',
+        loadMore: 'Load More',
+        viewDetails: 'View Details',
+        startLearning: 'Start Learning',
+        bookmark: 'Bookmark',
+        share: 'Share'
+      },
+      achievements: {
+        title: 'Your Achievements',
+        subtitle: 'Track your progress and celebrate your milestones',
+        categories: {
+          all: 'All Achievements',
+          courses: 'Course Completions',
+          quizzes: 'Quiz Scores',
+          skills: 'Skills Mastered',
+          badges: 'Badges Earned'
+        },
+        progress: {
+          title: 'Overall Progress',
+          completed: 'Completed',
+          inProgress: 'In Progress',
+          notStarted: 'Not Started'
+        },
+        recent: {
+          title: 'Recent Achievements',
+          viewAll: 'View All'
+        },
+        badges: {
+          title: 'Your Badges',
+          beginner: 'Beginner',
+          intermediate: 'Intermediate',
+          advanced: 'Advanced',
+          expert: 'Expert'
+        },
+        certificates: {
+          title: 'Certificates',
+          download: 'Download Certificate',
+          share: 'Share Certificate'
+        },
+        stats: {
+          coursesCompleted: 'Courses Completed',
+          totalHours: 'Total Learning Hours',
+          skillsLearned: 'Skills Learned',
+          quizzesPassed: 'Quizzes Passed'
+        }
+      },
       home: {
         title: 'Welcome to Aarambh',
         subtitle: 'Your journey to a successful career starts here',
@@ -172,6 +241,75 @@ const resources = {
       },
       resumeBuilder: 'रेज़्यूमे बिल्डर',
       learning: 'सीखना',
+      learningResources: {
+        title: 'सीखने के संसाधन',
+        subtitle: 'शैक्षणिक सामग्री के हमारे व्यापक संग्रह का अन्वेषण करें',
+        categories: {
+          all: 'सभी संसाधन',
+          videos: 'वीडियो ट्यूटोरियल',
+          articles: 'लेख',
+          courses: 'ऑनलाइन कोर्स',
+          practice: 'अभ्यास अभ्यास'
+        },
+        searchPlaceholder: 'संसाधन खोजें...',
+        filterBy: 'फ़िल्टर करें',
+        sortBy: 'क्रमबद्ध करें',
+        difficulty: {
+          beginner: 'शुरुआती',
+          intermediate: 'मध्यम',
+          advanced: 'उन्नत'
+        },
+        duration: {
+          short: 'छोटा (< 30 मिनट)',
+          medium: 'मध्यम (30-60 मिनट)',
+          long: 'लंबा (> 60 मिनट)'
+        },
+        noResults: 'आपके मानदंडों से मेल खाते कोई संसाधन नहीं मिले',
+        loadMore: 'और लोड करें',
+        viewDetails: 'विवरण देखें',
+        startLearning: 'सीखना शुरू करें',
+        bookmark: 'बुकमार्क',
+        share: 'शेयर करें'
+      },
+      achievements: {
+        title: 'आपकी उपलब्धियां',
+        subtitle: 'अपनी प्रगति को ट्रैक करें और अपने मील के पत्थरों का जश्न मनाएं',
+        categories: {
+          all: 'सभी उपलब्धियां',
+          courses: 'कोर्स पूर्णता',
+          quizzes: 'क्विज़ स्कोर',
+          skills: 'महारत हासिल कौशल',
+          badges: 'अर्जित बैज'
+        },
+        progress: {
+          title: 'समग्र प्रगति',
+          completed: 'पूर्ण',
+          inProgress: 'प्रगति पर',
+          notStarted: 'शुरू नहीं किया'
+        },
+        recent: {
+          title: 'हाल की उपलब्धियां',
+          viewAll: 'सभी देखें'
+        },
+        badges: {
+          title: 'आपके बैज',
+          beginner: 'शुरुआती',
+          intermediate: 'मध्यम',
+          advanced: 'उन्नत',
+          expert: 'विशेषज्ञ'
+        },
+        certificates: {
+          title: 'प्रमाणपत्र',
+          download: 'प्रमाणपत्र डाउनलोड करें',
+          share: 'प्रमाणपत्र शेयर करें'
+        },
+        stats: {
+          coursesCompleted: 'पूर्ण किए गए कोर्स',
+          totalHours: 'कुल सीखने के घंटे',
+          skillsLearned: 'सीखे गए कौशल',
+          quizzesPassed: 'पास किए गए क्विज़'
+        }
+      },
       home: {
         title: 'आरंभ में आपका स्वागत है',
         subtitle: 'एक सफल कैरियर की आपकी यात्रा यहीं से शुरू होती है',
@@ -318,6 +456,75 @@ const resources = {
       },
       resumeBuilder: 'ರೆಜ್ಯೂಮೆ ಬಿಲ್ಡರ್',
       learning: 'ಕಲಿಸು',
+      learningResources: {
+        title: 'ಕಲಿಕೆ ಸಂಪನ್ಮೂಲಗಳು',
+        subtitle: 'ಶೈಕ್ಷಣಿಕ ಸಾಮಗ್ರಿಗಳ ನಮ್ಮ ವ್ಯಾಪಕ ಸಂಗ್ರಹವನ್ನು ಅನ್ವೇಷಿಸಿ',
+        categories: {
+          all: 'ಎಲ್ಲಾ ಸಂಪನ್ಮೂಲಗಳು',
+          videos: 'ವೀಡಿಯೊ ಟ್ಯುಟೋರಿಯಲ್‌ಗಳು',
+          articles: 'ಲೇಖನಗಳು',
+          courses: 'ಆನ್‌ಲೈನ್ ಕೋರ್ಸ್‌ಗಳು',
+          practice: 'ಅಭ್ಯಾಸ ವ್ಯಾಯಾಮಗಳು'
+        },
+        searchPlaceholder: 'ಸಂಪನ್ಮೂಲಗಳನ್ನು ಹುಡುಕಿ...',
+        filterBy: 'ಫಿಲ್ಟರ್ ಮಾಡಿ',
+        sortBy: 'ವಿಂಗಡಿಸಿ',
+        difficulty: {
+          beginner: 'ಆರಂಭಿಕ',
+          intermediate: 'ಮಧ್ಯಮ',
+          advanced: 'ಮುಂದುವರಿದ'
+        },
+        duration: {
+          short: 'ಷಾರ್ಟ್ (< 30 ನಿಮಿಷ)',
+          medium: 'ಮಧ್ಯಮ (30-60 ನಿಮಿಷ)',
+          long: 'ಲಾಂಗ್ (> 60 ನಿಮಿಷ)'
+        },
+        noResults: 'ನಿಮ್ಮ ಮಾನದಂಡಗಳಿಗೆ ಹೊಂದಿಕೊಳ್ಳುವ ಸಂಪನ್ಮೂಲಗಳು ಕಂಡುಬಂದಿಲ್ಲ',
+        loadMore: 'ಇನ್ನಷ್ಟು ಲೋಡ್ ಮಾಡಿ',
+        viewDetails: 'ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+        startLearning: 'ಕಲಿಕೆಯನ್ನು ಪ್ರಾರಂಭಿಸಿ',
+        bookmark: 'ಬುಕ್‌ಮಾರ್ಕ್',
+        share: 'ಹಂಚಿಕೊಳ್ಳಿ'
+      },
+      achievements: {
+        title: 'ನಿಮ್ಮ ಸಾಧನೆಗಳು',
+        subtitle: 'ನಿಮ್ಮ ಪ್ರಗತಿಯನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ ಮತ್ತು ನಿಮ್ಮ ಮೈಲಿಗಲ್ಲುಗಳನ್ನು ಆಚರಿಸಿ',
+        categories: {
+          all: 'ಎಲ್ಲಾ ಸಾಧನೆಗಳು',
+          courses: 'ಕೋರ್ಸ್ ಪೂರ್ಣಗೊಳಿಸುವಿಕೆ',
+          quizzes: 'ಕ್ವಿಜ್ ಸ್ಕೋರ್‌ಗಳು',
+          skills: 'ಮಾಸ್ಟರ್ ಆದ ಕೌಶಲ್ಯಗಳು',
+          badges: 'ಆರ್ಜಿತ ಬ್ಯಾಡ್ಜ್‌ಗಳು'
+        },
+        progress: {
+          title: 'ಒಟ್ಟಾರೆ ಪ್ರಗತಿ',
+          completed: 'ಪೂರ್ಣಗೊಂಡಿದೆ',
+          inProgress: 'ಪ್ರಗತಿಯಲ್ಲಿದೆ',
+          notStarted: 'ಪ್ರಾರಂಭಿಸಲಾಗಿಲ್ಲ'
+        },
+        recent: {
+          title: 'ಇತ್ತೀಚಿನ ಸಾಧನೆಗಳು',
+          viewAll: 'ಎಲ್ಲಾ ವೀಕ್ಷಿಸಿ'
+        },
+        badges: {
+          title: 'ನಿಮ್ಮ ಬ್ಯಾಡ್ಜ್‌ಗಳು',
+          beginner: 'ಆರಂಭಿಕ',
+          intermediate: 'ಮಧ್ಯಮ',
+          advanced: 'ಮುಂದುವರಿದ',
+          expert: 'ತಜ್ಞ'
+        },
+        certificates: {
+          title: 'ಪ್ರಮಾಣಪತ್ರಗಳು',
+          download: 'ಪ್ರಮಾಣಪತ್ರವನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ',
+          share: 'ಪ್ರಮಾಣಪತ್ರವನ್ನು ಹಂಚಿಕೊಳ್ಳಿ'
+        },
+        stats: {
+          coursesCompleted: 'ಪೂರ್ಣಗೊಂಡ ಕೋರ್ಸ್‌ಗಳು',
+          totalHours: 'ಒಟ್ಟು ಕಲಿಕೆಯ ಗಂಟೆಗಳು',
+          skillsLearned: 'ಕಲಿತ ಕೌಶಲ್ಯಗಳು',
+          quizzesPassed: 'ಪಾಸ್ ಆದ ಕ್ವಿಜ್‌ಗಳು'
+        }
+      },
       home: {
         title: 'ಆರಂಭಕ್ಕೆ ಸುಸ್ವಾಗತ',
         subtitle: 'ಯಶಸ್ವಿ ವೃತ್ತಿಗೆ ನಿಮ್ಮ ಪ್ರಯಾಣ ಇಲ್ಲಿಂದ ಪ್ರಾರಂಭವಾಗುತ್ತದೆ',
@@ -425,10 +632,10 @@ const resources = {
         retry: 'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ',
         noJobsNearby: 'ನಿಮ್ಮ ಸ್ಥಳದ ಸುತ್ತಲಿನಲ್ಲಿ ಯಾವುದೇ ಉದ್ಯೋಗಗಳು ಕಂಡುಬಂದಿಲ್ಲ. ಹುಡುಕಾಟ ವ್ಯಾಪ್ತಿಯನ್ನು ಹೆಚ್ಚಿಸಲು ಪ್ರಯತ್ನಿಸಿ.',
         jobsFound: 'ನಿಮ್ಮ ಸ್ಥಳದ {{radius}} ಕಿಮೀ ಒಳಗೆ {{count}} ಉದ್ಯೋಗಗಳು ಕಂಡುಬಂದಿವೆ.',
-        locationPermissionDenied: 'ಸ್ಥಳ ಅನುಮತಿ ನಿರಾಕರಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಬ್ರೌಸರ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ಸ್ಥಳ ಪಹುಂಚವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ.',
+        locationPermissionDenied: 'ಸ್ಥಳ ಅನುಮತಿ ನಿರಾಕರಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಬ್ರಾಉಸರ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ಸ್ಥಳ ಪಹುಂಚವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ.',
         locationUnavailable: 'ಸ್ಥಳ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
         locationTimeout: 'ಸ್ಥಳ ವಿನಂತಿ ಸಮಯ ಮೀರಿದೆ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
-        locationError: 'ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಪಡೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಬ್ರೌಸರ್ ಅನುಮತಿಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.',
+        locationError: 'ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಪಡೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಬ್ರಾಉಸರ್ ಅನುಮತಿಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.',
         new: 'ಹೊಸ',
         favorite: 'ಮೆಚ್ಚಿನ',
         viewDetails: 'ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
