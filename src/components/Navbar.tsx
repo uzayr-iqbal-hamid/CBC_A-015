@@ -368,7 +368,6 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
     { name: 'learning', path: '/learning', icon: BookOpenIcon },
     { name: 'careerQuiz', path: '/career-quiz', icon: DocumentTextIcon },
     { name: 'scholarships', path: '/scholarships', icon: AcademicCapIcon },
-    { name: 'achievements', path: '/achievements', icon: TrophyIcon },
     { name: 'resumeBuilder', path: '/resume-builder', icon: DocumentTextIcon },
     { name: 'profile', path: '/profile', icon: UserIcon },
     { name: 'jobLocations', path: '/job-locations', icon: MapPinIcon },
