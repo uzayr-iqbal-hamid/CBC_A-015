@@ -21,6 +21,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SchoolIcon from '@mui/icons-material/School';
 import { motion } from 'framer-motion';
+import PlusIcon from '@mui/icons-material/Add';
+import PlayIcon from '@mui/icons-material/PlayArrow';
 
 const ResourceCard = styled(Card)(({ theme }) => ({
   height: '100%',
@@ -174,6 +176,7 @@ const Learning: React.FC = () => {
   const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showAddModule, setShowAddModule] = useState(false);
 
   // Get unique categories
   const categories = useMemo(() => 
@@ -191,6 +194,14 @@ const Learning: React.FC = () => {
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory]);
+
+  const handleSaveModule = () => {
+    // Implementation of handleSaveModule
+  };
+
+  const handleStartModule = (moduleId: string) => {
+    // Implementation of handleStartModule
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
@@ -328,93 +339,58 @@ const Learning: React.FC = () => {
       </motion.div>
 
       {/* Resources Grid */}
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 4 }}>
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Learning Resources
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <button 
+            onClick={() => setShowAddModule(true)}
+            className="btn-glossy btn-primary btn-icon"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '14px'
+            }}
+          >
+            <PlusIcon width={16} height={16} />
+            Add New Module
+          </button>
+        </Box>
+      </Box>
+
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: 3 }}>
         {filteredResources.map((resource, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <ResourceCard>
-                <CardContent sx={{ flexGrow: 1, p: 4 }}>
-                  <Box 
-                    className="resource-icon"
-                    sx={{ 
-                      mb: 3,
-                      fontSize: '56px',
-                      textAlign: 'center',
-                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                    }}
-                  >
-                    {resource.icon}
-                  </Box>
-                  <Typography 
-                    variant="h5" 
-                    component="div" 
-                    gutterBottom 
-                    sx={{ 
-                      color: 'var(--text)',
-                      fontWeight: 'bold',
-                      textAlign: 'center',
-                      mb: 2,
-                    }}
-                  >
-                    {resource.title}
-                  </Typography>
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      mb: 3, 
-                      color: 'var(--text-muted)',
-                      textAlign: 'center',
-                      lineHeight: 1.8,
-                    }}
-                  >
-                    {resource.description}
-                  </Typography>
-                  <Divider sx={{ my: 3, borderColor: 'var(--border)' }} />
-                  <Typography 
-                    variant="caption" 
-                    sx={{ 
-                      display: 'block', 
-                      mb: 3, 
-                      color: 'var(--text-muted)',
-                      textAlign: 'center',
-                      fontWeight: 500,
-                    }}
-                  >
-                    Category: {resource.category}
-                  </Typography>
-                  <Button
-                    className="visit-button"
-                    variant="contained"
-                    color="primary"
-                    href={resource.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    fullWidth
-                    sx={{
-                      background: 'linear-gradient(45deg, var(--primary), var(--secondary))',
-                      borderRadius: '16px',
-                      py: 2,
-                      textTransform: 'none',
-                      fontWeight: 'bold',
-                      fontSize: '1rem',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      '&:hover': {
-                        background: 'linear-gradient(45deg, var(--primary-dark), var(--secondary-dark))',
-                      },
-                    }}
-                  >
-                    Visit Platform
-                  </Button>
-                </CardContent>
-              </ResourceCard>
-            </motion.div>
-          </Grid>
+          <Box key={index}>
+            <ResourceCard>
+              <CardContent>
+                <Typography variant="h6" component="h2" gutterBottom>
+                  {resource.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" paragraph>
+                  {resource.description}
+                </Typography>
+                <button 
+                  onClick={() => handleStartModule(resource.url)}
+                  className="btn-glossy btn-primary btn-icon"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '14px'
+                  }}
+                >
+                  <PlayIcon width={16} height={16} />
+                  Start Learning
+                </button>
+              </CardContent>
+            </ResourceCard>
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
       {/* No Results Message */}
       {filteredResources.length === 0 && (
@@ -455,6 +431,71 @@ const Learning: React.FC = () => {
             >
               Try adjusting your search or filter settings to find what you're looking for
             </Typography>
+          </Box>
+        </motion.div>
+      )}
+
+      {/* Add Module Modal */}
+      {showAddModule && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Box 
+            sx={{ 
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Paper 
+              elevation={3}
+              sx={{ 
+                p: 4,
+                borderRadius: '20px',
+                background: 'var(--background)',
+                maxWidth: '400px',
+                width: '100%',
+              }}
+            >
+              <Typography 
+                variant="h5" 
+                component="h2" 
+                gutterBottom 
+                sx={{ 
+                  color: 'var(--text)',
+                  fontWeight: 'bold',
+                }}
+              >
+                Add New Module
+              </Typography>
+              <button 
+                onClick={() => setShowAddModule(false)}
+                className="btn-glossy btn-secondary"
+                style={{
+                  marginRight: '8px',
+                  fontSize: '14px'
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleSaveModule}
+                className="btn-glossy btn-primary"
+                style={{
+                  fontSize: '14px'
+                }}
+              >
+                Save Module
+              </button>
+            </Paper>
           </Box>
         </motion.div>
       )}

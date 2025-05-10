@@ -180,59 +180,40 @@ const Profile = () => {
               </h2>
               
               {!isEditing ? (
-                <button
-                  onClick={startEditing}
+                <button 
+                  onClick={() => setIsEditing(true)}
+                  className="btn-glossy btn-secondary btn-icon"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.5rem 0.75rem',
-                    borderRadius: '0.375rem',
-                    backgroundColor: 'var(--background)',
-                    border: '1px solid var(--border)',
-                    color: 'var(--text)',
-                    cursor: 'pointer',
+                    gap: '8px',
+                    fontSize: '14px'
                   }}
                 >
                   <Edit size={16} />
-                  <span>{t('profile.edit', 'Edit Profile')}</span>
+                  Edit Profile
                 </button>
               ) : (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button
-                    onClick={cancelEditing}
+                  <button 
+                    onClick={() => setIsEditing(false)}
+                    className="btn-glossy btn-secondary"
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.5rem 0.75rem',
-                      borderRadius: '0.375rem',
-                      backgroundColor: 'var(--background)',
-                      border: '1px solid var(--border)',
-                      color: 'var(--text)',
-                      cursor: 'pointer',
+                      marginRight: '8px',
+                      fontSize: '14px'
                     }}
                   >
-                    <X size={16} />
-                    <span>{t('profile.cancel', 'Cancel')}</span>
+                    Cancel
                   </button>
                   
                   <button
                     onClick={saveChanges}
+                    className="btn-glossy btn-primary"
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.5rem 0.75rem',
-                      borderRadius: '0.375rem',
-                      backgroundColor: 'var(--primary)',
-                      border: '1px solid var(--primary)',
-                      color: 'white',
-                      cursor: 'pointer',
+                      fontSize: '14px'
                     }}
                   >
-                    <Save size={16} />
-                    <span>{t('profile.save', 'Save')}</span>
+                    Save Changes
                   </button>
                 </div>
               )}

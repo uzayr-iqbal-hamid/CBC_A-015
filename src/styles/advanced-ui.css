@@ -1100,4 +1100,186 @@ input:checked + .switch-slider:before {
 .scale-75 { transform: scale(0.75); }
 .scale-100 { transform: scale(1); }
 .scale-125 { transform: scale(1.25); }
-.scale-150 { transform: scale(1.5); } 
+.scale-150 { transform: scale(1.5); }
+
+/* Glossy Glassy Glowy Button */
+.btn-glossy {
+  position: relative;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-weight: 600;
+  font-size: var(--text-base);
+  letter-spacing: 0.5px;
+  overflow: hidden;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 0 20px rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.btn-glossy::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.btn-glossy:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.2),
+    inset 0 0 30px rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-glossy:hover::before {
+  left: 100%;
+}
+
+.btn-glossy:active {
+  transform: translateY(1px);
+  box-shadow: 
+    0 2px 10px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+/* Glow effect */
+.btn-glossy::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.btn-glossy:hover::after {
+  opacity: 1;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .btn-glossy {
+  background: linear-gradient(135deg,
+    rgba(99, 102, 241, 0.1),
+    rgba(168, 85, 247, 0.05)
+  );
+  border-color: rgba(99, 102, 241, 0.2);
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(99, 102, 241, 0.1),
+    inset 0 0 20px rgba(99, 102, 241, 0.05);
+}
+
+[data-theme="dark"] .btn-glossy:hover {
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(99, 102, 241, 0.2),
+    inset 0 0 30px rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+[data-theme="dark"] .btn-glossy::after {
+  background: radial-gradient(
+    circle at center,
+    rgba(99, 102, 241, 0.2) 0%,
+    transparent 70%
+  );
+}
+
+/* Button variants */
+.btn-glossy.btn-primary {
+  background: linear-gradient(135deg,
+    rgba(99, 102, 241, 0.1),
+    rgba(99, 102, 241, 0.05)
+  );
+  border-color: rgba(99, 102, 241, 0.2);
+  color: var(--primary);
+}
+
+.btn-glossy.btn-secondary {
+  background: linear-gradient(135deg,
+    rgba(168, 85, 247, 0.1),
+    rgba(168, 85, 247, 0.05)
+  );
+  border-color: rgba(168, 85, 247, 0.2);
+  color: var(--secondary);
+}
+
+.btn-glossy.btn-success {
+  background: linear-gradient(135deg,
+    rgba(52, 211, 153, 0.1),
+    rgba(52, 211, 153, 0.05)
+  );
+  border-color: rgba(52, 211, 153, 0.2);
+  color: var(--success);
+}
+
+.btn-glossy.btn-warning {
+  background: linear-gradient(135deg,
+    rgba(251, 191, 36, 0.1),
+    rgba(251, 191, 36, 0.05)
+  );
+  border-color: rgba(251, 191, 36, 0.2);
+  color: var(--warning);
+}
+
+.btn-glossy.btn-error {
+  background: linear-gradient(135deg,
+    rgba(248, 113, 113, 0.1),
+    rgba(248, 113, 113, 0.05)
+  );
+  border-color: rgba(248, 113, 113, 0.2);
+  color: var(--error);
+}
+
+/* Button sizes */
+.btn-glossy.btn-sm {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--text-sm);
+}
+
+.btn-glossy.btn-lg {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  font-size: var(--text-lg);
+}
+
+/* Button with icon */
+.btn-glossy.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.btn-glossy.btn-icon svg {
+  width: 20px;
+  height: 20px;
+} 
