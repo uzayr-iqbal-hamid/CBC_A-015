@@ -43,7 +43,7 @@ const navbarStyles = `
 
   /* Glass effect styles - enhanced */
   .glass-effect-dark {
-    background: rgba(15, 23, 42, 0.6) !important;
+    background: rgba(15, 23, 42, 0.4) !important;
     backdrop-filter: blur(12px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
     border-bottom: 1px solid rgba(99, 102, 241, 0.12) !important;
@@ -51,7 +51,7 @@ const navbarStyles = `
   }
   
   .glass-effect-light {
-    background: rgba(255, 255, 255, 0.65) !important;
+    background: rgba(255, 255, 255, 0.3) !important;
     backdrop-filter: blur(12px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
@@ -327,7 +327,8 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
       style={{
         borderBottom: scrolled ? 
           (darkMode ? '1px solid rgba(99, 102, 241, 0.12)' : '1px solid rgba(255, 255, 255, 0.3)') : 
-          'none'
+          'none',
+        backgroundColor: 'transparent'
       }}
     >
       {/* Desktop/Tablet Navigation */}
