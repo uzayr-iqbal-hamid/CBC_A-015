@@ -12,7 +12,8 @@ import {
   ChatBubbleLeftRightIcon,
   MapPinIcon,
   ArrowDownTrayIcon,
-  EyeIcon
+  EyeIcon,
+  BookOpenIcon
 } from '@heroicons/react/24/outline';
 import { Sun, Moon, LogOut, LogIn, Globe } from 'lucide-react'; 
 import { useTranslation } from 'react-i18next';
@@ -282,6 +283,7 @@ const Navbar = ({ darkMode, setDarkMode }: NavbarProps) => {
 
   const navLinks = [
     { name: 'home', path: '/', icon: HomeIcon },
+    { name: 'learning', path: '/learning', icon: BookOpenIcon },
     { name: 'careerQuiz', path: '/career-quiz', icon: DocumentTextIcon },
     { name: 'scholarships', path: '/scholarships', icon: AcademicCapIcon },
     { name: 'achievements', path: '/achievements', icon: TrophyIcon },
