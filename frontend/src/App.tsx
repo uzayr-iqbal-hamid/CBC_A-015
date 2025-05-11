@@ -9,17 +9,16 @@ import './i18n';
 import Scholarships from './pages/Scholarships';
 import Chatbot from './pages/Chatbot';
 import Loading from './components/Loading';
-import StemAssistant from './pages/StemAssistant';
 import CareerQuiz from './pages/CareerQuiz';
 import GamificationPage from './pages/Gamification';
 import Profile from './pages/Profile';
 import JobLocations from './pages/JobLocations';
 import Calendar from './pages/Calendar';
 import Auth from './pages/Auth';
-import ApkDownloads from './pages/ApkDownloads';
-import Attentiveness from './pages/Attentiveness';
+import ResumeBuilder from './pages/ResumeBuilder';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import VirtualLabs from './pages/VirtualLabs';
 
 // Import CSS files
 import './styles/advanced-ui.css';
@@ -91,7 +90,12 @@ const App = () => {
             transition: 'background-color 0.3s ease, color 0.3s ease',
           }}>
             <Navbar darkMode={darkMode} setDarkMode={toggleTheme} />
-            <div style={{ paddingTop: '64px' }}>
+            <div style={{ 
+              paddingTop: '2px',
+              minHeight: '100vh',
+              backgroundColor: 'var(--background)',
+              color: 'var(--text)'
+            }}>
               <Suspense fallback={<Loading />}>
                 <Routes>
                   {/* Public routes */}
@@ -99,10 +103,10 @@ const App = () => {
                   <Route path="/scholarships" element={<Scholarships />} />
                   <Route path="/chatbot" element={<Chatbot />} />
                   <Route path="/learning" element={<Learning />} />
-                  <Route path="/stem-assistant" element={<StemAssistant />} />
                   <Route path="/career-quiz" element={<CareerQuiz />} />
                   <Route path="/auth" element={<Auth />} />
-                  <Route path="/apk-downloads" element={<ApkDownloads />} />
+                  <Route path="/resume-builder" element={<ResumeBuilder />} />
+                  <Route path="/virtual-labs" element={<VirtualLabs />} />
                   
                   {/* Protected routes that require authentication */}
                   <Route path="/achievements" element={
@@ -123,11 +127,6 @@ const App = () => {
                   <Route path="/calendar" element={
                     <ProtectedRoute>
                       <Calendar />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/attentiveness" element={
-                    <ProtectedRoute>
-                      <Attentiveness />
                     </ProtectedRoute>
                   } />
                 </Routes>

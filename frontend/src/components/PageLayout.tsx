@@ -21,13 +21,13 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 }) => {
   return (
     <div style={{ 
-      paddingTop: '72px',
+      paddingTop: '16px',
       minHeight: '100vh',
       backgroundColor: 'var(--background)',
       color: 'var(--text)'
     }}>
       {/* Hero Section */}
-      <section style={{ position: 'relative', padding: '64px 0 48px' }}>
+      <section style={{ position: 'relative', padding: '16px 0 24px' }}>
         <div style={{ 
           position: 'absolute', 
           inset: 0, 
@@ -77,7 +77,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
               style={{ 
                 fontSize: '36px',
                 fontWeight: 'bold',
-                marginBottom: '16px',
+                marginBottom: '4px',
               }}
             >
               {title}
@@ -91,7 +91,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
                 style={{ 
                   fontSize: '18px',
                   color: 'var(--text-secondary)',
-                  marginBottom: '24px',
+                  marginBottom: '20px',
                 }}
               >
                 {subtitle}

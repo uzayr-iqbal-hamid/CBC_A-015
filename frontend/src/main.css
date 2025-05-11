@@ -106,6 +106,15 @@
   .card-hover:hover {
     box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3), 0 10px 30px -10px rgba(59, 130, 246, 0.2);
   }
+
+  .quiz-start-button {
+    transition: all 0.3s ease;
+  }
+
+  .quiz-start-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(99, 102, 241, 0.3);
+  }
 }
 
 /* Custom Scrollbar */
