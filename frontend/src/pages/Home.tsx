@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 
 // API configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
 
 // Define types for calendar events
 interface CalendarEvent {

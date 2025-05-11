@@ -23,6 +23,13 @@
   --border-radius-lg: 16px;
   --border-radius-xl: 24px;
   
+  /* Chatbot specific variables */
+  --primary-foreground: #ffffff;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --foreground: #0f172a;
+  --radius: 0.5rem;
+  
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -68,6 +75,13 @@
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
   --border: #334155;
+  
+  /* Chatbot specific variables for dark theme */
+  --primary-foreground: #ffffff;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --foreground: #f1f5f9;
+  --radius: 0.5rem;
   
   /* Dark theme shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
